@@ -1,0 +1,427 @@
+import { PrismaClient } from '@prisma/client';
+import { CEFRLevel } from '../types/cefr';
+import fs from 'fs/promises';
+import path from 'path';
+import AdmZip from 'adm-zip';
+
+const prisma = new PrismaClient();
+
+export interface EbookUploadData {
+  title: string;
+  author: string;
+  description?: string;
+  level: CEFRLevel;
+  language?: string;
+  country?: string;
+  category?: string[];
+  tags?: string[];
+  file: Express.Multer.File;
+}
+
+export interface EbookAccess {
+  userId: string;
+  ebookId: string;
+  branchId: string;
+  hasAccess: boolean;
+  expiresAt?: Date;
+}
+
+export interface EbookSearchParams {
+  query?: string;
+  levels?: string[];
+  languages?: string[];
+  countries?: string[];
+  categories?: string[];
+  sort: string;
+  page: number;
+  limit: number;
+  userId?: string;
+}
+
+export class EbookService {
+  private static readonly UPLOAD_DIR = process.env.UPLOAD_PATH || './uploads/ebooks';
+
+  static async uploadEbook(data: EbookUploadData): Promise<any> {
+    try {
+      // 업로드 디렉토리 확인/생성
+      await fs.mkdir(this.UPLOAD_DIR, { recursive: true });
+
+      // 파일 저장
+      const fileName = `${Date.now()}_${data.file.originalname}`;
+      const filePath = path.join(this.UPLOAD_DIR, fileName);
+      await fs.writeFile(filePath, data.file.buffer);
+
+      // EPUB 파일 분석
+      const ebookData = await this.parseEpubFile(filePath);
+
+      // 데이터베이스에 저장
+      const ebook = await prisma.ebook.create({
+        data: {
+          title: data.title,
+          author: data.author,
+          description: data.description,
+          level: data.level,
+          language: data.language || 'ko',
+          country: data.country || 'KR',
+          category: data.category || [],
+          tags: data.tags || [],
+          filePath: filePath,
+          coverImage: ebookData.coverImage,
+          pageCount: ebookData.pages.length,
+          pages: {
+            createMany: {
+              data: ebookData.pages.map((page, index) => ({
+                pageNumber: index + 1,
+                content: page.content,
+                hasAnswers: page.hasAnswers,
+                answers: page.answers
+              }))
+            }
+          }
+        },
+        include: {
+          pages: true
+        }
+      });
+
+      return ebook;
+    } catch (error) {
+      console.error('Error uploading ebook:', error);
+      throw new Error('Failed to upload ebook');
+    }
+  }
+
+  private static async parseEpubFile(filePath: string): Promise<{
+    coverImage?: string;
+    pages: Array<{
+      content: string;
+      hasAnswers: boolean;
+      answers?: any;
+    }>;
+  }> {
+    try {
+      const zip = new AdmZip(filePath);
+      const entries = zip.getEntries();
+
+      const pages: Array<{
+        content: string;
+        hasAnswers: boolean;
+        answers?: any;
+      }> = [];
+
+      let coverImage: string | undefined;
+
+      // EPUB 구조 분석
+      entries.forEach(entry => {
+        const fileName = entry.entryName;
+
+        // HTML/XHTML 파일 처리 (페이지 콘텐츠)
+        if (fileName.endsWith('.html') || fileName.endsWith('.xhtml')) {
+          const content = entry.getData().toString('utf8');
+          const { cleanContent, answers } = this.extractAnswers(content);
+
+          pages.push({
+            content: cleanContent,
+            hasAnswers: answers.length > 0,
+            answers: answers.length > 0 ? answers : undefined
+          });
+        }
+
+        // 커버 이미지 처리
+        if (fileName.includes('cover') && (fileName.endsWith('.jpg') || fileName.endsWith('.png'))) {
+          coverImage = fileName;
+        }
+      });
+
+      return { coverImage, pages };
+    } catch (error) {
+      console.error('Error parsing EPUB:', error);
+      throw new Error('Failed to parse EPUB file');
+    }
+  }
+
+  private static extractAnswers(htmlContent: string): {
+    cleanContent: string;
+    answers: Array<{ id: string; answer: string; explanation?: string }>;
+  } {
+    const answers: Array<{ id: string; answer: string; explanation?: string }> = [];
+
+    // 정답 영역을 찾는 정규식 (예: <span class="answer" data-id="q1" data-answer="correct answer">...</span>)
+    const answerRegex = /<span[^>]*class="answer"[^>]*data-id="([^"]*)"[^>]*data-answer="([^"]*)"[^>]*(?:data-explanation="([^"]*)")?[^>]*>(.*?)<\/span>/gi;
+
+    let cleanContent = htmlContent;
+    let match;
+
+    while ((match = answerRegex.exec(htmlContent)) !== null) {
+      const [fullMatch, id, answer, explanation, content] = match;
+
+      answers.push({
+        id,
+        answer,
+        explanation: explanation || undefined
+      });
+
+      // 정답 영역을 토글 가능한 형태로 변경
+      const toggleElement = `<span class="answer-toggle" data-id="${id}" style="background-color: #ffffcc; cursor: pointer; padding: 2px 4px; border-radius: 3px;">【정답보기】</span>`;
+      cleanContent = cleanContent.replace(fullMatch, toggleElement);
+    }
+
+    return { cleanContent, answers };
+  }
+
+  static async grantAccess(accessData: EbookAccess): Promise<any> {
+    return await prisma.ebookAccess.upsert({
+      where: {
+        userId_ebookId: {
+          userId: accessData.userId,
+          ebookId: accessData.ebookId
+        }
+      },
+      update: {
+        hasAccess: accessData.hasAccess,
+        expiresAt: accessData.expiresAt
+      },
+      create: accessData
+    });
+  }
+
+  static async getUserEbooks(userId: string): Promise<any[]> {
+    const access = await prisma.ebookAccess.findMany({
+      where: {
+        userId,
+        hasAccess: true,
+        OR: [
+          { expiresAt: null },
+          { expiresAt: { gt: new Date() } }
+        ]
+      },
+      include: {
+        ebook: {
+          include: {
+            pages: {
+              orderBy: { pageNumber: 'asc' }
+            }
+          }
+        }
+      }
+    });
+
+    return access.map(a => a.ebook);
+  }
+
+  static async getEbookContent(ebookId: string, userId: string): Promise<any> {
+    // 접근 권한 확인
+    const access = await prisma.ebookAccess.findFirst({
+      where: {
+        userId,
+        ebookId,
+        hasAccess: true,
+        OR: [
+          { expiresAt: null },
+          { expiresAt: { gt: new Date() } }
+        ]
+      }
+    });
+
+    if (!access) {
+      throw new Error('Access denied to this ebook');
+    }
+
+    // 마지막 접근 시간 업데이트
+    await prisma.ebookAccess.update({
+      where: {
+        userId_ebookId: {
+          userId,
+          ebookId
+        }
+      },
+      data: {
+        accessedAt: new Date()
+      }
+    });
+
+    return await prisma.ebook.findUnique({
+      where: { id: ebookId },
+      include: {
+        pages: {
+          orderBy: { pageNumber: 'asc' }
+        }
+      }
+    });
+  }
+
+  static async saveDrawing(userId: string, pageId: string, canvasData: any): Promise<any> {
+    return await prisma.drawing.upsert({
+      where: {
+        userId_pageId: {
+          userId,
+          pageId
+        }
+      },
+      update: {
+        canvasData,
+        updatedAt: new Date()
+      },
+      create: {
+        userId,
+        pageId,
+        canvasData
+      }
+    });
+  }
+
+  static async getDrawing(userId: string, pageId: string): Promise<any> {
+    return await prisma.drawing.findUnique({
+      where: {
+        userId_pageId: {
+          userId,
+          pageId
+        }
+      }
+    });
+  }
+
+  static async getAllEbooks(level?: CEFRLevel): Promise<any[]> {
+    return await prisma.ebook.findMany({
+      where: level ? { level } : undefined,
+      include: {
+        _count: {
+          select: { access: true }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+  }
+
+  static async searchEbooks(params: EbookSearchParams): Promise<{
+    ebooks: any[];
+    total: number;
+    page: number;
+    totalPages: number;
+  }> {
+    const { query, levels, languages, countries, categories, sort, page, limit, userId } = params;
+
+    // 기본 where 조건
+    const where: any = {};
+
+    // 텍스트 검색
+    if (query) {
+      where.OR = [
+        { title: { contains: query, mode: 'insensitive' } },
+        { author: { contains: query, mode: 'insensitive' } },
+        { description: { contains: query, mode: 'insensitive' } }
+      ];
+    }
+
+    // 레벨 필터
+    if (levels && levels.length > 0) {
+      where.level = { in: levels };
+    }
+
+    // 언어 필터
+    if (languages && languages.length > 0) {
+      where.language = { in: languages };
+    }
+
+    // 국가 필터
+    if (countries && countries.length > 0) {
+      where.country = { in: countries };
+    }
+
+    // 카테고리 필터 (JSON 배열 검색)
+    if (categories && categories.length > 0) {
+      where.category = {
+        hasSome: categories
+      };
+    }
+
+    // 정렬 조건
+    let orderBy: any = { createdAt: 'desc' };
+    switch (sort) {
+      case 'title':
+        orderBy = { title: 'asc' };
+        break;
+      case 'level_asc':
+        orderBy = { level: 'asc' };
+        break;
+      case 'level_desc':
+        orderBy = { level: 'desc' };
+        break;
+      case 'popular':
+        orderBy = { accessCount: 'desc' };
+        break;
+      default:
+        orderBy = { createdAt: 'desc' };
+    }
+
+    // 총 개수 계산
+    const total = await prisma.ebook.count({ where });
+
+    // 데이터 조회
+    const ebooks = await prisma.ebook.findMany({
+      where,
+      include: {
+        _count: {
+          select: { access: true }
+        }
+      },
+      orderBy,
+      skip: (page - 1) * limit,
+      take: limit
+    });
+
+    // 사용자 접근 권한 확인 (userId가 있는 경우)
+    let ebooksWithAccess = ebooks;
+    if (userId) {
+      const userAccess = await prisma.ebookAccess.findMany({
+        where: {
+          userId,
+          ebookId: { in: ebooks.map(e => e.id) },
+          hasAccess: true,
+          OR: [
+            { expiresAt: null },
+            { expiresAt: { gt: new Date() } }
+          ]
+        }
+      });
+
+      const accessibleIds = new Set(userAccess.map(a => a.ebookId));
+      ebooksWithAccess = ebooks.map(ebook => ({
+        ...ebook,
+        hasAccess: accessibleIds.has(ebook.id)
+      }));
+    }
+
+    return {
+      ebooks: ebooksWithAccess,
+      total,
+      page,
+      totalPages: Math.ceil(total / limit)
+    };
+  }
+
+  static async getEbookPreview(ebookId: string): Promise<any> {
+    return await prisma.ebook.findUniqueOrThrow({
+      where: { id: ebookId },
+      include: {
+        pages: {
+          take: 5,
+          orderBy: { pageNumber: 'asc' },
+          select: {
+            id: true,
+            pageNumber: true,
+            content: true,
+            hasAnswers: true
+          }
+        }
+      }
+    });
+  }
+
+  static async updateEbookStatus(ebookId: string, status: { isNew?: boolean; isHot?: boolean }): Promise<any> {
+    return await prisma.ebook.update({
+      where: { id: ebookId },
+      data: status
+    });
+  }
+}

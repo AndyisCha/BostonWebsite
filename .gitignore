@@ -1,0 +1,115 @@
+# Dependencies
+node_modules/
+*/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
+dist/
+build/
+*/dist/
+*/build/
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# Temporary folders
+tmp/
+temp/
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Prisma
+prisma/migrations/
+*.db
+*.sqlite
+
+# Uploads
+uploads/
+*.zip
+*.tar.gz
+
+# System files
+*.exe
+*.dll
+*.dat
+*.blf
+*.regtrans-ms
+*.ini
+cefrtest*/
+diary-*/
+my-diary-*/
+
+# User specific
+.bash_history
+.claude*
+.config/
+.cursor/
+.gitconfig
+.idlerc/
+.lesshst
+.minttyrc
+.python_history
+AppData/
+Contacts/
+DLLs/
+Documents/
+Downloads/
+Favorites/
+LICENSE.txt
+Lib/
+Links/
+Music/
+NEWS.txt
+NTUSER.DAT*
+OneDrive/
+Pictures/
+"Saved Games/"
+Scripts/
+Searches/
+Videos/
+include/
+libs/
+ntuser.*
+package-lock.json
+package.json
+postgresql_*.exe
+python*.exe
+python*.dll
+pythonw.exe
+tcl/
+vcruntime*.dll
+edb_*.exe*

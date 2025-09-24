@@ -1,0 +1,372 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  SUPER_MASTER
+  COUNTRY_MASTER
+  BRANCH_ADMIN
+  TEACHER
+  PARENT
+  STUDENT
+}
+
+enum CEFRLevel {
+  A1_1
+  A1_2
+  A1_3
+  A2_1
+  A2_2
+  A2_3
+  A3_1
+  A3_2
+  A3_3
+  B1_1
+  B1_2
+  B1_3
+  B2_1
+  B2_2
+  B2_3
+  C1_1
+  C1_2
+  C1_3
+  C2_1
+  C2_2
+  C2_3
+}
+
+model Country {
+  id            String   @id @default(cuid())
+  name          String   @unique
+  code          String   @unique
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  branches      Branch[]
+  users         User[]
+}
+
+model Branch {
+  id            String   @id @default(cuid())
+  name          String
+  code          String   @unique
+  academyCode   String   @unique // COUNTRY_CODE + BRANCH_CODE
+  countryId     String
+  isActive      Boolean  @default(true)
+  // Policy settings
+  autoApproveUsers Boolean @default(true) // 자동승인/수동승인
+  levelTestCooldown Int   @default(24) // 레벨테스트 재응시 쿨다운 (시간)
+  maxLevelTestRetries Int @default(3) // 최대 재응시 횟수
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  country       Country @relation(fields: [countryId], references: [id])
+  users         User[]
+  levelTests    LevelTest[]
+  ebooks        EbookAccess[]
+  academyCodes  AcademyCode[]
+}
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  password      String
+  firstName     String
+  lastName      String
+  role          UserRole
+  countryId     String?
+  branchId      String?
+  isActive      Boolean  @default(true)
+  lastLogin     DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  country       Country? @relation(fields: [countryId], references: [id])
+  branch        Branch?  @relation(fields: [branchId], references: [id])
+
+  // Student specific
+  currentLevel  CEFRLevel?
+  parentId      String?
+  parent        User?    @relation("ParentChild", fields: [parentId], references: [id])
+  children      User[]   @relation("ParentChild")
+
+  // Teacher specific
+  students      User[]   @relation("TeacherStudent")
+  teacherId     String?
+  teacher       User?    @relation("TeacherStudent", fields: [teacherId], references: [id])
+
+  levelTests    LevelTest[]
+  ebookAccess   EbookAccess[]
+  drawings      Drawing[]
+  notifications UserNotification[]
+
+  // New relations
+  createdAcademyCodes AcademyCode[]
+  registrations UserRegistration[]
+  approvedRegistrations UserRegistration[] @relation("UserApproval")
+  assignedPolicies UserAccessPolicy[]
+  policyAssignments UserAccessPolicy[] @relation("PolicyAssigner")
+  usageLogs     EbookUsageLog[]
+  impersonations ImpersonationLog[] @relation("Impersonator")
+  impersonationTargets ImpersonationLog[] @relation("ImpersonationTarget")
+  impersonationApprovals ImpersonationLog[] @relation("ImpersonationApprover")
+}
+
+model LevelTest {
+  id            String   @id @default(cuid())
+  userId        String
+  branchId      String
+  startLevel    CEFRLevel
+  finalLevel    CEFRLevel?
+  score         Int?
+  totalQuestions Int     @default(50)
+  correctAnswers Int     @default(0)
+  isCompleted   Boolean  @default(false)
+  startedAt     DateTime @default(now())
+  completedAt   DateTime?
+  // Anti-cheating measures
+  tabSwitchCount Int     @default(0) // 탭 전환 횟수
+  suspiciousActivity Json? // 의심스러운 활동 로그
+  ipAddress     String?
+  userAgent     String?
+
+  user          User     @relation(fields: [userId], references: [id])
+  branch        Branch   @relation(fields: [branchId], references: [id])
+  answers       TestAnswer[]
+}
+
+model Question {
+  id            String     @id @default(cuid())
+  content       String
+  type          String     // "reading", "listening", etc.
+  level         CEFRLevel
+  options       Json       // Array of options for multiple choice
+  correctAnswer String
+  explanation   String?
+  isActive      Boolean    @default(true)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  answers       TestAnswer[]
+}
+
+model TestAnswer {
+  id            String    @id @default(cuid())
+  testId        String
+  questionId    String
+  answer        String
+  isCorrect     Boolean
+  timeTaken     Int       // in seconds
+  answeredAt    DateTime  @default(now())
+
+  test          LevelTest @relation(fields: [testId], references: [id])
+  question      Question  @relation(fields: [questionId], references: [id])
+}
+
+model Ebook {
+  id            String   @id @default(cuid())
+  title         String
+  author        String
+  description   String?
+  level         CEFRLevel
+  language      String   @default("ko")
+  country       String   @default("KR")
+  category      String[] // Array of categories like ["문법", "독해"]
+  tags          String[] // Array of tags
+  filePath      String   // Path to epub file
+  coverImage    String?
+  pageCount     Int?
+  isNew         Boolean  @default(false)
+  isHot         Boolean  @default(false)
+  accessCount   Int      @default(0) // For popularity tracking
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  access        EbookAccess[]
+  pages         EbookPage[]
+  usageLogs     EbookUsageLog[]
+}
+
+model EbookPage {
+  id            String   @id @default(cuid())
+  ebookId       String
+  pageNumber    Int
+  content       String   // HTML content of the page
+  hasAnswers    Boolean  @default(false)
+  answers       Json?    // Answer data for toggle functionality
+
+  ebook         Ebook    @relation(fields: [ebookId], references: [id])
+  drawings      Drawing[]
+}
+
+model EbookAccess {
+  id            String   @id @default(cuid())
+  userId        String
+  ebookId       String
+  branchId      String
+  hasAccess     Boolean  @default(true)
+  expiresAt     DateTime?
+  accessedAt    DateTime?
+  // Access Policy
+  maxPageAccess Int?     // 최대 접근 가능 페이지 수 (null = 무제한)
+  maxTimePerMonth Int?   // 월별 최대 사용 시간 (분 단위)
+  maxConcurrentAccess Int @default(1) // 동시 접속 제한
+  createdAt     DateTime @default(now())
+
+  user          User     @relation(fields: [userId], references: [id])
+  ebook         Ebook    @relation(fields: [ebookId], references: [id])
+  branch        Branch   @relation(fields: [branchId], references: [id])
+  usageLogs     EbookUsageLog[]
+
+  @@unique([userId, ebookId])
+}
+
+model Drawing {
+  id            String   @id @default(cuid())
+  userId        String
+  pageId        String
+  canvasData    Json     // Fabric.js canvas data
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user          User     @relation(fields: [userId], references: [id])
+  page          EbookPage @relation(fields: [pageId], references: [id])
+
+  @@unique([userId, pageId])
+}
+
+model UserNotification {
+  id            String   @id @default(cuid())
+  userId        String
+  title         String
+  message       String
+  type          String   // "level_test", "score", "access", etc.
+  isRead        Boolean  @default(false)
+  createdAt     DateTime @default(now())
+
+  user          User     @relation(fields: [userId], references: [id])
+}
+
+model AuditLog {
+  id            String   @id @default(cuid())
+  userId        String?
+  action        String   // "create", "update", "delete", "login", "impersonate"
+  resource      String   // "user", "ebook", "test", etc.
+  resourceId    String?
+  details       Json?
+  ipAddress     String?
+  userAgent     String?
+  createdAt     DateTime @default(now())
+}
+
+// Academy Code Management for secure registration
+model AcademyCode {
+  id            String   @id @default(cuid())
+  code          String   @unique // Full academy code (KR-SEO1-TEACHER-001)
+  branchId      String
+  targetRole    UserRole // Role this code is for
+  isActive      Boolean  @default(true)
+  isOneTime     Boolean  @default(false) // 1회용 코드
+  maxUses       Int?     // 사용 횟수 제한 (null = 무제한)
+  usedCount     Int      @default(0)
+  expiresAt     DateTime?
+  createdById   String
+  createdAt     DateTime @default(now())
+
+  branch        Branch   @relation(fields: [branchId], references: [id])
+  createdBy     User     @relation(fields: [createdById], references: [id])
+  registrations UserRegistration[]
+}
+
+// Track user registrations via academy codes
+model UserRegistration {
+  id            String   @id @default(cuid())
+  userId        String
+  academyCodeId String
+  registeredAt  DateTime @default(now())
+  approvedAt    DateTime?
+  approvedById  String?
+
+  user          User     @relation(fields: [userId], references: [id])
+  academyCode   AcademyCode @relation(fields: [academyCodeId], references: [id])
+  approvedBy    User?    @relation("UserApproval", fields: [approvedById], references: [id])
+}
+
+// Policy Sets for E-book Access
+model AccessPolicy {
+  id            String   @id @default(cuid())
+  name          String   // e.g., "Basic Student", "Premium Teacher"
+  description   String?
+  // E-book limits
+  maxBooks      Int?     // 최대 접근 가능 도서 수
+  maxPageAccess Int?     // 최대 페이지 접근 수
+  maxTimePerDay Int?     // 일일 최대 사용 시간 (분)
+  maxTimePerMonth Int?   // 월별 최대 사용 시간 (분)
+  maxConcurrentAccess Int @default(1)
+  // Level test limits
+  maxLevelTests Int?     // 최대 레벨테스트 횟수
+  levelTestCooldown Int? // 재응시 쿨다운 (시간)
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  userPolicies  UserAccessPolicy[]
+}
+
+// Link users to access policies
+model UserAccessPolicy {
+  id            String   @id @default(cuid())
+  userId        String
+  policyId      String
+  assignedById  String
+  expiresAt     DateTime?
+  createdAt     DateTime @default(now())
+
+  user          User     @relation(fields: [userId], references: [id])
+  policy        AccessPolicy @relation(fields: [policyId], references: [id])
+  assignedBy    User     @relation("PolicyAssigner", fields: [assignedById], references: [id])
+
+  @@unique([userId, policyId])
+}
+
+// E-book Usage Tracking
+model EbookUsageLog {
+  id            String   @id @default(cuid())
+  userId        String
+  ebookId       String
+  accessId      String
+  pageNumber    Int?
+  sessionStart  DateTime @default(now())
+  sessionEnd    DateTime?
+  duration      Int?     // in minutes
+  ipAddress     String?
+
+  user          User     @relation(fields: [userId], references: [id])
+  ebook         Ebook    @relation(fields: [ebookId], references: [id])
+  access        EbookAccess @relation(fields: [accessId], references: [id])
+}
+
+// Impersonation Logs for security
+model ImpersonationLog {
+  id            String   @id @default(cuid())
+  impersonatorId String
+  targetUserId  String
+  reason        String
+  requestedAt   DateTime @default(now())
+  approvedAt    DateTime?
+  approvedById  String?
+  startedAt     DateTime?
+  endedAt       DateTime?
+  maxDuration   Int?     // in minutes
+  ipAddress     String?
+
+  impersonator  User     @relation("Impersonator", fields: [impersonatorId], references: [id])
+  targetUser    User     @relation("ImpersonationTarget", fields: [targetUserId], references: [id])
+  approvedBy    User?    @relation("ImpersonationApprover", fields: [approvedById], references: [id])
+}

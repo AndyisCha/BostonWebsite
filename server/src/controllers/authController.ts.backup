@@ -1,0 +1,352 @@
+import { Request, Response } from 'express';
+import { AuthService } from '../services/authService';
+import { UserRole } from '../types/auth';
+import { AuthRequest } from '../middleware/auth';
+
+export class AuthController {
+  static async login(req: Request, res: Response) {
+    try {
+      const { email, password } = req.body;
+
+      if (!email || !password) {
+        return res.status(400).json({ error: 'Email and password are required' });
+      }
+
+      const result = await AuthService.login(email, password);
+
+      res.json({
+        message: 'Login successful',
+        user: result.user,
+        token: result.token
+      });
+    } catch (error) {
+      console.error('Login error:', error);
+      res.status(401).json({
+        error: error instanceof Error ? error.message : 'Login failed'
+      });
+    }
+  }
+
+  static async register(req: Request, res: Response) {
+    try {
+      const {
+        email,
+        password,
+        firstName,
+        lastName,
+        role,
+        academyCode,
+        countryId,
+        branchId
+      } = req.body;
+
+      if (!email || !password || !firstName || !lastName || !role) {
+        return res.status(400).json({ error: 'Missing required fields' });
+      }
+
+      // 역할별 등록 제한
+      if ([UserRole.SUPER_MASTER, UserRole.COUNTRY_MASTER].includes(role)) {
+        return res.status(403).json({ error: 'Cannot register as this role' });
+      }
+
+      // 학원 코드나 지점 ID가 필요한 역할들
+      if ([UserRole.BRANCH_ADMIN, UserRole.TEACHER, UserRole.STUDENT].includes(role)) {
+        if (!academyCode && !branchId) {
+          return res.status(400).json({ error: 'Academy code or branch ID required' });
+        }
+      }
+
+      const user = await AuthService.register({
+        email,
+        password,
+        firstName,
+        lastName,
+        role,
+        academyCode,
+        countryId,
+        branchId
+      });
+
+      res.status(201).json({
+        message: 'Registration successful',
+        user
+      });
+    } catch (error) {
+      console.error('Registration error:', error);
+      res.status(400).json({
+        error: error instanceof Error ? error.message : 'Registration failed'
+      });
+    }
+  }
+
+  static async getProfile(req: AuthRequest, res: Response) {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ error: 'User not authenticated' });
+      }
+
+      // 추가 사용자 정보 조회
+      const fullUser = await prisma.user.findUnique({
+        where: { id: req.user.id },
+        include: {
+          country: true,
+          branch: true,
+          children: req.user.role === UserRole.PARENT,
+          teacher: req.user.role === UserRole.STUDENT
+        }
+      });
+
+      res.json({
+        user: {
+          ...req.user,
+          firstName: fullUser?.firstName,
+          lastName: fullUser?.lastName,
+          country: fullUser?.country,
+          branch: fullUser?.branch,
+          children: fullUser?.children,
+          teacher: fullUser?.teacher
+        }
+      });
+    } catch (error) {
+      console.error('Get profile error:', error);
+      res.status(500).json({ error: 'Failed to get profile' });
+    }
+  }
+
+  static async impersonate(req: AuthRequest, res: Response) {
+    try {
+      const { targetUserId } = req.body;
+
+      if (!req.user) {
+        return res.status(401).json({ error: 'User not authenticated' });
+      }
+
+      if (!targetUserId) {
+        return res.status(400).json({ error: 'Target user ID is required' });
+      }
+
+      const result = await AuthService.impersonateUser(req.user, targetUserId);
+
+      res.json({
+        message: 'Impersonation successful',
+        user: result.user,
+        token: result.token,
+        impersonatedBy: req.user.id
+      });
+    } catch (error) {
+      console.error('Impersonation error:', error);
+      res.status(403).json({
+        error: error instanceof Error ? error.message : 'Impersonation failed'
+      });
+    }
+  }
+
+  static async generateAcademyCode(req: AuthRequest, res: Response) {
+    try {
+      const { countryCode, branchCode } = req.body;
+
+      if (!countryCode || !branchCode) {
+        return res.status(400).json({ error: 'Country code and branch code are required' });
+      }
+
+      const academyCode = await AuthService.generateAcademyCode(countryCode, branchCode);
+
+      res.json({
+        message: 'Academy code generated successfully',
+        academyCode
+      });
+    } catch (error) {
+      console.error('Generate academy code error:', error);
+      res.status(400).json({
+        error: error instanceof Error ? error.message : 'Failed to generate academy code'
+      });
+    }
+  }
+
+  static async getUsersByScope(req: AuthRequest, res: Response) {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ error: 'User not authenticated' });
+      }
+
+      const users = await AuthService.getUsersByScope(req.user);
+
+      res.json({
+        users: users.map(user => ({
+          id: user.id,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          role: user.role,
+          isActive: user.isActive,
+          lastLogin: user.lastLogin,
+          country: user.country,
+          branch: user.branch,
+          currentLevel: user.currentLevel
+        }))
+      });
+    } catch (error) {
+      console.error('Get users error:', error);
+      res.status(500).json({
+        error: error instanceof Error ? error.message : 'Failed to get users'
+      });
+    }
+  }
+
+  static async updateUserStatus(req: AuthRequest, res: Response) {
+    try {
+      const { userId } = req.params;
+      const { isActive } = req.body;
+
+      if (!req.user) {
+        return res.status(401).json({ error: 'User not authenticated' });
+      }
+
+      if (typeof isActive !== 'boolean') {
+        return res.status(400).json({ error: 'isActive must be a boolean' });
+      }
+
+      // 권한 확인 - 자신은 비활성화할 수 없음
+      if (req.user.id === userId) {
+        return res.status(403).json({ error: 'Cannot deactivate your own account' });
+      }
+
+      const updatedUser = await prisma.user.update({
+        where: { id: userId },
+        data: { isActive }
+      });
+
+      res.json({
+        message: `User ${isActive ? 'activated' : 'deactivated'} successfully`,
+        user: {
+          id: updatedUser.id,
+          email: updatedUser.email,
+          isActive: updatedUser.isActive
+        }
+      });
+    } catch (error) {
+      console.error('Update user status error:', error);
+      res.status(500).json({ error: 'Failed to update user status' });
+    }
+  }
+
+  static async getDashboardStats(req: AuthRequest, res: Response) {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ error: 'User not authenticated' });
+      }
+
+      let stats: any = {};
+
+      switch (req.user.role) {
+        case UserRole.SUPER_MASTER:
+          stats = await this.getGlobalStats();
+          break;
+
+        case UserRole.COUNTRY_MASTER:
+          stats = await this.getCountryStats(req.user.countryId!);
+          break;
+
+        case UserRole.BRANCH_ADMIN:
+          stats = await this.getBranchStats(req.user.branchId!);
+          break;
+
+        case UserRole.TEACHER:
+          stats = await this.getTeacherStats(req.user.id);
+          break;
+
+        case UserRole.PARENT:
+          stats = await this.getParentStats(req.user.id);
+          break;
+
+        case UserRole.STUDENT:
+          stats = await this.getStudentStats(req.user.id);
+          break;
+
+        default:
+          stats = {};
+      }
+
+      res.json({ stats });
+    } catch (error) {
+      console.error('Get dashboard stats error:', error);
+      res.status(500).json({ error: 'Failed to get dashboard stats' });
+    }
+  }
+
+  private static async getGlobalStats() {
+    const [totalUsers, totalCountries, totalBranches, totalTests] = await Promise.all([
+      prisma.user.count(),
+      prisma.country.count(),
+      prisma.branch.count(),
+      prisma.levelTest.count()
+    ]);
+
+    return {
+      totalUsers,
+      totalCountries,
+      totalBranches,
+      totalTests
+    };
+  }
+
+  private static async getCountryStats(countryId: string) {
+    const [totalBranches, totalUsers, totalStudents] = await Promise.all([
+      prisma.branch.count({ where: { countryId } }),
+      prisma.user.count({ where: { countryId } }),
+      prisma.user.count({ where: { countryId, role: UserRole.STUDENT } })
+    ]);
+
+    return {
+      totalBranches,
+      totalUsers,
+      totalStudents
+    };
+  }
+
+  private static async getBranchStats(branchId: string) {
+    const [totalStudents, totalTeachers, totalTests] = await Promise.all([
+      prisma.user.count({ where: { branchId, role: UserRole.STUDENT } }),
+      prisma.user.count({ where: { branchId, role: UserRole.TEACHER } }),
+      prisma.levelTest.count({ where: { branchId } })
+    ]);
+
+    return {
+      totalStudents,
+      totalTeachers,
+      totalTests
+    };
+  }
+
+  private static async getTeacherStats(teacherId: string) {
+    const totalStudents = await prisma.user.count({
+      where: { teacherId, role: UserRole.STUDENT }
+    });
+
+    return { totalStudents };
+  }
+
+  private static async getParentStats(parentId: string) {
+    const totalChildren = await prisma.user.count({
+      where: { parentId }
+    });
+
+    return { totalChildren };
+  }
+
+  private static async getStudentStats(studentId: string) {
+    const [totalTests, lastTest] = await Promise.all([
+      prisma.levelTest.count({ where: { userId: studentId } }),
+      prisma.levelTest.findFirst({
+        where: { userId: studentId },
+        orderBy: { startedAt: 'desc' }
+      })
+    ]);
+
+    return {
+      totalTests,
+      lastTestScore: lastTest?.score,
+      currentLevel: lastTest?.finalLevel
+    };
+  }
+}

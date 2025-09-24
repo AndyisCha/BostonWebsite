@@ -1,0 +1,526 @@
+/* UserProfile.css - 사용자 프로필 전용 스타일 */
+
+.user-profile-container {
+  position: relative;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+/* 프로필 헤더 애니메이션 */
+@keyframes profileHeaderSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.profile-header {
+  animation: profileHeaderSlideIn 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  position: relative;
+  overflow: visible;
+}
+
+.profile-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  opacity: 0.9;
+  z-index: 1;
+}
+
+.profile-header-content {
+  position: relative;
+  z-index: 2;
+}
+
+/* 아바타 애니메이션 */
+@keyframes avatarPulse {
+  0%, 100% {
+    transform: translateX(-50%) scale(1);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  }
+  50% {
+    transform: translateX(-50%) scale(1.02);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.25);
+  }
+}
+
+.profile-avatar {
+  animation: avatarPulse 3s ease-in-out infinite;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.profile-avatar:hover {
+  animation-play-state: paused;
+  transform: translateX(-50%) scale(1.05) !important;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.3) !important;
+}
+
+/* 카메라 버튼 애니메이션 */
+@keyframes cameraButtonBounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0) translateX(20px);
+  }
+  40% {
+    transform: translateY(-3px) translateX(20px);
+  }
+  60% {
+    transform: translateY(-2px) translateX(20px);
+  }
+}
+
+.camera-button {
+  animation: cameraButtonBounce 2s ease-in-out 1s;
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.camera-button:hover {
+  transform: translateX(25px) scale(1.1) !important;
+  background-color: rgba(25, 118, 210, 0.9) !important;
+}
+
+/* 레벨 칩 글로우 효과 */
+@keyframes levelGlow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(25, 118, 210, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(25, 118, 210, 0.8), 0 0 30px rgba(25, 118, 210, 0.4);
+  }
+}
+
+.level-chip {
+  animation: levelGlow 2s ease-in-out infinite;
+  background: linear-gradient(45deg, #1976d2, #42a5f5) !important;
+  color: white !important;
+  font-weight: 600 !important;
+}
+
+.experience-chip {
+  background: linear-gradient(45deg, #9c27b0, #ba68c8) !important;
+  color: white !important;
+  font-weight: 600 !important;
+}
+
+/* 탭 네비게이션 스타일 */
+.profile-tabs {
+  background: white;
+  border-radius: 16px !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+  overflow: hidden;
+}
+
+.profile-tabs .MuiTab-root {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-weight: 500;
+  text-transform: none;
+  min-height: 64px;
+}
+
+.profile-tabs .MuiTab-root:hover {
+  background-color: rgba(25, 118, 210, 0.04);
+  transform: translateY(-1px);
+}
+
+.profile-tabs .MuiTab-root.Mui-selected {
+  background: linear-gradient(135deg, rgba(25, 118, 210, 0.1) 0%, rgba(156, 39, 176, 0.1) 100%);
+  color: #1976d2;
+  font-weight: 600;
+}
+
+/* 통계 카드 애니메이션 */
+@keyframes statCardSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.stat-card {
+  animation: statCardSlideUp 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 16px !important;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15) !important;
+}
+
+.stat-card:nth-child(1) { animation-delay: 0.1s; }
+.stat-card:nth-child(2) { animation-delay: 0.2s; }
+.stat-card:nth-child(3) { animation-delay: 0.3s; }
+.stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+/* 진도 바 애니메이션 */
+@keyframes progressBarFill {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.progress-bar {
+  position: relative;
+  overflow: hidden;
+  border-radius: 4px !important;
+  background: linear-gradient(90deg, #e3f2fd, #f3e5f5) !important;
+}
+
+.progress-bar .MuiLinearProgress-bar {
+  animation: progressBarFill 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  background: linear-gradient(90deg, #1976d2, #9c27b0) !important;
+  transform-origin: left;
+}
+
+.progress-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+  animation: shimmer 2s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+/* 성취 카드 스타일 */
+.achievement-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 16px !important;
+  overflow: hidden;
+  position: relative;
+}
+
+.achievement-card::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, transparent, currentColor, transparent);
+  z-index: -1;
+  border-radius: 16px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.achievement-card:hover::before {
+  opacity: 0.1;
+}
+
+.achievement-card:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.2);
+}
+
+/* 희귀도별 글로우 효과 */
+.achievement-card.rarity-common {
+  border-color: #9e9e9e;
+}
+
+.achievement-card.rarity-rare {
+  border-color: #2196f3;
+  box-shadow: 0 0 20px rgba(33, 150, 243, 0.3);
+}
+
+.achievement-card.rarity-epic {
+  border-color: #9c27b0;
+  box-shadow: 0 0 20px rgba(156, 39, 176, 0.3);
+}
+
+.achievement-card.rarity-legendary {
+  border-color: #ff9800;
+  box-shadow: 0 0 20px rgba(255, 152, 0, 0.3);
+  animation: legendaryPulse 2s ease-in-out infinite;
+}
+
+@keyframes legendaryPulse {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(255, 152, 0, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(255, 152, 0, 0.6), 0 0 40px rgba(255, 152, 0, 0.2);
+  }
+}
+
+/* 코스 카드 스타일 */
+.course-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 16px !important;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.course-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.12);
+  background: linear-gradient(135deg, #ffffff 0%, #f0f2f5 100%);
+}
+
+.course-level-chip {
+  background: linear-gradient(45deg, #4caf50, #66bb6a) !important;
+  color: white !important;
+  font-weight: 600 !important;
+}
+
+/* 친구 목록 스타일 */
+@keyframes friendItemSlide {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.friend-list-item {
+  animation: friendItemSlide 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 12px;
+  margin: 4px 0;
+}
+
+.friend-list-item:hover {
+  background-color: rgba(25, 118, 210, 0.04);
+  transform: translateX(4px);
+}
+
+.friend-list-item:nth-child(1) { animation-delay: 0.1s; }
+.friend-list-item:nth-child(2) { animation-delay: 0.2s; }
+.friend-list-item:nth-child(3) { animation-delay: 0.3s; }
+
+/* 온라인 상태 표시 */
+.online-badge {
+  animation: onlinePulse 2s ease-in-out infinite;
+}
+
+@keyframes onlinePulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(76, 175, 80, 0);
+  }
+}
+
+/* 설정 아코디언 스타일 */
+.settings-accordion {
+  border-radius: 12px !important;
+  margin: 8px 0 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+  border: 1px solid rgba(0, 0, 0, 0.04) !important;
+}
+
+.settings-accordion:before {
+  display: none;
+}
+
+.settings-accordion.Mui-expanded {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+}
+
+.settings-accordion-summary {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 12px;
+}
+
+.settings-accordion-summary:hover {
+  background-color: rgba(25, 118, 210, 0.04);
+}
+
+.settings-accordion-summary.Mui-expanded {
+  background: linear-gradient(135deg, rgba(25, 118, 210, 0.08) 0%, rgba(156, 39, 176, 0.08) 100%);
+  border-radius: 12px 12px 0 0;
+}
+
+/* 스위치 커스터마이징 */
+.custom-switch .MuiSwitch-switchBase.Mui-checked {
+  color: #1976d2;
+}
+
+.custom-switch .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track {
+  background-color: #1976d2;
+}
+
+.custom-switch .MuiSwitch-track {
+  border-radius: 20px;
+  background-color: rgba(0, 0, 0, 0.12);
+}
+
+/* 슬라이더 커스터마이징 */
+.custom-slider .MuiSlider-thumb {
+  background: linear-gradient(45deg, #1976d2, #42a5f5);
+  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.4);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.custom-slider .MuiSlider-thumb:hover {
+  box-shadow: 0 0 0 8px rgba(25, 118, 210, 0.16);
+}
+
+.custom-slider .MuiSlider-track {
+  background: linear-gradient(90deg, #1976d2, #42a5f5);
+}
+
+.custom-slider .MuiSlider-rail {
+  background-color: rgba(25, 118, 210, 0.26);
+}
+
+/* 다이얼로그 애니메이션 */
+.profile-dialog .MuiDialog-paper {
+  animation: dialogSlideUp 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  border-radius: 16px;
+}
+
+@keyframes dialogSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(50px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* 스낵바 스타일 */
+.profile-snackbar .MuiSnackbarContent-root {
+  border-radius: 12px;
+  background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+  color: white;
+  box-shadow: 0 8px 24px rgba(76, 175, 80, 0.3);
+}
+
+.profile-snackbar.error .MuiSnackbarContent-root {
+  background: linear-gradient(135deg, #f44336 0%, #ef5350 100%);
+  box-shadow: 0 8px 24px rgba(244, 67, 54, 0.3);
+}
+
+/* 터치 버튼 커스터마이징 */
+.profile-touch-button {
+  border-radius: 12px !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 4px 14px 0 rgba(25, 118, 210, 0.25) !important;
+}
+
+.profile-touch-button:hover {
+  box-shadow: 0 8px 24px 0 rgba(25, 118, 210, 0.4) !important;
+  transform: translateY(-2px) !important;
+}
+
+.profile-touch-button:active {
+  transform: translateY(0) scale(0.98) !important;
+}
+
+/* 모바일 최적화 */
+@media (max-width: 768px) {
+  .profile-header {
+    margin: -16px -16px 16px -16px;
+    border-radius: 0;
+  }
+
+  .profile-avatar {
+    width: 100px !important;
+    height: 100px !important;
+    bottom: -50px !important;
+  }
+
+  .profile-header-content {
+    padding-top: 60px;
+  }
+
+  .stat-card {
+    margin-bottom: 12px;
+  }
+
+  .achievement-card {
+    margin-bottom: 16px;
+  }
+
+  .profile-tabs .MuiTab-root {
+    min-height: 56px;
+    font-size: 14px;
+  }
+
+  .settings-accordion {
+    margin: 4px 0 !important;
+  }
+}
+
+/* 다크 모드 지원 */
+@media (prefers-color-scheme: dark) {
+  .user-profile-container {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  }
+
+  .stat-card,
+  .achievement-card,
+  .course-card,
+  .settings-accordion {
+    background-color: #2d2d2d !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+  }
+
+  .progress-bar {
+    background: linear-gradient(90deg, #1e3a5f, #2d1b3d) !important;
+  }
+}
+
+/* 접근성 개선 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* 고대비 모드 */
+@media (prefers-contrast: high) {
+  .achievement-card,
+  .course-card,
+  .stat-card {
+    border-width: 2px !important;
+  }
+
+  .level-chip,
+  .experience-chip {
+    border: 2px solid currentColor !important;
+  }
+}
+
+/* 포커스 상태 개선 */
+.profile-touch-button:focus,
+.friend-list-item:focus,
+.achievement-card:focus {
+  outline: 2px solid #1976d2;
+  outline-offset: 2px;
+}

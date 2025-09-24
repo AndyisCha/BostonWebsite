@@ -1,0 +1,328 @@
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import { PrismaClient } from '@prisma/client';
+import { UserRole, Permission, ROLE_PERMISSIONS, AuthUser, AccessScope } from '../types/auth';
+
+const prisma = new PrismaClient();
+
+export class AuthService {
+  private static readonly JWT_SECRET = process.env.JWT_SECRET || 'default-secret';
+  private static readonly JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
+
+  static async login(email: string, password: string): Promise<{ user: AuthUser; token: string }> {
+    const user = await prisma.user.findUnique({
+      where: { email },
+      include: {
+        country: true,
+        branch: true
+      }
+    });
+
+    if (!user || !user.isActive) {
+      throw new Error('Invalid credentials or inactive account');
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      throw new Error('Invalid credentials');
+    }
+
+    // 마지막 로그인 시간 업데이트
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { lastLogin: new Date() }
+    });
+
+    // 감사 로그 기록
+    await this.createAuditLog({
+      userId: user.id,
+      action: 'login',
+      resource: 'user',
+      resourceId: user.id,
+      details: { email, loginTime: new Date() }
+    });
+
+    const authUser: AuthUser = {
+      id: user.id,
+      email: user.email,
+      role: user.role as UserRole,
+      countryId: user.countryId || undefined,
+      branchId: user.branchId || undefined,
+      permissions: ROLE_PERMISSIONS[user.role as UserRole]
+    };
+
+    const token = jwt.sign(
+      { userId: user.id, role: user.role },
+      this.JWT_SECRET,
+      { expiresIn: this.JWT_EXPIRES_IN }
+    );
+
+    return { user: authUser, token };
+  }
+
+  static async register(userData: {
+    email: string;
+    password: string;
+    firstName: string;
+    lastName: string;
+    role: UserRole;
+    academyCode?: string;
+    countryId?: string;
+    branchId?: string;
+  }): Promise<AuthUser> {
+    const { academyCode, ...userInfo } = userData;
+
+    // 아카데미 코드로 지점 확인
+    let branch = null;
+    if (academyCode) {
+      branch = await prisma.branch.findUnique({
+        where: { academyCode },
+        include: { country: true }
+      });
+
+      if (!branch) {
+        throw new Error('Invalid academy code');
+      }
+    }
+
+    // 비밀번호 해시화
+    const hashedPassword = await bcrypt.hash(userInfo.password, 12);
+
+    // 사용자 생성
+    const user = await prisma.user.create({
+      data: {
+        ...userInfo,
+        password: hashedPassword,
+        countryId: branch?.countryId || userInfo.countryId,
+        branchId: branch?.id || userInfo.branchId
+      }
+    });
+
+    // 감사 로그 기록
+    await this.createAuditLog({
+      action: 'create',
+      resource: 'user',
+      resourceId: user.id,
+      details: {
+        email: user.email,
+        role: user.role,
+        academyCode,
+        registrationTime: new Date()
+      }
+    });
+
+    return {
+      id: user.id,
+      email: user.email,
+      role: user.role as UserRole,
+      countryId: user.countryId || undefined,
+      branchId: user.branchId || undefined,
+      permissions: ROLE_PERMISSIONS[user.role as UserRole]
+    };
+  }
+
+  static async verifyToken(token: string): Promise<AuthUser> {
+    try {
+      const decoded = jwt.verify(token, this.JWT_SECRET) as any;
+
+      const user = await prisma.user.findUnique({
+        where: { id: decoded.userId }
+      });
+
+      if (!user || !user.isActive) {
+        throw new Error('User not found or inactive');
+      }
+
+      return {
+        id: user.id,
+        email: user.email,
+        role: user.role as UserRole,
+        countryId: user.countryId || undefined,
+        branchId: user.branchId || undefined,
+        permissions: ROLE_PERMISSIONS[user.role as UserRole]
+      };
+    } catch (error) {
+      throw new Error('Invalid token');
+    }
+  }
+
+  static hasPermission(user: AuthUser, permission: Permission): boolean {
+    return user.permissions.includes(permission);
+  }
+
+  static canAccessResource(user: AuthUser, scope: AccessScope): boolean {
+    switch (scope.type) {
+      case 'global':
+        return [UserRole.SUPER_MASTER].includes(user.role);
+
+      case 'country':
+        if (user.role === UserRole.SUPER_MASTER) return true;
+        if (user.role === UserRole.COUNTRY_MASTER) {
+          return user.countryId === scope.countryId;
+        }
+        return false;
+
+      case 'branch':
+        if ([UserRole.SUPER_MASTER, UserRole.COUNTRY_MASTER].includes(user.role)) {
+          return !scope.countryId || user.countryId === scope.countryId;
+        }
+        if ([UserRole.BRANCH_ADMIN, UserRole.TEACHER].includes(user.role)) {
+          return user.branchId === scope.branchId;
+        }
+        return false;
+
+      case 'self':
+        return user.id === scope.userId;
+
+      default:
+        return false;
+    }
+  }
+
+  static async impersonateUser(
+    adminUser: AuthUser,
+    targetUserId: string
+  ): Promise<{ user: AuthUser; token: string }> {
+    // 대행접속 권한 확인
+    if (!this.hasPermission(adminUser, Permission.IMPERSONATE_USERS)) {
+      throw new Error('Insufficient permissions for impersonation');
+    }
+
+    const targetUser = await prisma.user.findUnique({
+      where: { id: targetUserId }
+    });
+
+    if (!targetUser) {
+      throw new Error('Target user not found');
+    }
+
+    // 접근 범위 확인
+    const canAccess = this.canAccessResource(adminUser, {
+      type: 'branch',
+      branchId: targetUser.branchId || undefined,
+      countryId: targetUser.countryId || undefined
+    });
+
+    if (!canAccess) {
+      throw new Error('Cannot impersonate user outside your scope');
+    }
+
+    // 감사 로그 기록
+    await this.createAuditLog({
+      userId: adminUser.id,
+      action: 'impersonate',
+      resource: 'user',
+      resourceId: targetUserId,
+      details: {
+        adminUserId: adminUser.id,
+        targetUserId,
+        impersonationTime: new Date()
+      }
+    });
+
+    const authUser: AuthUser = {
+      id: targetUser.id,
+      email: targetUser.email,
+      role: targetUser.role as UserRole,
+      countryId: targetUser.countryId || undefined,
+      branchId: targetUser.branchId || undefined,
+      permissions: ROLE_PERMISSIONS[targetUser.role as UserRole]
+    };
+
+    const token = jwt.sign(
+      {
+        userId: targetUser.id,
+        role: targetUser.role,
+        impersonatedBy: adminUser.id
+      },
+      this.JWT_SECRET,
+      { expiresIn: '1h' } // 대행접속은 1시간으로 제한
+    );
+
+    return { user: authUser, token };
+  }
+
+  static async generateAcademyCode(
+    countryCode: string,
+    branchCode: string
+  ): Promise<string> {
+    const academyCode = `${countryCode}-${branchCode}`;
+
+    // 중복 확인
+    const existing = await prisma.branch.findUnique({
+      where: { academyCode }
+    });
+
+    if (existing) {
+      throw new Error('Academy code already exists');
+    }
+
+    return academyCode;
+  }
+
+  private static async createAuditLog(data: {
+    userId?: string;
+    action: string;
+    resource: string;
+    resourceId?: string;
+    details?: any;
+    ipAddress?: string;
+    userAgent?: string;
+  }) {
+    await prisma.auditLog.create({
+      data: {
+        userId: data.userId,
+        action: data.action,
+        resource: data.resource,
+        resourceId: data.resourceId,
+        details: data.details || {},
+        ipAddress: data.ipAddress,
+        userAgent: data.userAgent
+      }
+    });
+  }
+
+  static async getUsersByScope(user: AuthUser): Promise<any[]> {
+    let whereClause: any = {};
+
+    switch (user.role) {
+      case UserRole.SUPER_MASTER:
+        // 모든 사용자 접근 가능
+        break;
+
+      case UserRole.COUNTRY_MASTER:
+        whereClause = { countryId: user.countryId };
+        break;
+
+      case UserRole.BRANCH_ADMIN:
+        whereClause = { branchId: user.branchId };
+        break;
+
+      case UserRole.TEACHER:
+        // 같은 지점의 학생들만
+        whereClause = {
+          branchId: user.branchId,
+          role: UserRole.STUDENT
+        };
+        break;
+
+      case UserRole.PARENT:
+        // 자신의 자녀들만
+        whereClause = { parentId: user.id };
+        break;
+
+      default:
+        throw new Error('Insufficient permissions');
+    }
+
+    return await prisma.user.findMany({
+      where: whereClause,
+      include: {
+        country: true,
+        branch: true,
+        children: user.role === UserRole.PARENT,
+        teacher: user.role === UserRole.STUDENT
+      }
+    });
+  }
+}

@@ -1,0 +1,585 @@
+/* Enhanced Level Test Component CSS */
+
+.enhanced-level-test {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 24px 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.enhanced-level-test::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(255, 206, 84, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 40% 80%, rgba(120, 119, 198, 0.1) 0%, transparent 50%);
+  z-index: 0;
+}
+
+.enhanced-level-test > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Loading State */
+.level-test-loading {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.level-test-loading .MuiCircularProgress-root {
+  color: white;
+  margin-bottom: 24px;
+}
+
+/* Gradient Text */
+.gradient-text {
+  background: linear-gradient(45deg, #1976d2, #42a5f5, #00acc1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 700;
+  animation: gradientShift 3s ease-in-out infinite alternate;
+}
+
+@keyframes gradientShift {
+  0% {
+    background: linear-gradient(45deg, #1976d2, #42a5f5, #00acc1);
+  }
+  100% {
+    background: linear-gradient(45deg, #00acc1, #1976d2, #42a5f5);
+  }
+}
+
+/* Card Styles */
+.test-intro-card,
+.question-card,
+.results-card {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 24px !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  position: relative;
+  overflow: hidden;
+  animation: slideInUp 0.6s ease-out;
+}
+
+.test-intro-card::before,
+.question-card::before,
+.results-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #1976d2, #42a5f5, #00acc1);
+  z-index: 1;
+}
+
+.test-intro-card:hover,
+.question-card:hover,
+.results-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Test Container */
+.test-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+/* Test Header */
+.test-header {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px !important;
+  padding: 24px !important;
+  margin-bottom: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+  animation: slideInDown 0.6s ease-out;
+}
+
+/* Button Animations */
+.start-test-btn {
+  background: linear-gradient(45deg, #1976d2, #42a5f5) !important;
+  border-radius: 12px !important;
+  padding: 12px 32px !important;
+  font-weight: 600 !important;
+  font-size: 1.1rem !important;
+  box-shadow: 0 4px 15px rgba(25, 118, 210, 0.3) !important;
+  transition: all 0.3s ease !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.start-test-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s;
+}
+
+.start-test-btn:hover::before {
+  left: 100%;
+}
+
+.start-test-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(25, 118, 210, 0.4) !important;
+}
+
+.next-question-btn {
+  background: linear-gradient(45deg, #4caf50, #66bb6a) !important;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.complete-btn {
+  background: linear-gradient(45deg, #ff9800, #ffb74d) !important;
+  font-size: 1.1rem !important;
+  padding: 12px 32px !important;
+}
+
+/* Progress Enhancement */
+.MuiLinearProgress-root {
+  border-radius: 10px !important;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.1) !important;
+}
+
+.MuiLinearProgress-bar {
+  border-radius: 10px !important;
+  box-shadow: 0 0 10px rgba(25, 118, 210, 0.5);
+  animation: progressGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes progressGlow {
+  0% { box-shadow: 0 0 5px rgba(25, 118, 210, 0.3); }
+  100% { box-shadow: 0 0 15px rgba(25, 118, 210, 0.7); }
+}
+
+/* Chip Enhancements */
+.MuiChip-root {
+  border-radius: 20px !important;
+  font-weight: 600 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  transition: all 0.3s ease !important;
+  backdrop-filter: blur(10px);
+}
+
+.MuiChip-root:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Question Card Specific */
+.question-card .MuiCardContent-root {
+  position: relative;
+}
+
+.question-card .MuiFormControlLabel-root {
+  margin: 8px 0 !important;
+  padding: 16px !important;
+  border-radius: 12px !important;
+  transition: all 0.3s ease !important;
+  cursor: pointer !important;
+}
+
+.question-card .MuiFormControlLabel-root:hover {
+  background: rgba(25, 118, 210, 0.04) !important;
+  transform: translateX(4px);
+}
+
+.question-card .MuiRadio-root {
+  color: #1976d2 !important;
+  transition: all 0.3s ease !important;
+}
+
+.question-card .MuiRadio-root.Mui-checked {
+  color: #1976d2 !important;
+  transform: scale(1.1);
+}
+
+/* Avatar Enhancements */
+.MuiAvatar-root {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
+  transition: all 0.3s ease !important;
+}
+
+.MuiAvatar-root:hover {
+  transform: scale(1.05);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Alert Enhancements */
+.MuiAlert-root {
+  border-radius: 12px !important;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
+  animation: slideInUp 0.4s ease-out;
+}
+
+/* Snackbar Enhancements */
+.MuiSnackbar-root .MuiAlert-root {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+  animation: slideInDown 0.3s ease-out;
+}
+
+/* Icon Button Enhancements */
+.MuiIconButton-root {
+  transition: all 0.3s ease !important;
+  border-radius: 12px !important;
+}
+
+.MuiIconButton-root:hover {
+  transform: scale(1.1);
+  background: rgba(25, 118, 210, 0.1) !important;
+}
+
+/* Paper for Reading Passages */
+.question-card .MuiPaper-root {
+  background: linear-gradient(135deg, rgba(248, 249, 250, 0.9), rgba(233, 236, 239, 0.9)) !important;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 16px !important;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease !important;
+}
+
+.question-card .MuiPaper-root:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Animations */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) translateY(-100px);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.1) translateY(0);
+  }
+  80% {
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Confetti Effect */
+.confetti {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.confetti-piece {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: #f44336;
+  animation: confettiFall 3s linear infinite;
+}
+
+@keyframes confettiFall {
+  0% {
+    transform: translateY(-100vh) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* Loading Shimmer Effect */
+.loading-shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .enhanced-level-test {
+    padding: 16px 0;
+  }
+
+  .test-container {
+    padding: 0 8px;
+  }
+
+  .test-header {
+    padding: 16px !important;
+    margin-bottom: 16px;
+  }
+
+  .test-intro-card .MuiCardContent-root,
+  .question-card .MuiCardContent-root,
+  .results-card .MuiCardContent-root {
+    padding: 24px 16px !important;
+  }
+
+  .gradient-text {
+    font-size: 2rem !important;
+  }
+
+  .MuiAvatar-root {
+    width: 80px !important;
+    height: 80px !important;
+    margin-bottom: 16px !important;
+  }
+
+  .MuiAvatar-root .MuiSvgIcon-root {
+    font-size: 40px !important;
+  }
+
+  .question-card .MuiFormControlLabel-root {
+    padding: 12px !important;
+    margin: 4px 0 !important;
+  }
+
+  .start-test-btn,
+  .complete-btn {
+    font-size: 1rem !important;
+    padding: 10px 24px !important;
+  }
+
+  .MuiChip-root {
+    font-size: 0.7rem !important;
+    height: 28px !important;
+    margin: 2px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .enhanced-level-test {
+    padding: 8px 0;
+  }
+
+  .test-container {
+    padding: 0 4px;
+  }
+
+  .test-header {
+    padding: 12px !important;
+  }
+
+  .test-intro-card .MuiCardContent-root,
+  .question-card .MuiCardContent-root,
+  .results-card .MuiCardContent-root {
+    padding: 20px 12px !important;
+  }
+
+  .gradient-text {
+    font-size: 1.8rem !important;
+  }
+
+  .MuiAvatar-root {
+    width: 70px !important;
+    height: 70px !important;
+  }
+
+  .MuiAvatar-root .MuiSvgIcon-root {
+    font-size: 35px !important;
+  }
+
+  .question-card h5 {
+    font-size: 1.3rem !important;
+  }
+
+  .question-card .MuiFormControlLabel-root {
+    padding: 8px !important;
+  }
+
+  .start-test-btn,
+  .complete-btn {
+    width: 100%;
+    margin-top: 16px;
+  }
+
+  .MuiChip-root {
+    font-size: 0.65rem !important;
+    height: 24px !important;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .enhanced-level-test {
+    background: #ffffff;
+  }
+
+  .test-intro-card,
+  .question-card,
+  .results-card,
+  .test-header {
+    background: #ffffff !important;
+    border: 2px solid #000000 !important;
+    box-shadow: none !important;
+  }
+
+  .gradient-text {
+    background: #000000;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Focus states for accessibility */
+.MuiButton-root:focus,
+.MuiIconButton-root:focus,
+.MuiFormControlLabel-root:focus {
+  outline: 2px solid #1976d2 !important;
+  outline-offset: 2px !important;
+}
+
+/* Print styles */
+@media print {
+  .enhanced-level-test {
+    background: white !important;
+    padding: 0;
+  }
+
+  .test-intro-card,
+  .question-card,
+  .results-card {
+    box-shadow: none !important;
+    border: 1px solid #ccc !important;
+    page-break-inside: avoid;
+  }
+
+  .MuiIconButton-root,
+  .MuiButton-root {
+    display: none !important;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .enhanced-level-test {
+    background: linear-gradient(135deg, #1a237e 0%, #3f51b5 100%);
+  }
+
+  .test-intro-card,
+  .question-card,
+  .results-card,
+  .test-header {
+    background: rgba(30, 30, 30, 0.95) !important;
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .question-card .MuiPaper-root {
+    background: rgba(40, 40, 40, 0.9) !important;
+    color: #ffffff;
+  }
+}
+
+/* Custom scrollbar */
+.enhanced-level-test::-webkit-scrollbar {
+  width: 8px;
+}
+
+.enhanced-level-test::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+}
+
+.enhanced-level-test::-webkit-scrollbar-thumb {
+  background: linear-gradient(45deg, #1976d2, #42a5f5);
+  border-radius: 4px;
+  transition: background 0.3s ease;
+}
+
+.enhanced-level-test::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(45deg, #1565c0, #1976d2);
+}
