@@ -113,3 +113,4 @@ pythonw.exe
 tcl/
 vcruntime*.dll
 edb_*.exe*
+node_modules

@@ -1,6 +1,9 @@
 [providers]
 node = "18"
 
+[variables]
+NPM_CONFIG_PRODUCTION = "false"
+
 [phases.install]
 cmd = "npm ci"
 
@@ -8,4 +11,7 @@ cmd = "npm ci"
 cmd = "npm run build"
 
 [start]
-cmd = "npm run start"
+cmd = "npm start"
+
+[build]
+nixpacksConfigVersion = "1"
