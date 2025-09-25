@@ -25,10 +25,5 @@
   "env": {
     "VITE_NODE_ENV": "production",
     "VITE_API_URL": "https://boston-english-server.railway.app/api/v1"
-  },
-  "functions": {
-    "app/api/**/*.js": {
-      "runtime": "nodejs18.x"
-    }
   }
 }
