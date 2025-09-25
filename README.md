@@ -246,4 +246,4 @@ docker build -t boston-english-client ./client
 
 ---
 
-**Boston English Platform** - 영어 교육의 혁신을 위한 올인원 솔루션
+**Boston English Platform** - 영어 교육의 혁신을 위한 올인원 솔루션# Force rebuild
