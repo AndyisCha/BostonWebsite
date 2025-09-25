@@ -11,7 +11,7 @@ import {
   ArrowBack, ArrowForward, Edit, Undo, Redo, Clear, Palette,
   Settings, Bookmark, BookmarkBorder, ZoomIn, ZoomOut, Brightness6,
   FormatSize, Menu as MenuIcon, Search, Note, PlayArrow, Pause,
-  VolumeUp, Speed, Fullscreen, FullscreenExit, TableOfContents,
+  VolumeUp, Speed, Fullscreen, FullscreenExit, Subject as TableOfContents,
   Home, Share, Print, Download, Highlight, Comment, Timer,
   Visibility, VisibilityOff, PhotoSizeSelectActual, RestartAlt
 } from '@mui/icons-material';

@@ -248,7 +248,7 @@ export const LevelTestComponent: React.FC<LevelTestComponentProps> = ({
           <div className="level-indicator">
             <Chip
               label={`최종 레벨: ${result.finalLevel.replace('_', '-')}`}
-              size="large"
+              size="medium"
               className={`level-chip level-${result.finalLevel.toLowerCase()}`}
             />
           </div>
@@ -271,7 +271,7 @@ export const LevelTestComponent: React.FC<LevelTestComponentProps> = ({
           <div className="result-actions">
             <Button
               variant="contained"
-              size="large"
+              size="medium"
               onClick={() => onComplete(result as TestResult)}
             >
               결과 확인
@@ -395,7 +395,7 @@ export const LevelTestComponent: React.FC<LevelTestComponentProps> = ({
                 variant="contained"
                 onClick={handleAnswerSubmit}
                 disabled={!selectedAnswer}
-                size="large"
+                size="medium"
               >
                 답안 제출
               </Button>
@@ -421,7 +421,7 @@ export const LevelTestComponent: React.FC<LevelTestComponentProps> = ({
                   <Button
                     variant="contained"
                     onClick={moveToNextQuestion}
-                    size="large"
+                    size="medium"
                   >
                     다음 문제
                   </Button>

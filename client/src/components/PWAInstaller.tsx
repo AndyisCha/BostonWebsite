@@ -6,7 +6,7 @@ import {
 } from '@mui/material';
 import {
   GetApp, Close, PhoneAndroid, DesktopWindows, Speed,
-  Offline, NotificationsActive, CloudDone, Security
+  CloudOff as Offline, NotificationsActive, CloudDone, Security
 } from '@mui/icons-material';
 import { useResponsive } from '../hooks/useResponsive';
 

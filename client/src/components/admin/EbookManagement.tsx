@@ -9,7 +9,7 @@ import {
 } from '@mui/material';
 import {
   CloudUpload, Edit, Delete, Visibility, ExpandMore, Add,
-  FileUpload, CheckCircle, Error, Info, Settings, Analytics,
+  FileUpload, CheckCircle, Error as ErrorIcon, Info, Settings, Analytics,
   NavigateBefore, NavigateNext, Save, Close, Help, AddCircle,
   VolumeUp, PlayArrow
 } from '@mui/icons-material';
@@ -473,7 +473,7 @@ const EbookManagement: React.FC = () => {
       case 'uploading': return <CloudUpload color="info" />;
       case 'processing': return <Settings className="rotating" />;
       case 'ready': return <CheckCircle color="success" />;
-      case 'error': return <Error color="error" />;
+      case 'error': return <ErrorIcon color="error" />;
       default: return <Info />;
     }
   };

@@ -4,10 +4,13 @@ import {
   IconButton, Fab, SpeedDial, SpeedDialAction, SpeedDialIcon,
   List, ListItem, ListItemText, ListItemAvatar, Chip, Badge,
   Button, Tooltip, Divider, Alert, Collapse, Paper,
-  CircularProgress, AvatarGroup, Timeline, TimelineItem,
-  TimelineSeparator, TimelineConnector, TimelineContent,
-  TimelineDot, useTheme
+  CircularProgress, AvatarGroup, useTheme
 } from '@mui/material';
+import {
+  Timeline, TimelineItem,
+  TimelineSeparator, TimelineConnector, TimelineContent,
+  TimelineDot
+} from '@mui/lab';
 import {
   TrendingUp, School, MenuBook, EmojiEvents, Settings,
   NotificationsActive, Person, Group, Assignment, Speed,

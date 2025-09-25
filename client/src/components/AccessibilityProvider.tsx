@@ -1,21 +1,24 @@
 import React, { createContext, useContext, ReactNode } from 'react';
 import { useAccessibility } from '../hooks/useAccessibility';
 
+interface AccessibilitySettings {
+  highContrast: boolean;
+  reducedMotion: boolean;
+  largeText: boolean;
+  screenReader: boolean;
+  keyboardNavigation: boolean;
+  focusVisible: boolean;
+}
+
 interface AccessibilityContextType {
-  settings: {
-    highContrast: boolean;
-    reducedMotion: boolean;
-    largeText: boolean;
-    screenReader: boolean;
-    keyboardNavigation: boolean;
-    focusVisible: boolean;
-  };
-  updateSetting: (key: string, value: boolean) => void;
+  settings: AccessibilitySettings;
+  updateSetting: (key: keyof AccessibilitySettings, value: boolean) => void;
   announce: (message: string, priority?: 'polite' | 'assertive') => void;
   getAriaLabel: (element: string, context?: string) => string;
   getFocusableElements: (container: HTMLElement) => HTMLElement[];
   trapFocus: (container: HTMLElement) => () => void;
   createSkipLink: (targetId: string, text: string) => HTMLAnchorElement;
+  announcements: string[];
 }
 
 const AccessibilityContext = createContext<AccessibilityContextType | undefined>(undefined);

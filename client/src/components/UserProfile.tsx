@@ -9,10 +9,10 @@ import {
   CircularProgress, Rating, AvatarGroup
 } from '@mui/material';
 import {
-  Edit, PhotoCamera, School, TrendingUp, Award, Book,
+  Edit, PhotoCamera, School, TrendingUp, EmojiEvents as Award, Book,
   Settings, Notifications, Security, Language, Palette,
   CloudUpload, Download, Share, Star, Person, Group,
-  Assignment, Timeline, EmojiEvents, Verified,
+  Assignment, Timeline, Verified,
   ExpandMore, Info, Warning, CheckCircle
 } from '@mui/icons-material';
 import { useResponsive } from '../hooks/useResponsive';

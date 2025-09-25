@@ -139,7 +139,7 @@ const AppContent: React.FC = () => {
 
         <Route path="/register" element={
           <PublicRoute>
-            <RegistrationForm />
+            <RegistrationForm onBack={() => window.history.back()} />
           </PublicRoute>
         } />
 
@@ -155,7 +155,7 @@ const AppContent: React.FC = () => {
 
           <Route path="level-test" element={
             <ProtectedRoute roles={['STUDENT']}>
-              <LevelTest />
+              <LevelTest userId={user?.id || ''} onComplete={() => console.log('Level test completed')} />
             </ProtectedRoute>
           } />
 

@@ -12,7 +12,7 @@ export const lazyLoadComponent = (importFunc: () => Promise<any>) => {
 export const LazyUserProfile = lazyLoadComponent(() => import('../components/UserProfile'));
 export const LazyAdvancedSettings = lazyLoadComponent(() => import('../components/AdvancedSettings'));
 export const LazyEbookLibrary = lazyLoadComponent(() => import('../components/EbookLibrary'));
-export const LazyEbookManagement = lazyLoadComponent(() => import('../components/EbookManagement'));
+export const LazyEbookManagement = lazyLoadComponent(() => import('../components/admin/EbookManagement'));
 export const LazyLevelTest = lazyLoadComponent(() => import('../components/EnhancedLevelTestComponent'));
 
 // 2. 메모이제이션 헬퍼

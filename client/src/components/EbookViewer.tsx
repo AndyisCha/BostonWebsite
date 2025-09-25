@@ -9,7 +9,7 @@ import {
   ArrowBack, ArrowForward, Edit, Undo, Redo, Clear, Palette,
   Settings, Bookmark, BookmarkBorder, ZoomIn, ZoomOut, Brightness6,
   FormatSize, Menu as MenuIcon, Search, Note, PlayArrow, Pause,
-  VolumeUp, Speed, Fullscreen, FullscreenExit, TableOfContents
+  VolumeUp, Speed, Fullscreen, FullscreenExit, Subject as TableOfContents
 } from '@mui/icons-material';
 import { fabric } from 'fabric';
 import '../styles/EbookViewer.css';

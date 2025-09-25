@@ -4,7 +4,7 @@ import {
   Radio, RadioGroup, FormControlLabel, FormControl, FormLabel,
   Chip, IconButton, Dialog, DialogTitle, DialogContent, DialogActions,
   Fade, Slide, CircularProgress, Avatar, Stepper, Step, StepLabel,
-  Alert, Snackbar, Zoom, Grow, Badge, Tooltip, Container
+  Alert, Snackbar, Zoom, Grow, Badge, Tooltip, Container, Collapse
 } from '@mui/material';
 import {
   Timer, CheckCircle, Cancel, Info, VolumeUp, Replay, PlayArrow,
@@ -456,7 +456,7 @@ export const EnhancedLevelTestComponent: React.FC<LevelTestComponentProps> = ({
               <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
                 <Button
                   variant="outlined"
-                  size="large"
+                  size="medium"
                   onClick={onCancel}
                   startIcon={<Cancel />}
                 >
@@ -464,7 +464,7 @@ export const EnhancedLevelTestComponent: React.FC<LevelTestComponentProps> = ({
                 </Button>
                 <Button
                   variant="contained"
-                  size="large"
+                  size="medium"
                   onClick={() => setPhase('testing')}
                   startIcon={<PlayArrow />}
                   className="start-test-btn"
@@ -569,7 +569,7 @@ export const EnhancedLevelTestComponent: React.FC<LevelTestComponentProps> = ({
                   <Box sx={{ mb: 3, textAlign: 'center' }}>
                     <IconButton
                       onClick={playAudio}
-                      size="large"
+                      size="medium"
                       sx={{
                         bgcolor: 'primary.main',
                         color: 'white',
@@ -679,7 +679,7 @@ export const EnhancedLevelTestComponent: React.FC<LevelTestComponentProps> = ({
                         onClick={handleSubmitAnswer}
                         disabled={!selectedAnswer}
                         startIcon={<CheckCircle />}
-                        size="large"
+                        size="medium"
                       >
                         답안 제출
                       </Button>
@@ -690,7 +690,7 @@ export const EnhancedLevelTestComponent: React.FC<LevelTestComponentProps> = ({
                         startIcon={
                           currentQuestion < questions.length - 1 ? <SkipNext /> : <EmojiEvents />
                         }
-                        size="large"
+                        size="medium"
                         className="next-question-btn"
                       >
                         {currentQuestion < questions.length - 1 ? '다음 문제' : '결과 확인'}
@@ -735,25 +735,25 @@ export const EnhancedLevelTestComponent: React.FC<LevelTestComponentProps> = ({
                   icon={<Star />}
                   label={`최종 레벨: ${answers.length > 0 ? 'B1' : 'A1'}`}
                   color="primary"
-                  size="large"
+                  size="medium"
                 />
                 <Chip
                   icon={<Assessment />}
                   label={`정답률: ${answers.length > 0 ? Math.round((answers.filter(a => a.isCorrect).length / answers.length) * 100) : 0}%`}
                   color="success"
-                  size="large"
+                  size="medium"
                 />
                 <Chip
                   icon={<Timer />}
                   label={`소요시간: ${formatTime(timeSpent)}`}
                   color="info"
-                  size="large"
+                  size="medium"
                 />
               </Box>
 
               <Button
                 variant="contained"
-                size="large"
+                size="medium"
                 onClick={() => onComplete({
                   finalLevel: 'B1',
                   score: answers.length > 0 ? Math.round((answers.filter(a => a.isCorrect).length / answers.length) * 100) : 0,

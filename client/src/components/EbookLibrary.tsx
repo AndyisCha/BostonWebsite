@@ -649,7 +649,7 @@ export const EbookLibrary: React.FC<EbookLibraryProps> = ({ userId }) => {
                             sx={{ fontSize: '0.7rem', height: '20px', mr: 0.5, mb: 0.5 }}
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleFilterChange('categories', [cat]);
+                              setFilters(prev => ({ ...prev, categories: [cat] }));
                             }}
                           />
                         ))}
@@ -886,9 +886,9 @@ export const EbookLibrary: React.FC<EbookLibraryProps> = ({ userId }) => {
           }}
         >
           <EbookViewer
-            ebookData={selectedEbook}
+            ebook={selectedEbook}
+            userId={userId}
             onClose={closeEbook}
-            onProgressUpdate={(progress) => updateReadingProgress(selectedEbook.id, progress)}
           />
         </Dialog>
       )}
