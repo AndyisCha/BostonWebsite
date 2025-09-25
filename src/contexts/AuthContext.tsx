@@ -108,9 +108,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const login = async (email: string, password: string) => {
-    try {
-      setLoading(true);
+    setLoading(true);
 
+    try {
       // 테스트용 관리자 계정 - Andy (SUPER_MASTER)
       if (email === 'andy@boston.com' && password === 'admin123') {
         const adminUser: User = {
@@ -144,6 +144,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         localStorage.setItem('user', JSON.stringify(adminUser));
 
         setupAxiosInterceptors(adminToken);
+        setLoading(false);
         return;
       }
 
@@ -173,6 +174,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         localStorage.setItem('user', JSON.stringify(studentUser));
 
         setupAxiosInterceptors(studentToken);
+        setLoading(false);
         return;
       }
 
