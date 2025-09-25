@@ -40,6 +40,8 @@ const Dashboard: React.FC = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [notifications, setNotifications] = useState<string[]>([]);
 
+  const isAdmin = user?.role === 'SUPER_MASTER' || user?.role === 'COUNTRY_MASTER' || user?.role === 'BRANCH_ADMIN';
+
   // 실시간 시계 업데이트
   useEffect(() => {
     const timer = setInterval(() => {
@@ -74,7 +76,6 @@ const Dashboard: React.FC = () => {
       setLoading(true);
 
       // 역할별 통계 데이터
-      const isAdmin = user?.role === 'SUPER_MASTER' || user?.role === 'COUNTRY_MASTER' || user?.role === 'BRANCH_ADMIN';
 
       const stats: StatCard[] = isAdmin ? [
         {
@@ -421,20 +422,22 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
 
-          <div className="content-card">
-            <h3>학습 진도</h3>
-            <div className="progress-chart">
-              {[65, 78, 45, 89, 67, 92, 78].map((height, index) => (
-                <div
-                  key={index}
-                  className="progress-bar"
-                  style={{ height: `${height}%` }}
-                />
-              ))}
+          {!isAdmin && (
+            <div className="content-card">
+              <h3>학습 진도</h3>
+              <div className="progress-chart">
+                {[65, 78, 45, 89, 67, 92, 78].map((height, index) => (
+                  <div
+                    key={index}
+                    className="progress-bar"
+                    style={{ height: `${height}%` }}
+                  />
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
-          {(user?.role === 'admin' || user?.role === 'teacher') && (
+          {isAdmin && (
             <div className="content-card">
               <h3>사용자 관리</h3>
               <table className="user-table">
@@ -485,27 +488,47 @@ const Dashboard: React.FC = () => {
           <div className="content-card">
             <h3>빠른 실행</h3>
             <div className="quick-actions">
-              <button className="quick-action-btn">
-                <span className="btn-icon">📖</span>
-                새 E-book
-              </button>
-              <button className="quick-action-btn">
-                <span className="btn-icon">📝</span>
-                레벨 테스트
-              </button>
-              <button className="quick-action-btn">
-                <span className="btn-icon">👥</span>
-                사용자 관리
-              </button>
-              <button className="quick-action-btn">
-                <span className="btn-icon">📊</span>
-                통계 보기
-              </button>
+              {isAdmin ? (
+                <>
+                  <button className="quick-action-btn">
+                    <span className="btn-icon">📚</span>
+                    E-book 관리
+                  </button>
+                  <button className="quick-action-btn">
+                    <span className="btn-icon">👥</span>
+                    사용자 관리
+                  </button>
+                  <button className="quick-action-btn">
+                    <span className="btn-icon">📊</span>
+                    시스템 통계
+                  </button>
+                  <button className="quick-action-btn">
+                    <span className="btn-icon">⚙️</span>
+                    설정 관리
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button className="quick-action-btn">
+                    <span className="btn-icon">📖</span>
+                    새 E-book
+                  </button>
+                  <button className="quick-action-btn">
+                    <span className="btn-icon">📝</span>
+                    레벨 테스트
+                  </button>
+                  <button className="quick-action-btn">
+                    <span className="btn-icon">📊</span>
+                    통계 보기
+                  </button>
+                </>
+              )}
             </div>
           </div>
 
-          <div className="content-card">
-            <h3>이번 주 목표</h3>
+          {!isAdmin && (
+            <div className="content-card">
+              <h3>이번 주 목표</h3>
             <div style={{ padding: '16px 0' }}>
               <div style={{ marginBottom: '12px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
@@ -535,7 +558,8 @@ const Dashboard: React.FC = () => {
                 </div>
               </div>
             </div>
-          </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
