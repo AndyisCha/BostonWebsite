@@ -9,10 +9,10 @@ NPM_CONFIG_PRODUCTION = "false"
 nixPkgs = ["nodejs-18_x", "npm-8_x"]
 
 [phases.install]
-cmd = "npm ci && cd server && npm ci"
+cmd = "cd server && npm ci"
 
 [phases.build]
-cmd = "echo 'Skipping build for simple server'"
+cmd = "echo 'No build needed for Railway server'"
 
 [start]
-cmd = "npm run start:simple"
+cmd = "cd server && node railway-server.js"
