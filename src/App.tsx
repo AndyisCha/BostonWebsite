@@ -14,6 +14,7 @@ import { RegistrationForm } from './components/RegistrationForm';
 import Dashboard from './components/Dashboard';
 import { LevelTest } from './components/LevelTest';
 import { EbookLibrary } from './components/EbookLibrary';
+import { EbookManagement } from './components/admin/EbookManagement';
 import UserManagement from './components/UserManagement';
 import { LoadingSpinner } from './components/LoadingSpinner';
 
@@ -162,6 +163,12 @@ const AppContent: React.FC = () => {
           <Route path="ebooks" element={
             <ProtectedRoute roles={['STUDENT', 'TEACHER', 'PARENT']}>
               <EbookLibrary userId={user?.id || ''} />
+            </ProtectedRoute>
+          } />
+
+          <Route path="ebook-management" element={
+            <ProtectedRoute roles={['SUPER_MASTER', 'COUNTRY_MASTER', 'BRANCH_ADMIN', 'TEACHER']}>
+              <EbookManagement />
             </ProtectedRoute>
           } />
 

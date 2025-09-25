@@ -24,7 +24,8 @@ import {
   MenuBook,
   People,
   ExitToApp,
-  Person
+  Person,
+  Edit
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -73,6 +74,12 @@ const Layout: React.FC = () => {
       icon: <MenuBook />,
       path: '/ebooks',
       roles: ['STUDENT', 'TEACHER', 'PARENT']
+    },
+    {
+      text: 'E-book 편집',
+      icon: <Edit />,
+      path: '/ebook-management',
+      roles: ['SUPER_MASTER', 'COUNTRY_MASTER', 'BRANCH_ADMIN', 'TEACHER']
     },
     {
       text: '사용자 관리',

@@ -73,8 +73,51 @@ const Dashboard: React.FC = () => {
     try {
       setLoading(true);
 
-      // 통계 데이터 로드 (개선된 버전)
-      const stats: StatCard[] = [
+      // 역할별 통계 데이터
+      const isAdmin = user?.role === 'SUPER_MASTER' || user?.role === 'COUNTRY_MASTER' || user?.role === 'BRANCH_ADMIN';
+
+      const stats: StatCard[] = isAdmin ? [
+        {
+          type: 'reading',
+          title: '총 사용자',
+          value: 1247,
+          label: '명',
+          change: '+89',
+          positive: true,
+          icon: '👥',
+          description: '전체 등록 사용자'
+        },
+        {
+          type: 'progress',
+          title: 'E-book 관리',
+          value: 156,
+          label: '권',
+          change: '+12',
+          positive: true,
+          icon: '📚',
+          description: '등록된 전자책'
+        },
+        {
+          type: 'activity',
+          title: '월 활성 사용자',
+          value: 892,
+          label: '명',
+          change: '+45',
+          positive: true,
+          icon: '📊',
+          description: '이번 달 활동 사용자'
+        },
+        {
+          type: 'achievement',
+          title: '시스템 성능',
+          value: 98,
+          label: '%',
+          change: '+2%',
+          positive: true,
+          icon: '⚡',
+          description: '시스템 가동률'
+        }
+      ] : [
         {
           type: 'reading',
           title: '읽은 E-book',
@@ -121,8 +164,33 @@ const Dashboard: React.FC = () => {
         }
       ];
 
-      // 최근 활동 데이터
-      const activities: Activity[] = [
+      // 역할별 최근 활동 데이터
+      const activities: Activity[] = isAdmin ? [
+        {
+          type: 'reading',
+          title: '새 E-book "Business English" 등록',
+          time: '1시간 전',
+          icon: '📚'
+        },
+        {
+          type: 'test',
+          title: '사용자 "김민수" 계정 승인',
+          time: '3시간 전',
+          icon: '✅'
+        },
+        {
+          type: 'progress',
+          title: '시스템 백업 완료',
+          time: '6시간 전',
+          icon: '💾'
+        },
+        {
+          type: 'reading',
+          title: 'Level C1 컨텐츠 업데이트',
+          time: '1일 전',
+          icon: '🔄'
+        }
+      ] : [
         {
           type: 'reading',
           title: 'Elementary Grammar Book 완료',
