@@ -22,6 +22,15 @@ import lessonRoutes from './routes/lessonRoutes';
 // Load environment variables
 dotenv.config();
 
+// Validate critical environment variables
+const requiredEnvVars = ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY'];
+const missingEnvVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
+
+if (missingEnvVars.length > 0) {
+  console.error('❌ Missing required environment variables:', missingEnvVars.join(', '));
+  console.error('⚠️  Server will continue but may have limited functionality');
+}
+
 // Logger configuration
 const logger = winston.createLogger({
   level: process.env.LOG_LEVEL || 'info',
@@ -215,7 +224,12 @@ app.use('*', (req, res) => {
 });
 
 // Start server
-const server = app.listen(PORT, () => {
+console.log('🔧 Starting server...');
+console.log(`🌍 NODE_ENV: ${process.env.NODE_ENV || 'development'}`);
+console.log(`🔌 PORT: ${PORT}`);
+console.log(`📊 Health check path: /health`);
+
+const server = app.listen(PORT, '0.0.0.0', () => {
   logger.info('Server started successfully', {
     port: PORT,
     environment: process.env.NODE_ENV || 'development',
@@ -229,6 +243,7 @@ const server = app.listen(PORT, () => {
   console.log(`🌐 CORS origins: ${corsOrigins.join(', ')}`);
   console.log(`📡 API prefix: ${process.env.API_PREFIX || '/api/v1'}`);
   console.log(`📝 Logs: ${process.env.LOG_LEVEL || 'info'} level`);
+  console.log(`✅ Server is ready to accept connections`);
 });
 
 // Graceful shutdown
