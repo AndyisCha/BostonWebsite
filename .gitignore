@@ -104,8 +104,6 @@ Videos/
 include/
 libs/
 ntuser.*
-package-lock.json
-package.json
 postgresql_*.exe
 python*.exe
 python*.dll
