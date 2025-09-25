@@ -106,27 +106,15 @@ app.use(express.urlencoded({
 }));
 
 // Health check endpoint
-app.get('/health', async (req, res) => {
-  try {
-    // Test Supabase connection
-    const { data, error } = await supabaseAdmin.from('users').select('count').limit(1);
-
-    res.json({
-      status: 'OK',
-      timestamp: new Date().toISOString(),
-      uptime: process.uptime(),
-      database: error ? 'ERROR' : 'OK',
-      version: process.env.API_VERSION || 'v1'
-    });
-  } catch (error) {
-    logger.error('Health check failed:', error);
-    res.status(503).json({
-      status: 'ERROR',
-      timestamp: new Date().toISOString(),
-      uptime: process.uptime(),
-      database: 'ERROR'
-    });
-  }
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    version: process.env.API_VERSION || 'v1',
+    environment: process.env.NODE_ENV || 'development',
+    port: process.env.PORT || 3003
+  });
 });
 
 // API Routes with versioning
@@ -140,17 +128,7 @@ apiRouter.use('/upload', uploadRoutes);
 apiRouter.use('/courses', courseRoutes);
 apiRouter.use('/courses/:courseId/lessons', lessonRoutes);
 
-// Mount API router with prefix
-// Health check endpoint
-app.get('/health', (req, res) => {
-  res.json({
-    status: 'ok',
-    timestamp: new Date().toISOString(),
-    version: process.env.npm_package_version || '1.0.0',
-    environment: process.env.NODE_ENV || 'development'
-  });
-});
-
+// Root endpoint
 app.get('/', (req, res) => {
   res.json({
     message: 'Boston English Platform API',
@@ -162,6 +140,8 @@ app.get('/', (req, res) => {
     }
   });
 });
+
+// Mount API router with prefix
 
 app.use(process.env.API_PREFIX || '/api/v1', apiRouter);
 
