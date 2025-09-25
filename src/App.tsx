@@ -14,7 +14,7 @@ import { RegistrationForm } from './components/RegistrationForm';
 import Dashboard from './components/Dashboard';
 import { LevelTest } from './components/LevelTest';
 import { EbookLibrary } from './components/EbookLibrary';
-import { EbookManagement } from './components/admin/EbookManagement';
+import EbookManagement from './components/admin/EbookManagement';
 import UserManagement from './components/UserManagement';
 import { LoadingSpinner } from './components/LoadingSpinner';
 
