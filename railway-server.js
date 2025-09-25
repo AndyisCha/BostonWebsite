@@ -1,69 +1,94 @@
-const express = require('express');
-const path = require('path');
+const http = require('http');
+const url = require('url');
 
-const app = express();
 const PORT = process.env.PORT || 3001;
 
-console.log('🚀 Railway minimal server starting...');
+console.log('🚀 Railway Node.js HTTP server starting...');
 console.log(`📍 PORT: ${PORT}`);
 console.log(`🌍 NODE_ENV: ${process.env.NODE_ENV || 'development'}`);
 console.log(`📂 Working directory: ${process.cwd()}`);
-console.log(`📁 Directory contents:`, require('fs').readdirSync('.').join(', '));
 
-// Basic middleware
-app.use(express.json({ limit: '1mb' }));
+// Create HTTP server
+const server = http.createServer((req, res) => {
+  const parsedUrl = url.parse(req.url, true);
+  const path = parsedUrl.pathname;
+  const method = req.method;
 
-// Health check endpoint
-app.get('/health', (req, res) => {
-  console.log('🩺 Health check requested at', new Date().toISOString());
-  res.status(200).json({
-    status: 'OK',
-    timestamp: new Date().toISOString(),
-    uptime: Math.floor(process.uptime()),
-    port: PORT,
-    message: 'Railway server is healthy'
-  });
-  console.log('✅ Health check response sent successfully');
-});
+  console.log(`📨 ${method} ${path} - ${new Date().toISOString()}`);
 
-// Root endpoint
-app.get('/', (req, res) => {
-  console.log('🏠 Root endpoint requested');
-  res.status(200).json({
-    message: 'Boston English Platform - Railway Test Server',
-    status: 'running',
-    timestamp: new Date().toISOString(),
-    endpoints: {
-      health: '/health'
-    }
-  });
-});
+  // Set CORS headers
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Content-Type', 'application/json');
 
-// Catch all other routes
-app.use('*', (req, res) => {
-  console.log(`❓ Unknown route requested: ${req.method} ${req.originalUrl}`);
-  res.status(404).json({
+  // Handle OPTIONS preflight
+  if (method === 'OPTIONS') {
+    res.writeHead(200);
+    res.end();
+    return;
+  }
+
+  // Health check endpoint
+  if (path === '/health') {
+    console.log('🩺 Health check requested');
+    const healthResponse = {
+      status: 'OK',
+      timestamp: new Date().toISOString(),
+      uptime: Math.floor(process.uptime()),
+      port: PORT,
+      message: 'Railway Node.js server is healthy',
+      method: method,
+      path: path
+    };
+    res.writeHead(200);
+    res.end(JSON.stringify(healthResponse, null, 2));
+    console.log('✅ Health check response sent successfully');
+    return;
+  }
+
+  // Root endpoint
+  if (path === '/') {
+    console.log('🏠 Root endpoint requested');
+    const rootResponse = {
+      message: 'Boston English Platform - Railway Node.js Server',
+      status: 'running',
+      timestamp: new Date().toISOString(),
+      endpoints: {
+        health: '/health'
+      },
+      server: 'Node.js HTTP (no dependencies)',
+      port: PORT
+    };
+    res.writeHead(200);
+    res.end(JSON.stringify(rootResponse, null, 2));
+    return;
+  }
+
+  // 404 for all other routes
+  console.log(`❓ Unknown route: ${method} ${path}`);
+  const notFoundResponse = {
     error: 'Route not found',
-    method: req.method,
-    path: req.originalUrl,
-    timestamp: new Date().toISOString()
-  });
-});
-
-// Error handler
-app.use((error, req, res, next) => {
-  console.error('❌ Server error:', error);
-  res.status(500).json({
-    error: 'Internal server error',
-    timestamp: new Date().toISOString()
-  });
+    method: method,
+    path: path,
+    timestamp: new Date().toISOString(),
+    availableRoutes: ['/', '/health']
+  };
+  res.writeHead(404);
+  res.end(JSON.stringify(notFoundResponse, null, 2));
 });
 
 // Start server
-const server = app.listen(PORT, '0.0.0.0', () => {
-  console.log(`✅ Railway server listening on port ${PORT}`);
+server.listen(PORT, '0.0.0.0', () => {
+  console.log(`✅ Railway Node.js server listening on port ${PORT}`);
   console.log(`🔗 Health check: http://0.0.0.0:${PORT}/health`);
+  console.log(`🏠 Root endpoint: http://0.0.0.0:${PORT}/`);
   console.log(`🎯 Server ready to accept connections`);
+});
+
+// Error handling
+server.on('error', (error) => {
+  console.error('❌ Server error:', error);
 });
 
 // Graceful shutdown
@@ -81,4 +106,14 @@ process.on('SIGINT', () => {
     console.log('✅ Server closed successfully');
     process.exit(0);
   });
+});
+
+// Handle unhandled rejections
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('❌ Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+process.on('uncaughtException', (error) => {
+  console.error('❌ Uncaught Exception:', error);
+  process.exit(1);
 });
