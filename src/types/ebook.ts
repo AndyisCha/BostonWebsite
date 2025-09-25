@@ -36,3 +36,14 @@ export interface FilterState {
   languages: Language[];
   countries: Country[];
 }
+
+export interface EbookSearchParams {
+  search?: string;
+  levels?: CEFRLevel[];
+  languages?: Language[];
+  countries?: Country[];
+  categories?: Category[];
+  sort?: SortOption;
+  page?: number;
+  limit?: number;
+}

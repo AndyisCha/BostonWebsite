@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import PreviewApp from './PreviewApp';
-// import App from './App'; // 기존 App은 주석처리
+// import PreviewApp from './PreviewApp';
+import App from './App';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -9,6 +9,6 @@ const root = ReactDOM.createRoot(
 
 root.render(
   <React.StrictMode>
-    <PreviewApp />
+    <App />
   </React.StrictMode>
 );
