@@ -1,0 +1,843 @@
+/* UserDashboard.css - 사용자 대시보드 전용 스타일 */
+
+.user-dashboard-container {
+  position: relative;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background-attachment: fixed;
+}
+
+.user-dashboard-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+  z-index: 0;
+}
+
+.dashboard-content {
+  position: relative;
+  z-index: 1;
+}
+
+/* 환영 헤더 애니메이션 */
+@keyframes welcomeSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.welcome-header {
+  animation: welcomeSlide 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  border-radius: 20px !important;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.2) !important;
+  overflow: visible !important;
+  position: relative;
+  margin-bottom: 24px;
+}
+
+.welcome-header::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  border-radius: 22px;
+  z-index: -1;
+  opacity: 0;
+  animation: headerGlow 4s ease-in-out infinite;
+}
+
+@keyframes headerGlow {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 1; }
+}
+
+/* 사용자 아바타 */
+@keyframes avatarFloat {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  }
+  50% {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+  }
+}
+
+.user-avatar {
+  animation: avatarFloat 3s ease-in-out infinite;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.user-avatar:hover {
+  animation-play-state: paused;
+  transform: translateY(-6px) scale(1.05) !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* 레벨 및 경험치 칩 */
+.level-chip {
+  background: linear-gradient(45deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.1)) !important;
+  backdrop-filter: blur(10px) !important;
+  color: white !important;
+  font-weight: 700 !important;
+  animation: chipPulse 2s ease-in-out infinite;
+}
+
+@keyframes chipPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(255, 255, 255, 0);
+  }
+}
+
+.experience-chip {
+  background: linear-gradient(45deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.05)) !important;
+  backdrop-filter: blur(10px) !important;
+  color: white !important;
+  font-weight: 700 !important;
+}
+
+.streak-chip {
+  background: linear-gradient(45deg, #ff9800, #ffb74d) !important;
+  color: white !important;
+  font-weight: 700 !important;
+  animation: streakGlow 2s ease-in-out infinite;
+}
+
+@keyframes streakGlow {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(255, 152, 0, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(255, 152, 0, 0.9), 0 0 35px rgba(255, 152, 0, 0.3);
+  }
+}
+
+/* 경험치 진도 바 */
+.experience-progress {
+  height: 12px !important;
+  border-radius: 6px !important;
+  background: rgba(255, 255, 255, 0.2) !important;
+  backdrop-filter: blur(5px);
+  overflow: hidden;
+}
+
+.experience-progress .MuiLinearProgress-bar {
+  background: linear-gradient(90deg, #ffffff, rgba(255, 255, 255, 0.8)) !important;
+  animation: progressShine 2s ease-in-out infinite;
+}
+
+@keyframes progressShine {
+  0% { background-position: -200px 0; }
+  100% { background-position: 200px 0; }
+}
+
+/* 알림 버튼 */
+.notification-button {
+  background: rgba(255, 255, 255, 0.2) !important;
+  backdrop-filter: blur(10px) !important;
+  color: white !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.notification-button:hover {
+  background: rgba(255, 255, 255, 0.3) !important;
+  transform: scale(1.1);
+}
+
+.notification-badge {
+  animation: badgeBounce 1s ease-in-out infinite;
+}
+
+@keyframes badgeBounce {
+  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-4px); }
+  60% { transform: translateY(-2px); }
+}
+
+/* 학습 세션 컨트롤 */
+.study-session-card {
+  border-radius: 20px !important;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.2) !important;
+  backdrop-filter: blur(20px);
+  animation: sessionCardSlide 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  position: relative;
+  overflow: hidden;
+}
+
+@keyframes sessionCardSlide {
+  from {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.study-session-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  animation: sessionShimmer 3s ease-in-out infinite;
+}
+
+@keyframes sessionShimmer {
+  0% { left: -100%; }
+  50% { left: -100%; }
+  100% { left: 100%; }
+}
+
+.session-timer {
+  font-family: 'Roboto Mono', monospace !important;
+  font-size: 2.5rem !important;
+  font-weight: 700 !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  animation: timerPulse 1s ease-in-out infinite;
+}
+
+@keyframes timerPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+.session-control-button {
+  background: rgba(255, 255, 255, 0.2) !important;
+  backdrop-filter: blur(10px) !important;
+  color: white !important;
+  border-radius: 12px !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  min-width: 48px !important;
+  height: 48px !important;
+}
+
+.session-control-button:hover {
+  background: rgba(255, 255, 255, 0.3) !important;
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.session-control-button:active {
+  transform: translateY(0) scale(0.95);
+}
+
+.session-control-button.stop-button {
+  background: rgba(244, 67, 54, 0.3) !important;
+}
+
+.session-control-button.stop-button:hover {
+  background: rgba(244, 67, 54, 0.5) !important;
+}
+
+/* 통계 카드 그리드 */
+.stats-grid {
+  margin-top: 24px !important;
+}
+
+@keyframes statCardFloat {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.stat-card {
+  animation: statCardFloat 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  border-radius: 16px !important;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card:nth-child(1) { animation-delay: 0.1s; }
+.stat-card:nth-child(2) { animation-delay: 0.2s; }
+.stat-card:nth-child(3) { animation-delay: 0.3s; }
+.stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+.stat-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.15) !important;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--stat-color, #1976d2), var(--stat-color-light, #42a5f5));
+  transform: scaleX(0);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.stat-card:hover::before {
+  transform: scaleX(1);
+}
+
+.stat-value {
+  font-weight: 700 !important;
+  font-size: 2.5rem !important;
+  margin-bottom: 8px !important;
+  background: linear-gradient(45deg, var(--stat-color, #1976d2), var(--stat-color-light, #42a5f5));
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  animation: valueCount 1s ease-out;
+}
+
+@keyframes valueCount {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.stat-label {
+  font-weight: 500 !important;
+  color: #6b7280 !important;
+  font-size: 0.875rem !important;
+}
+
+/* 통계별 색상 커스터마이징 */
+.stat-card.study-time {
+  --stat-color: #1976d2;
+  --stat-color-light: #42a5f5;
+}
+
+.stat-card.lessons-completed {
+  --stat-color: #9c27b0;
+  --stat-color-light: #ba68c8;
+}
+
+.stat-card.words-learned {
+  --stat-color: #4caf50;
+  --stat-color-light: #66bb6a;
+}
+
+.stat-card.accuracy {
+  --stat-color: #ff9800;
+  --stat-color-light: #ffb74d;
+}
+
+/* 현재 코스 카드 */
+@keyframes courseCardSlide {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.current-course-card {
+  animation: courseCardSlide 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  border-radius: 20px !important;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.current-course-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.15) !important;
+}
+
+.course-difficulty-chip {
+  font-weight: 600 !important;
+  background: linear-gradient(45deg, var(--difficulty-color, #4caf50), var(--difficulty-color-light, #66bb6a)) !important;
+  color: white !important;
+  animation: chipGlow 2s ease-in-out infinite;
+}
+
+@keyframes chipGlow {
+  0%, 100% { box-shadow: 0 0 8px rgba(0, 0, 0, 0.2); }
+  50% { box-shadow: 0 0 16px var(--difficulty-color, #4caf50); }
+}
+
+.course-difficulty-chip.beginner {
+  --difficulty-color: #4caf50;
+  --difficulty-color-light: #66bb6a;
+}
+
+.course-difficulty-chip.intermediate {
+  --difficulty-color: #ff9800;
+  --difficulty-color-light: #ffb74d;
+}
+
+.course-difficulty-chip.advanced {
+  --difficulty-color: #f44336;
+  --difficulty-color-light: #ef5350;
+}
+
+.course-progress-bar {
+  height: 12px !important;
+  border-radius: 6px !important;
+  background: linear-gradient(90deg, #e3f2fd, #f3e5f5) !important;
+  margin: 16px 0 !important;
+}
+
+.course-progress-bar .MuiLinearProgress-bar {
+  background: linear-gradient(90deg, #1976d2, #9c27b0) !important;
+  border-radius: 6px;
+  animation: progressFill 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+@keyframes progressFill {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+.continue-learning-button {
+  background: linear-gradient(135deg, #1976d2 0%, #9c27b0 100%) !important;
+  color: white !important;
+  border-radius: 12px !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  padding: 12px 24px !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 16px rgba(25, 118, 210, 0.3) !important;
+}
+
+.continue-learning-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(25, 118, 210, 0.4) !important;
+}
+
+/* 최근 활동 타임라인 */
+.recent-activity-card {
+  animation: courseCardSlide 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  animation-delay: 0.2s;
+  border-radius: 20px !important;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+}
+
+.activity-toggle-button {
+  background: transparent !important;
+  color: #1976d2 !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  border-radius: 8px !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.activity-toggle-button:hover {
+  background: rgba(25, 118, 210, 0.08) !important;
+  transform: translateY(-1px);
+}
+
+.timeline-item {
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.timeline-item:hover {
+  transform: translateX(4px);
+}
+
+.timeline-dot {
+  font-size: 1.2rem !important;
+  width: 36px !important;
+  height: 36px !important;
+  background: linear-gradient(135deg, #1976d2, #9c27b0) !important;
+  animation: timelineDotPulse 2s ease-in-out infinite;
+}
+
+@keyframes timelineDotPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(25, 118, 210, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(25, 118, 210, 0);
+  }
+}
+
+.activity-score-chip {
+  font-weight: 600 !important;
+  border: 2px solid currentColor !important;
+  background: transparent !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.activity-score-chip:hover {
+  transform: scale(1.05);
+}
+
+/* 사이드바 카드 */
+@keyframes sidebarCardSlide {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.sidebar-card {
+  animation: sidebarCardSlide 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  border-radius: 16px !important;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-bottom: 24px !important;
+}
+
+.sidebar-card:nth-child(1) { animation-delay: 0.1s; }
+.sidebar-card:nth-child(2) { animation-delay: 0.2s; }
+.sidebar-card:nth-child(3) { animation-delay: 0.3s; }
+.sidebar-card:nth-child(4) { animation-delay: 0.4s; }
+
+.sidebar-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* 빠른 실행 버튼 */
+.quick-action-button {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%) !important;
+  border: 2px solid rgba(25, 118, 210, 0.2) !important;
+  color: #1976d2 !important;
+  border-radius: 12px !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: 48px !important;
+}
+
+.quick-action-button:hover {
+  background: linear-gradient(135deg, #1976d2 0%, #9c27b0 100%) !important;
+  color: white !important;
+  border-color: transparent !important;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(25, 118, 210, 0.3);
+}
+
+/* 성취 카드 */
+.achievement-item {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 12px;
+  padding: 8px 0 !important;
+}
+
+.achievement-item:hover {
+  background: rgba(25, 118, 210, 0.04);
+  transform: translateX(4px);
+}
+
+.achievement-avatar {
+  background: linear-gradient(135deg, #1976d2, #9c27b0) !important;
+  font-size: 1.2rem !important;
+  animation: achievementGlow 3s ease-in-out infinite;
+}
+
+@keyframes achievementGlow {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(25, 118, 210, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 16px rgba(25, 118, 210, 0.6);
+  }
+}
+
+/* 온라인 친구 */
+.friend-item {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 12px;
+  padding: 8px 0 !important;
+}
+
+.friend-item:hover {
+  background: rgba(76, 175, 80, 0.04);
+  transform: translateX(4px);
+}
+
+.online-badge {
+  animation: onlinePulse 2s ease-in-out infinite;
+}
+
+@keyframes onlinePulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(76, 175, 80, 0);
+  }
+}
+
+/* 추천 콘텐츠 */
+.recommendation-card {
+  border-radius: 12px !important;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
+  border: 1px solid rgba(25, 118, 210, 0.1) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.recommendation-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(25, 118, 210, 0.1), transparent);
+  transition: left 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.recommendation-card:hover::before {
+  left: 100%;
+}
+
+.recommendation-card:hover {
+  background: linear-gradient(135deg, #ffffff 0%, #f0f2f5 100%) !important;
+  border-color: rgba(25, 118, 210, 0.3) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.recommendation-difficulty-chip {
+  font-weight: 600 !important;
+  background: linear-gradient(45deg, var(--difficulty-color, #4caf50), var(--difficulty-color-light, #66bb6a)) !important;
+  color: white !important;
+}
+
+/* 모바일 SpeedDial */
+.mobile-speed-dial {
+  position: fixed !important;
+  bottom: 24px !important;
+  right: 24px !important;
+  z-index: 1300 !important;
+}
+
+.mobile-speed-dial .MuiSpeedDial-fab {
+  background: linear-gradient(135deg, #1976d2 0%, #9c27b0 100%) !important;
+  box-shadow: 0 8px 24px rgba(25, 118, 210, 0.4) !important;
+  animation: speedDialFloat 3s ease-in-out infinite;
+}
+
+@keyframes speedDialFloat {
+  0%, 100% {
+    transform: translateY(0);
+    box-shadow: 0 8px 24px rgba(25, 118, 210, 0.4);
+  }
+  50% {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(25, 118, 210, 0.5);
+  }
+}
+
+.mobile-speed-dial .MuiSpeedDialAction-fab {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%) !important;
+  color: #1976d2 !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15) !important;
+  animation: actionFabSlide 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes actionFabSlide {
+  from {
+    opacity: 0;
+    transform: scale(0.3) rotate(180deg);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+/* 로딩 상태 */
+.dashboard-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  color: white;
+}
+
+.dashboard-loading .MuiCircularProgress-root {
+  color: white !important;
+  margin-bottom: 16px;
+}
+
+.loading-text {
+  color: white;
+  font-weight: 500;
+  font-size: 1.125rem;
+  animation: loadingPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes loadingPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* 스크롤바 커스터마이징 */
+.dashboard-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.dashboard-content::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.dashboard-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  transition: background 0.3s ease;
+}
+
+.dashboard-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* 모바일 최적화 */
+@media (max-width: 768px) {
+  .welcome-header {
+    border-radius: 16px !important;
+    margin: -16px -16px 16px -16px;
+  }
+
+  .user-avatar {
+    width: 60px !important;
+    height: 60px !important;
+  }
+
+  .session-timer {
+    font-size: 2rem !important;
+  }
+
+  .stat-value {
+    font-size: 2rem !important;
+  }
+
+  .stats-grid {
+    gap: 12px !important;
+  }
+
+  .sidebar-card {
+    margin-bottom: 16px !important;
+  }
+
+  .quick-action-button {
+    min-height: 44px !important;
+    font-size: 14px !important;
+  }
+
+  .mobile-speed-dial {
+    bottom: 16px !important;
+    right: 16px !important;
+  }
+}
+
+/* 태블릿 최적화 */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .stat-value {
+    font-size: 2.25rem !important;
+  }
+
+  .session-timer {
+    font-size: 2.25rem !important;
+  }
+}
+
+/* 다크 모드 지원 */
+@media (prefers-color-scheme: dark) {
+  .stat-card,
+  .current-course-card,
+  .recent-activity-card,
+  .sidebar-card {
+    background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .quick-action-button {
+    background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%) !important;
+    color: #90cdf4 !important;
+    border-color: rgba(144, 205, 244, 0.3) !important;
+  }
+
+  .recommendation-card {
+    background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%) !important;
+  }
+
+  .stat-label {
+    color: #cbd5e0 !important;
+  }
+}
+
+/* 접근성 개선 */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* 고대비 모드 */
+@media (prefers-contrast: high) {
+  .stat-card,
+  .current-course-card,
+  .recent-activity-card,
+  .sidebar-card,
+  .recommendation-card {
+    border-width: 2px !important;
+  }
+
+  .quick-action-button,
+  .continue-learning-button {
+    border-width: 2px !important;
+  }
+}
+
+/* 포커스 상태 개선 */
+.quick-action-button:focus,
+.continue-learning-button:focus,
+.recommendation-card:focus,
+.achievement-item:focus,
+.friend-item:focus {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
