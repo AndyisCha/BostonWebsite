@@ -93,15 +93,71 @@ const EbookManagement: React.FC = () => {
   const loadEbooks = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/admin/ebooks', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+
+      // 모킹 데이터
+      const mockEbooks = [
+        {
+          id: '1',
+          title: 'Elementary Grammar',
+          author: 'Boston Academy',
+          level: 'A1-1',
+          language: 'en',
+          country: 'US',
+          pages: 120,
+          categories: ['문법', '초급'],
+          coverUrl: 'https://via.placeholder.com/150x200?text=Grammar',
+          isLocked: false,
+          isNew: true,
+          isHot: false,
+          publishedAt: '2024-01-15',
+          uploadedAt: '2024-01-15T10:30:00Z',
+          fileSize: '2.5 MB',
+          downloadCount: 156,
+          status: 'published'
+        },
+        {
+          id: '2',
+          title: 'Business English Conversations',
+          author: 'Prof. Smith',
+          level: 'B2-2',
+          language: 'en',
+          country: 'US',
+          pages: 200,
+          categories: ['말하기', '비즈니스'],
+          coverUrl: 'https://via.placeholder.com/150x200?text=Business',
+          isLocked: true,
+          isNew: false,
+          isHot: true,
+          publishedAt: '2023-12-01',
+          uploadedAt: '2023-12-01T14:20:00Z',
+          fileSize: '4.2 MB',
+          downloadCount: 892,
+          status: 'published'
+        },
+        {
+          id: '3',
+          title: 'Advanced Reading Comprehension',
+          author: 'Dr. Johnson',
+          level: 'C1-3',
+          language: 'en',
+          country: 'UK',
+          pages: 300,
+          categories: ['독해', '고급'],
+          coverUrl: 'https://via.placeholder.com/150x200?text=Reading',
+          isLocked: false,
+          isNew: false,
+          isHot: false,
+          publishedAt: '2023-10-20',
+          uploadedAt: '2023-10-20T09:15:00Z',
+          fileSize: '6.8 MB',
+          downloadCount: 234,
+          status: 'draft'
         }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setEbooks(data);
-      }
+      ];
+
+      // API 호출 시뮬레이션
+      await new Promise(resolve => setTimeout(resolve, 500));
+      setEbooks(mockEbooks);
     } catch (error) {
       console.error('Failed to load ebooks:', error);
     } finally {

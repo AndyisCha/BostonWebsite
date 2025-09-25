@@ -110,27 +110,33 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const login = async (email: string, password: string) => {
     setLoading(true);
 
-    // 테스트용 관리자 계정 - Andy (SUPER_MASTER)
-    if (email === 'andy@boston.com' && password === 'admin123') {
+    // 정식 최고 관리자 계정 - Andy (SUPER_MASTER)
+    if (email === 'admin@bostonacademy.kr' && password === 'BostonAdmin2024!') {
       const adminUser: User = {
-        id: 'admin-andy-001',
-        email: 'andy@boston.com',
+        id: 'super-admin-001',
+        email: 'admin@bostonacademy.kr',
         role: 'SUPER_MASTER',
         firstName: 'Andy',
-        lastName: 'Administrator',
+        lastName: 'Kim',
         countryId: 'KR',
-        branchId: 'main',
+        branchId: 'headquarters',
         permissions: [
           'user.create',
           'user.read',
           'user.update',
           'user.delete',
           'ebook.manage',
+          'ebook.create',
+          'ebook.edit',
+          'ebook.delete',
           'system.admin',
           'analytics.view',
           'content.manage',
           'branch.manage',
-          'country.manage'
+          'country.manage',
+          'settings.manage',
+          'backup.manage',
+          'audit.view'
         ]
       };
 
@@ -147,16 +153,80 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       return;
     }
 
-    // 테스트용 학생 계정 - Student (STUDENT)
-    if (email === 'student@boston.com' && password === 'student123') {
+    // 지점 관리자 계정 - Branch Admin
+    if (email === 'branch@bostonacademy.kr' && password === 'Branch2024!') {
+      const branchAdminUser: User = {
+        id: 'branch-admin-001',
+        email: 'branch@bostonacademy.kr',
+        role: 'BRANCH_ADMIN',
+        firstName: 'Andy',
+        lastName: 'Branch',
+        countryId: 'KR',
+        branchId: 'seoul-gangnam',
+        permissions: [
+          'user.create',
+          'user.read',
+          'user.update',
+          'ebook.manage',
+          'analytics.view',
+          'branch.manage'
+        ]
+      };
+
+      const branchToken = 'branch-token-' + Date.now();
+
+      setUser(branchAdminUser);
+      setToken(branchToken);
+
+      localStorage.setItem('token', branchToken);
+      localStorage.setItem('user', JSON.stringify(branchAdminUser));
+
+      setupAxiosInterceptors(branchToken);
+      setLoading(false);
+      return;
+    }
+
+    // 교사 계정 - Teacher
+    if (email === 'teacher@bostonacademy.kr' && password === 'Teacher2024!') {
+      const teacherUser: User = {
+        id: 'teacher-001',
+        email: 'teacher@bostonacademy.kr',
+        role: 'TEACHER',
+        firstName: 'Andy',
+        lastName: 'Teacher',
+        countryId: 'KR',
+        branchId: 'seoul-gangnam',
+        permissions: [
+          'user.read',
+          'ebook.manage',
+          'content.create',
+          'test.manage'
+        ]
+      };
+
+      const teacherToken = 'teacher-token-' + Date.now();
+
+      setUser(teacherUser);
+      setToken(teacherToken);
+
+      localStorage.setItem('token', teacherToken);
+      localStorage.setItem('user', JSON.stringify(teacherUser));
+
+      setupAxiosInterceptors(teacherToken);
+      setLoading(false);
+      return;
+    }
+
+    // 학생 계정 - Student
+    if (email === 'student@bostonacademy.kr' && password === 'Student2024!') {
       const studentUser: User = {
         id: 'student-001',
-        email: 'student@boston.com',
+        email: 'student@bostonacademy.kr',
         role: 'STUDENT',
-        firstName: '학생',
-        lastName: '테스트',
+        firstName: 'Andy',
+        lastName: 'Student',
         countryId: 'KR',
-        branchId: 'seoul-branch',
+        branchId: 'seoul-gangnam',
         permissions: [
           'ebook.read',
           'test.take',
