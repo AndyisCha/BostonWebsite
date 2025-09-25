@@ -1,8 +1,12 @@
-[providers]
-node = "18"
+# Nixpacks configuration for Railway deployment
+providers = ["node"]
 
 [variables]
+NODE_VERSION = "18"
 NPM_CONFIG_PRODUCTION = "false"
+
+[phases.setup]
+nixPkgs = ["nodejs-18_x", "npm-8_x"]
 
 [phases.install]
 cmd = "cd server && npm ci"
