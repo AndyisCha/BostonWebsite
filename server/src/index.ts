@@ -51,6 +51,14 @@ const logger = winston.createLogger({
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+console.log(`🔍 Environment check:`);
+console.log(`- PORT: ${PORT}`);
+console.log(`- NODE_ENV: ${process.env.NODE_ENV}`);
+console.log(`- Available ports: ${JSON.stringify(Object.keys(process.env).filter(key => key.includes('PORT')))}`);
+console.log(`- Railway environment: ${process.env.RAILWAY_ENVIRONMENT || 'not detected'}`);
+console.log(`- Current working directory: ${process.cwd()}`);
+console.log(`- Available environment vars: ${Object.keys(process.env).length}`);
+
 // Security middleware
 app.use(helmet());
 
@@ -114,15 +122,33 @@ app.use(express.urlencoded({
   limit: process.env.MAX_FILE_SIZE || '100mb'
 }));
 
-// Health check endpoint
+// Health check endpoint - simplified for Railway
 app.get('/health', (req, res) => {
+  try {
+    console.log('🩺 Health check requested');
+    res.status(200).json({
+      status: 'OK',
+      timestamp: new Date().toISOString(),
+      uptime: Math.floor(process.uptime()),
+      port: PORT
+    });
+    console.log('✅ Health check responded successfully');
+  } catch (error) {
+    console.error('❌ Health check error:', error);
+    res.status(503).json({
+      status: 'ERROR',
+      error: 'Health check failed'
+    });
+  }
+});
+
+// Simple root health check as backup
+app.get('/', (req, res) => {
+  console.log('🏠 Root endpoint requested');
   res.status(200).json({
-    status: 'OK',
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
-    version: process.env.API_VERSION || 'v1',
-    environment: process.env.NODE_ENV || 'development',
-    port: process.env.PORT || 3003
+    message: 'Boston English Platform API',
+    status: 'running',
+    timestamp: new Date().toISOString()
   });
 });
 
@@ -137,18 +163,6 @@ apiRouter.use('/upload', uploadRoutes);
 apiRouter.use('/courses', courseRoutes);
 apiRouter.use('/courses/:courseId/lessons', lessonRoutes);
 
-// Root endpoint
-app.get('/', (req, res) => {
-  res.json({
-    message: 'Boston English Platform API',
-    status: 'running',
-    timestamp: new Date().toISOString(),
-    endpoints: {
-      health: '/health',
-      api: process.env.API_PREFIX || '/api/v1'
-    }
-  });
-});
 
 // Mount API router with prefix
 

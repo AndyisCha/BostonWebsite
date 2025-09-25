@@ -11,7 +11,7 @@ cmd = "npm ci"
 cmd = "npm run build"
 
 [start]
-cmd = "npm run start:prod"
+cmd = "npm run start:dev"
 
 [build]
 nixpacksConfigVersion = "1"

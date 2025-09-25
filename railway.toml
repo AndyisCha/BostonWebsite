@@ -2,7 +2,7 @@
 builder = "NIXPACKS"
 
 [deploy]
-startCommand = "cd server && npm run start:prod"
+startCommand = "cd server && npm run start:dev"
 healthcheckPath = "/health"
 healthcheckTimeout = 600
 healthcheckRetries = 10
