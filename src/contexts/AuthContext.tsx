@@ -110,75 +110,75 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const login = async (email: string, password: string) => {
     setLoading(true);
 
+    // 테스트용 관리자 계정 - Andy (SUPER_MASTER)
+    if (email === 'andy@boston.com' && password === 'admin123') {
+      const adminUser: User = {
+        id: 'admin-andy-001',
+        email: 'andy@boston.com',
+        role: 'SUPER_MASTER',
+        firstName: 'Andy',
+        lastName: 'Administrator',
+        countryId: 'KR',
+        branchId: 'main',
+        permissions: [
+          'user.create',
+          'user.read',
+          'user.update',
+          'user.delete',
+          'ebook.manage',
+          'system.admin',
+          'analytics.view',
+          'content.manage',
+          'branch.manage',
+          'country.manage'
+        ]
+      };
+
+      const adminToken = 'admin-token-' + Date.now();
+
+      setUser(adminUser);
+      setToken(adminToken);
+
+      localStorage.setItem('token', adminToken);
+      localStorage.setItem('user', JSON.stringify(adminUser));
+
+      setupAxiosInterceptors(adminToken);
+      setLoading(false);
+      return;
+    }
+
+    // 테스트용 학생 계정 - Student (STUDENT)
+    if (email === 'student@boston.com' && password === 'student123') {
+      const studentUser: User = {
+        id: 'student-001',
+        email: 'student@boston.com',
+        role: 'STUDENT',
+        firstName: '학생',
+        lastName: '테스트',
+        countryId: 'KR',
+        branchId: 'seoul-branch',
+        permissions: [
+          'ebook.read',
+          'test.take',
+          'progress.view'
+        ]
+      };
+
+      const studentToken = 'student-token-' + Date.now();
+
+      setUser(studentUser);
+      setToken(studentToken);
+
+      localStorage.setItem('token', studentToken);
+      localStorage.setItem('user', JSON.stringify(studentUser));
+
+      setupAxiosInterceptors(studentToken);
+      setLoading(false);
+      return;
+    }
+
+    // 일반 API 로그인
     try {
-      // 테스트용 관리자 계정 - Andy (SUPER_MASTER)
-      if (email === 'andy@boston.com' && password === 'admin123') {
-        const adminUser: User = {
-          id: 'admin-andy-001',
-          email: 'andy@boston.com',
-          role: 'SUPER_MASTER',
-          firstName: 'Andy',
-          lastName: 'Administrator',
-          countryId: 'KR',
-          branchId: 'main',
-          permissions: [
-            'user.create',
-            'user.read',
-            'user.update',
-            'user.delete',
-            'ebook.manage',
-            'system.admin',
-            'analytics.view',
-            'content.manage',
-            'branch.manage',
-            'country.manage'
-          ]
-        };
-
-        const adminToken = 'admin-token-' + Date.now();
-
-        setUser(adminUser);
-        setToken(adminToken);
-
-        localStorage.setItem('token', adminToken);
-        localStorage.setItem('user', JSON.stringify(adminUser));
-
-        setupAxiosInterceptors(adminToken);
-        setLoading(false);
-        return;
-      }
-
-      // 테스트용 학생 계정 - Student (STUDENT)
-      if (email === 'student@boston.com' && password === 'student123') {
-        const studentUser: User = {
-          id: 'student-001',
-          email: 'student@boston.com',
-          role: 'STUDENT',
-          firstName: '학생',
-          lastName: '테스트',
-          countryId: 'KR',
-          branchId: 'seoul-branch',
-          permissions: [
-            'ebook.read',
-            'test.take',
-            'progress.view'
-          ]
-        };
-
-        const studentToken = 'student-token-' + Date.now();
-
-        setUser(studentUser);
-        setToken(studentToken);
-
-        localStorage.setItem('token', studentToken);
-        localStorage.setItem('user', JSON.stringify(studentUser));
-
-        setupAxiosInterceptors(studentToken);
-        setLoading(false);
-        return;
-      }
-
-      // 일반 API 로그인
       const response = await axios.post('/api/auth/login', { email, password });
 
       const { user: userData, token: userToken } = response.data;
