@@ -1,15 +1,16 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import axios from 'axios';
+import { UserRole, PermissionSet, ROLE_PERMISSIONS, hasPermissionWithHierarchy } from '../types/permissions';
 
 interface User {
   id: string;
   email: string;
-  role: string;
+  role: UserRole;
   firstName?: string;
   lastName?: string;
   countryId?: string;
   branchId?: string;
-  permissions: string[];
+  permissions: PermissionSet;
 }
 
 interface AuthContextType {
@@ -20,8 +21,8 @@ interface AuthContextType {
   register: (userData: RegisterData) => Promise<void>;
   logout: () => void;
   impersonate: (targetUserId: string) => Promise<void>;
-  hasPermission: (permission: string) => boolean;
-  hasRole: (roles: string | string[]) => boolean;
+  hasPermission: (category: keyof PermissionSet, action: string) => boolean;
+  hasRole: (roles: UserRole | UserRole[]) => boolean;
 }
 
 interface RegisterData {
@@ -120,24 +121,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         lastName: 'Kim',
         countryId: 'KR',
         branchId: 'headquarters',
-        permissions: [
-          'user.create',
-          'user.read',
-          'user.update',
-          'user.delete',
-          'ebook.manage',
-          'ebook.create',
-          'ebook.edit',
-          'ebook.delete',
-          'system.admin',
-          'analytics.view',
-          'content.manage',
-          'branch.manage',
-          'country.manage',
-          'settings.manage',
-          'backup.manage',
-          'audit.view'
-        ]
+        permissions: ROLE_PERMISSIONS.SUPER_MASTER
       };
 
       const adminToken = 'admin-token-' + Date.now();
@@ -153,6 +137,32 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       return;
     }
 
+    // 나라 마스터 계정 - Country Master
+    if (email === 'country@bostonacademy.kr' && password === 'Country2024!') {
+      const countryMasterUser: User = {
+        id: 'country-master-001',
+        email: 'country@bostonacademy.kr',
+        role: 'COUNTRY_MASTER',
+        firstName: 'Andy',
+        lastName: 'Country',
+        countryId: 'KR',
+        branchId: undefined,
+        permissions: ROLE_PERMISSIONS.COUNTRY_MASTER
+      };
+
+      const countryToken = 'country-token-' + Date.now();
+
+      setUser(countryMasterUser);
+      setToken(countryToken);
+
+      localStorage.setItem('token', countryToken);
+      localStorage.setItem('user', JSON.stringify(countryMasterUser));
+
+      setupAxiosInterceptors(countryToken);
+      setLoading(false);
+      return;
+    }
+
     // 지점 관리자 계정 - Branch Admin
     if (email === 'branch@bostonacademy.kr' && password === 'Branch2024!') {
       const branchAdminUser: User = {
@@ -163,14 +173,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         lastName: 'Branch',
         countryId: 'KR',
         branchId: 'seoul-gangnam',
-        permissions: [
-          'user.create',
-          'user.read',
-          'user.update',
-          'ebook.manage',
-          'analytics.view',
-          'branch.manage'
-        ]
+        permissions: ROLE_PERMISSIONS.BRANCH_ADMIN
       };
 
       const branchToken = 'branch-token-' + Date.now();
@@ -196,12 +199,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         lastName: 'Teacher',
         countryId: 'KR',
         branchId: 'seoul-gangnam',
-        permissions: [
-          'user.read',
-          'ebook.manage',
-          'content.create',
-          'test.manage'
-        ]
+        permissions: ROLE_PERMISSIONS.TEACHER
       };
 
       const teacherToken = 'teacher-token-' + Date.now();
@@ -227,11 +225,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         lastName: 'Student',
         countryId: 'KR',
         branchId: 'seoul-gangnam',
-        permissions: [
-          'ebook.read',
-          'test.take',
-          'progress.view'
-        ]
+        permissions: ROLE_PERMISSIONS.STUDENT
       };
 
       const studentToken = 'student-token-' + Date.now();
@@ -305,13 +299,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  const hasPermission = (permission: string): boolean => {
-    return user?.permissions.includes(permission) || false;
+  const hasPermission = (category: keyof PermissionSet, action: string): boolean => {
+    if (!user) return false;
+    return hasPermissionWithHierarchy(user.role, category, action);
   };
 
-  const hasRole = (roles: string | string[]): boolean => {
+  const hasRole = (roles: UserRole | UserRole[]): boolean => {
     if (!user) return false;
-
     const roleArray = Array.isArray(roles) ? roles : [roles];
     return roleArray.includes(user.role);
   };
