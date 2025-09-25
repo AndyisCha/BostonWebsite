@@ -15,4 +15,4 @@ cmd = "cd server && npm ci"
 cmd = "echo 'No build needed for Railway server'"
 
 [start]
-cmd = "cd server && node railway-server.js"
+cmd = "node railway-server.js"
