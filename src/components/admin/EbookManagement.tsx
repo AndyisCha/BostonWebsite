@@ -616,7 +616,7 @@ const EbookManagement: React.FC = () => {
                       </TableCell>
                       <TableCell>
                         <Typography variant="subtitle2">{ebook.title}</Typography>
-                        {ebook.category.length > 0 && (
+                        {ebook.category && Array.isArray(ebook.category) && ebook.category.length > 0 && (
                           <Box mt={0.5}>
                             {ebook.category.map(cat => (
                               <Chip key={cat} label={cat} size="small" sx={{ mr: 0.5, fontSize: '0.6rem' }} />

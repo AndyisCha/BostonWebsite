@@ -1,5 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { GlobalDashboard } from './dashboards/GlobalDashboard';
+import { CountryDashboard } from './dashboards/CountryDashboard';
+import { TeacherDashboard } from './dashboards/TeacherDashboard';
+import { ParentDashboard } from './dashboards/ParentDashboard';
+import { StudentDashboard } from './dashboards/StudentDashboard';
 import '../styles/Dashboard.css';
 
 interface StatCard {
@@ -41,6 +46,10 @@ const Dashboard: React.FC = () => {
   const [notifications, setNotifications] = useState<string[]>([]);
 
   const isAdmin = user?.role === 'SUPER_MASTER' || user?.role === 'COUNTRY_MASTER' || user?.role === 'BRANCH_ADMIN';
+  const isSuperMaster = user?.role === 'SUPER_MASTER';
+  const isCountryMaster = user?.role === 'COUNTRY_MASTER';
+  const isTeacher = user?.role === 'TEACHER';
+  const isParent = user?.role === 'PARENT';
 
   // 실시간 시계 업데이트
   useEffect(() => {
@@ -318,6 +327,31 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
     );
+  }
+
+  // SUPER_MASTER는 글로벌 대시보드 표시
+  if (isSuperMaster) {
+    return <GlobalDashboard />;
+  }
+
+  // COUNTRY_MASTER는 나라 대시보드 표시
+  if (isCountryMaster) {
+    return <CountryDashboard />;
+  }
+
+  // TEACHER는 교사 대시보드 표시
+  if (isTeacher) {
+    return <TeacherDashboard />;
+  }
+
+  // PARENT는 부모 대시보드 표시
+  if (isParent) {
+    return <ParentDashboard />;
+  }
+
+  // STUDENT는 학생 대시보드 표시
+  if (user?.role === 'STUDENT') {
+    return <StudentDashboard />;
   }
 
   return (

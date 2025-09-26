@@ -39,7 +39,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 // Axios 인터셉터 설정
 const setupAxiosInterceptors = (token: string | null) => {
   // Request interceptor
-  axios.defaults.baseURL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+  axios.defaults.baseURL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
   axios.interceptors.request.use(
     (config) => {
@@ -96,6 +96,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, []);
 
   const verifyToken = async (tokenToVerify: string) => {
+    // 백엔드가 없으므로 토큰 검증을 건너뜀
+    // 실제 운영 환경에서는 아래 코드를 활성화
+    /*
     try {
       const response = await axios.get('/api/auth/profile', {
         headers: { Authorization: `Bearer ${tokenToVerify}` }
@@ -106,6 +109,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       console.error('Token verification failed:', error);
       logout();
     }
+    */
   };
 
   const login = async (email: string, password: string) => {
@@ -211,6 +215,32 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       localStorage.setItem('user', JSON.stringify(teacherUser));
 
       setupAxiosInterceptors(teacherToken);
+      setLoading(false);
+      return;
+    }
+
+    // 부모 계정 - Parent
+    if (email === 'parent@bostonacademy.kr' && password === 'Parent2024!') {
+      const parentUser: User = {
+        id: 'parent-001',
+        email: 'parent@bostonacademy.kr',
+        role: 'PARENT',
+        firstName: 'Andy',
+        lastName: 'Parent',
+        countryId: 'KR',
+        branchId: 'seoul-gangnam',
+        permissions: ROLE_PERMISSIONS.PARENT
+      };
+
+      const parentToken = 'parent-token-' + Date.now();
+
+      setUser(parentUser);
+      setToken(parentToken);
+
+      localStorage.setItem('token', parentToken);
+      localStorage.setItem('user', JSON.stringify(parentUser));
+
+      setupAxiosInterceptors(parentToken);
       setLoading(false);
       return;
     }

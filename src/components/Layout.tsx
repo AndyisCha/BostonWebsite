@@ -25,18 +25,23 @@ import {
   People,
   ExitToApp,
   Person,
-  Edit
+  Edit,
+  Security,
+  AdminPanelSettings
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { ImpersonationBanner } from './ImpersonationBanner';
+import { ImpersonationModal } from './ImpersonationModal';
 
 const DRAWER_WIDTH = 240;
 
 const Layout: React.FC = () => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const [mobileOpen, setMobileOpen] = React.useState(false);
+  const [impersonationModalOpen, setImpersonationModalOpen] = React.useState(false);
   const navigate = useNavigate();
-  const { user, logout, hasRole } = useAuth();
+  const { user, logout, hasRole, impersonate } = useAuth();
 
   const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -86,6 +91,12 @@ const Layout: React.FC = () => {
       icon: <People />,
       path: '/users',
       roles: ['SUPER_MASTER', 'COUNTRY_MASTER', 'BRANCH_ADMIN', 'TEACHER']
+    },
+    {
+      text: '권한 매트릭스',
+      icon: <Security />,
+      path: '/permissions',
+      roles: ['SUPER_MASTER', 'COUNTRY_MASTER', 'BRANCH_ADMIN']
     }
   ];
 
@@ -190,6 +201,17 @@ const Layout: React.FC = () => {
         open={Boolean(anchorEl)}
         onClose={handleMenuClose}
       >
+        {user?.role === 'SUPER_MASTER' && (
+          <MenuItem onClick={() => {
+            setImpersonationModalOpen(true);
+            handleMenuClose();
+          }}>
+            <ListItemIcon>
+              <AdminPanelSettings fontSize="small" />
+            </ListItemIcon>
+            대행접속
+          </MenuItem>
+        )}
         <MenuItem onClick={handleLogout}>
           <ListItemIcon>
             <ExitToApp fontSize="small" />
@@ -239,8 +261,36 @@ const Layout: React.FC = () => {
         }}
       >
         <Toolbar />
+
+        {/* 대행접속 경고 배너 */}
+        <ImpersonationBanner
+          onEndImpersonation={() => {
+            // 원래 계정으로 복귀
+            const originalUser = localStorage.getItem('user');
+            const originalToken = localStorage.getItem('token');
+
+            if (originalUser && originalToken) {
+              window.location.reload(); // 간단한 복귀 방법
+            }
+          }}
+        />
+
         <Outlet />
       </Box>
+
+      {/* 대행접속 모달 */}
+      <ImpersonationModal
+        open={impersonationModalOpen}
+        onClose={() => setImpersonationModalOpen(false)}
+        onImpersonate={async (userId) => {
+          try {
+            await impersonate(userId);
+            navigate('/dashboard');
+          } catch (error) {
+            console.error('Impersonation failed:', error);
+          }
+        }}
+      />
     </Box>
   );
 };

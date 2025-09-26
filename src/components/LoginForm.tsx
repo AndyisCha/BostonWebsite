@@ -6,7 +6,6 @@ import '../styles/LoginForm.css';
 interface LoginFormData {
   email: string;
   password: string;
-  role: 'student' | 'teacher' | 'admin';
   rememberMe: boolean;
 }
 
@@ -17,7 +16,6 @@ const LoginForm: React.FC = () => {
   const [formData, setFormData] = useState<LoginFormData>({
     email: '',
     password: '',
-    role: 'student',
     rememberMe: false
   });
 
@@ -148,44 +146,6 @@ const LoginForm: React.FC = () => {
           {errors.password && <div className="field-error">{errors.password}</div>}
         </div>
 
-        <div className="role-selector">
-          <label>역할 선택</label>
-          <div className="role-options">
-            <div className="role-option">
-              <input
-                type="radio"
-                id="student"
-                name="role"
-                value="student"
-                checked={formData.role === 'student'}
-                onChange={handleInputChange}
-              />
-              <label htmlFor="student" className="role-label">학생</label>
-            </div>
-            <div className="role-option">
-              <input
-                type="radio"
-                id="teacher"
-                name="role"
-                value="teacher"
-                checked={formData.role === 'teacher'}
-                onChange={handleInputChange}
-              />
-              <label htmlFor="teacher" className="role-label">교사</label>
-            </div>
-            <div className="role-option">
-              <input
-                type="radio"
-                id="admin"
-                name="role"
-                value="admin"
-                checked={formData.role === 'admin'}
-                onChange={handleInputChange}
-              />
-              <label htmlFor="admin" className="role-label">관리자</label>
-            </div>
-          </div>
-        </div>
 
         <div className="form-options">
           <div className="remember-me">

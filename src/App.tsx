@@ -16,6 +16,7 @@ import { LevelTest } from './components/LevelTest';
 import { EbookLibrary } from './components/EbookLibrary';
 import EbookManagement from './components/admin/EbookManagement';
 import UserManagement from './components/UserManagement';
+import { PermissionMatrix } from './components/PermissionMatrix';
 import { LoadingSpinner } from './components/LoadingSpinner';
 
 // Type definitions
@@ -175,6 +176,12 @@ const AppContent: React.FC = () => {
           <Route path="users" element={
             <ProtectedRoute roles={['SUPER_MASTER', 'COUNTRY_MASTER', 'BRANCH_ADMIN', 'TEACHER']}>
               <UserManagement />
+            </ProtectedRoute>
+          } />
+
+          <Route path="permissions" element={
+            <ProtectedRoute roles={['SUPER_MASTER', 'COUNTRY_MASTER', 'BRANCH_ADMIN']}>
+              <PermissionMatrix />
             </ProtectedRoute>
           } />
         </Route>
