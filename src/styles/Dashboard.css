@@ -1,8 +1,9 @@
-/* Enhanced Dashboard CSS */
+/* Enhanced Dashboard CSS - Design System Integration */
+@import './tokens.css';
 
 .dashboard-container {
-  padding: 24px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: var(--space-6);
+  background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-accent) 100%);
   min-height: 100vh;
   position: relative;
   overflow-x: hidden;
@@ -30,8 +31,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
-  padding: 0 8px;
+  margin-bottom: var(--space-6);
+  padding: 0 var(--space-2);
 }
 
 .dashboard-title {
@@ -42,20 +43,20 @@
 
 .dashboard-title h2 {
   margin: 0;
-  font-size: 2.5rem;
-  font-weight: 700;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-bold);
+  text-shadow: var(--shadow-sm);
 }
 
 .current-time {
   color: rgba(255, 255, 255, 0.9);
-  font-size: 1rem;
-  font-weight: 500;
-  margin-top: 4px;
-  font-family: 'Courier New', monospace;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  margin-top: var(--space-1);
+  font-family: var(--font-family-mono);
   background: rgba(255, 255, 255, 0.1);
-  padding: 4px 12px;
-  border-radius: 12px;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-md);
   backdrop-filter: blur(10px);
 }
 
@@ -65,27 +66,27 @@
 
 .notification-badge {
   position: absolute;
-  top: -8px;
-  right: -8px;
-  background: linear-gradient(45deg, #ff6b6b, #ee5a52);
-  color: white;
-  border-radius: 50%;
-  width: 24px;
-  height: 24px;
+  top: calc(-1 * var(--space-2));
+  right: calc(-1 * var(--space-2));
+  background: linear-gradient(45deg, var(--brand-error), #ee5a52);
+  color: var(--text-inverse);
+  border-radius: var(--radius-full);
+  width: var(--space-6);
+  height: var(--space-6);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.8rem;
-  font-weight: 700;
-  animation: pulse 2s infinite;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  animation: pulse var(--duration-slower) infinite;
 }
 
 .dashboard-header {
-  background: white;
-  border-radius: 16px;
-  padding: 24px;
-  margin-bottom: 24px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  background: var(--surface-card);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  margin-bottom: var(--space-6);
+  box-shadow: var(--shadow-lg);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -96,50 +97,50 @@
 }
 
 .dashboard-header .welcome-text h3 {
-  margin: 0 0 8px 0;
-  color: #2c3e50;
-  font-size: 1.8rem;
+  margin: 0 0 var(--space-2) 0;
+  color: var(--text-primary);
+  font-size: var(--font-size-2xl);
 }
 
 .dashboard-header .welcome-text p {
-  margin: 0 0 12px 0;
-  color: #7f8c8d;
-  font-size: 1.1rem;
+  margin: 0 0 var(--space-3) 0;
+  color: var(--text-secondary);
+  font-size: var(--font-size-lg);
 }
 
 .weather-widget {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
   background: linear-gradient(45deg, #e3f2fd, #f3e5f5);
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-size: 0.9rem;
-  color: #1976d2;
-  font-weight: 500;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-2xl);
+  font-size: var(--font-size-sm);
+  color: var(--brand-info);
+  font-weight: var(--font-weight-medium);
 }
 
 .role-indicator {
   display: flex;
   align-items: center;
-  gap: 12px;
-  background: linear-gradient(45deg, #e74c3c, #c0392b);
-  color: white;
-  padding: 12px 20px;
-  border-radius: 25px;
-  font-weight: 600;
+  gap: var(--space-3);
+  background: linear-gradient(45deg, var(--brand-error), #c0392b);
+  color: var(--text-inverse);
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-2xl);
+  font-weight: var(--font-weight-semibold);
 }
 
 .role-indicator.student {
-  background: linear-gradient(45deg, #3498db, #2980b9);
+  background: linear-gradient(45deg, var(--brand-primary), #2980b9);
 }
 
 .role-indicator.teacher {
-  background: linear-gradient(45deg, #f39c12, #e67e22);
+  background: linear-gradient(45deg, var(--brand-warning), #e67e22);
 }
 
 .role-indicator.admin {
-  background: linear-gradient(45deg, #e74c3c, #c0392b);
+  background: linear-gradient(45deg, var(--brand-error), #c0392b);
 }
 
 .role-indicator .role-icon {
@@ -155,20 +156,20 @@
 .stats-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 24px;
-  margin-bottom: 32px;
+  gap: var(--grid-gap);
+  margin-bottom: var(--space-8);
 }
 
 .stat-card {
-  background: white;
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: var(--card-bg);
+  border-radius: var(--card-radius);
+  padding: var(--card-padding);
+  box-shadow: var(--card-shadow);
+  transition: all var(--duration-slow) var(--ease-in-out);
   position: relative;
   overflow: hidden;
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid var(--card-border);
 }
 
 .stat-card:hover {
@@ -232,9 +233,9 @@
 }
 
 .stat-card .stat-title {
-  font-size: 0.9rem;
-  color: #7f8c8d;
-  font-weight: 600;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-semibold);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -252,24 +253,24 @@
 }
 
 .stat-card .stat-value {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: #2c3e50;
-  margin-bottom: 12px;
-  background: linear-gradient(45deg, #2c3e50, #34495e);
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-3);
+  background: linear-gradient(45deg, var(--text-primary), var(--text-secondary));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  animation: countUp 2s ease-out;
+  animation: countUp var(--duration-slower) ease-out;
   display: flex;
   align-items: baseline;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .stat-card .stat-value .stat-label {
-  font-size: 1rem;
+  font-size: var(--font-size-base);
   opacity: 0.7;
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
 }
 
 /* Enhanced Progress Bar in Cards */

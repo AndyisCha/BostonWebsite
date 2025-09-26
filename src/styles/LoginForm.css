@@ -1,12 +1,13 @@
-/* LoginForm CSS */
+/* LoginForm CSS - Design System Integration */
+@import './tokens.css';
 
 .login-container {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 20px;
+  background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-accent) 100%);
+  padding: var(--space-5);
   position: relative;
   overflow: hidden;
 }
@@ -29,16 +30,16 @@
 
 .login-form {
   background: rgba(255, 255, 255, 0.95);
-  border-radius: 20px;
-  padding: 48px 40px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  border-radius: var(--radius-2xl);
+  padding: var(--space-12) var(--space-10);
+  box-shadow: var(--shadow-2xl);
   width: 100%;
   max-width: 420px;
   position: relative;
   z-index: 2;
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.3);
-  transition: all 0.3s ease;
+  transition: all var(--duration-slow) var(--ease-in-out);
   animation: fadeInUp 0.8s ease-out;
 }
 

@@ -1,0 +1,300 @@
+/* Role-Based Theme System */
+/* ======================= */
+
+/* Import design tokens */
+@import './tokens.css';
+
+/* === Student Theme === */
+[data-role="student"] {
+  /* Primary colors focused on learning and engagement */
+  --brand-primary: #3498db;
+  --brand-secondary: #2980b9;
+  --brand-accent: #1abc9c;
+
+  /* Student-specific component colors */
+  --kpi-card-accent: var(--brand-primary);
+  --nav-item-active: var(--brand-primary);
+  --tab-active-border: var(--brand-primary);
+  --input-focus-border: var(--brand-primary);
+
+  /* Chart colors optimized for learning metrics */
+  --chart-primary: var(--brand-primary);
+  --chart-secondary: var(--brand-accent);
+  --chart-progress: var(--brand-success);
+  --chart-reading: #5dade2;
+  --chart-quiz: #af7ac5;
+
+  /* Status colors */
+  --status-learning: var(--brand-primary);
+  --status-completed: var(--brand-success);
+  --status-in-progress: var(--brand-accent);
+}
+
+/* Student theme specific adjustments */
+[data-role="student"] .role-indicator.student {
+  background: linear-gradient(45deg, var(--brand-primary), var(--brand-secondary));
+  box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+}
+
+[data-role="student"] .stat-card.reading::before {
+  background: linear-gradient(90deg, var(--brand-primary), var(--brand-accent));
+}
+
+[data-role="student"] .stat-card.progress::before {
+  background: linear-gradient(90deg, var(--brand-accent), var(--brand-success));
+}
+
+/* === Teacher Theme === */
+[data-role="teacher"] {
+  /* Primary colors focused on instruction and management */
+  --brand-primary: #f39c12;
+  --brand-secondary: #e67e22;
+  --brand-accent: #e74c3c;
+
+  /* Teacher-specific component colors */
+  --kpi-card-accent: var(--brand-primary);
+  --nav-item-active: var(--brand-primary);
+  --tab-active-border: var(--brand-primary);
+  --input-focus-border: var(--brand-primary);
+
+  /* Chart colors optimized for teaching metrics */
+  --chart-primary: var(--brand-primary);
+  --chart-secondary: var(--brand-accent);
+  --chart-students: #3498db;
+  --chart-assignments: #9b59b6;
+  --chart-grades: #2ecc71;
+
+  /* Status colors */
+  --status-teaching: var(--brand-primary);
+  --status-grading: var(--brand-warning);
+  --status-review: var(--brand-accent);
+}
+
+/* Teacher theme specific adjustments */
+[data-role="teacher"] .role-indicator.teacher {
+  background: linear-gradient(45deg, var(--brand-primary), var(--brand-secondary));
+  box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
+}
+
+[data-role="teacher"] .stat-card.students::before {
+  background: linear-gradient(90deg, var(--brand-primary), #3498db);
+}
+
+[data-role="teacher"] .stat-card.assignments::before {
+  background: linear-gradient(90deg, var(--brand-secondary), #9b59b6);
+}
+
+[data-role="teacher"] .stat-card.performance::before {
+  background: linear-gradient(90deg, var(--brand-accent), var(--brand-success));
+}
+
+/* === Admin Theme === */
+[data-role="admin"] {
+  /* Primary colors focused on control and authority */
+  --brand-primary: #e74c3c;
+  --brand-secondary: #c0392b;
+  --brand-accent: #8e44ad;
+
+  /* Admin-specific component colors */
+  --kpi-card-accent: var(--brand-primary);
+  --nav-item-active: var(--brand-primary);
+  --tab-active-border: var(--brand-primary);
+  --input-focus-border: var(--brand-primary);
+
+  /* Chart colors optimized for administrative metrics */
+  --chart-primary: var(--brand-primary);
+  --chart-secondary: var(--brand-accent);
+  --chart-users: #3498db;
+  --chart-system: #2ecc71;
+  --chart-security: #f39c12;
+
+  /* Status colors */
+  --status-admin: var(--brand-primary);
+  --status-system: var(--brand-success);
+  --status-alert: var(--brand-error);
+  --status-maintenance: var(--brand-warning);
+}
+
+/* Admin theme specific adjustments */
+[data-role="admin"] .role-indicator.admin {
+  background: linear-gradient(45deg, var(--brand-primary), var(--brand-secondary));
+  box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+}
+
+[data-role="admin"] .stat-card.users::before {
+  background: linear-gradient(90deg, var(--brand-primary), #3498db);
+}
+
+[data-role="admin"] .stat-card.system::before {
+  background: linear-gradient(90deg, var(--brand-accent), var(--brand-success));
+}
+
+[data-role="admin"] .stat-card.security::before {
+  background: linear-gradient(90deg, var(--brand-secondary), #f39c12);
+}
+
+/* === Dark Theme Integration === */
+[data-theme="dark"][data-role="student"] {
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --surface-card: #1e293b;
+
+  /* Adjust student colors for dark theme */
+  --brand-primary: #5dade2;
+  --brand-accent: #48c9b0;
+
+  /* Enhanced contrast for dark theme */
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --border-default: #334155;
+}
+
+[data-theme="dark"][data-role="teacher"] {
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --surface-card: #1e293b;
+
+  /* Adjust teacher colors for dark theme */
+  --brand-primary: #f7b731;
+  --brand-accent: #e55039;
+
+  /* Enhanced contrast for dark theme */
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --border-default: #334155;
+}
+
+[data-theme="dark"][data-role="admin"] {
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --surface-card: #1e293b;
+
+  /* Adjust admin colors for dark theme */
+  --brand-primary: #ff6b6b;
+  --brand-accent: #a55eea;
+
+  /* Enhanced contrast for dark theme */
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --border-default: #334155;
+}
+
+/* === High Contrast Mode === */
+[data-accessibility="high-contrast"] {
+  --bg-primary: #000000;
+  --bg-secondary: #1a1a1a;
+  --surface-card: #2a2a2a;
+  --text-primary: #ffffff;
+  --text-secondary: #e0e0e0;
+  --border-default: #666666;
+
+  /* High contrast brand colors */
+  --brand-primary: #00d4ff;
+  --brand-success: #00ff00;
+  --brand-warning: #ffff00;
+  --brand-error: #ff0000;
+}
+
+/* === Reduced Motion Integration === */
+@media (prefers-reduced-motion: reduce) {
+  [data-role] .stat-card {
+    transition: none;
+    animation: none;
+  }
+
+  [data-role] .stat-card:hover {
+    transform: none;
+  }
+
+  [data-role] .progress-fill {
+    animation: none;
+    transition: none;
+  }
+}
+
+/* === Print Styles for Role-Based Themes === */
+@media print {
+  [data-role] {
+    --bg-primary: #ffffff;
+    --text-primary: #000000;
+    --text-secondary: #333333;
+    --border-default: #cccccc;
+  }
+
+  [data-role] .stat-card::before {
+    background: #cccccc !important;
+  }
+}
+
+/* === Mobile Responsive Adjustments === */
+@media (max-width: 768px) {
+  [data-role="student"] .dashboard-stats,
+  [data-role="teacher"] .dashboard-stats,
+  [data-role="admin"] .dashboard-stats {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+
+  [data-role] .role-indicator {
+    padding: var(--space-2) var(--space-4);
+    font-size: var(--font-size-sm);
+  }
+
+  [data-role] .stat-card {
+    padding: var(--space-4);
+  }
+
+  [data-role] .stat-card .stat-value {
+    font-size: var(--font-size-2xl);
+  }
+}
+
+/* === Focus States for Role Themes === */
+[data-role="student"] :focus-visible {
+  outline-color: var(--brand-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand-primary) 20%, transparent);
+}
+
+[data-role="teacher"] :focus-visible {
+  outline-color: var(--brand-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand-primary) 20%, transparent);
+}
+
+[data-role="admin"] :focus-visible {
+  outline-color: var(--brand-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand-primary) 20%, transparent);
+}
+
+/* === Animation Variations by Role === */
+[data-role="student"] .stat-card:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 15px 30px rgba(52, 152, 219, 0.2);
+}
+
+[data-role="teacher"] .stat-card:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 15px 30px rgba(243, 156, 18, 0.2);
+}
+
+[data-role="admin"] .stat-card:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 15px 30px rgba(231, 76, 60, 0.2);
+}
+
+/* === Custom Properties for Theme Switching === */
+.theme-transition {
+  transition:
+    background-color var(--duration-base) var(--ease-in-out),
+    color var(--duration-base) var(--ease-in-out),
+    border-color var(--duration-base) var(--ease-in-out),
+    box-shadow var(--duration-base) var(--ease-in-out);
+}
+
+/* Apply transition to common elements */
+.stat-card,
+.card,
+.btn,
+.form-input,
+.nav-link {
+  @extend .theme-transition;
+}
