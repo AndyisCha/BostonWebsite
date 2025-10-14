@@ -212,7 +212,7 @@ const EbookManagement: React.FC = () => {
         setUploadProgress(0);
       });
 
-      xhr.open('POST', '/api/admin/ebooks/upload');
+      xhr.open('POST', '/api/v1/ebooks');
       xhr.setRequestHeader('Authorization', `Bearer ${localStorage.getItem('token')}`);
       xhr.send(formData);
 
@@ -577,14 +577,6 @@ const EbookManagement: React.FC = () => {
           <CardContent>
             <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
               <Typography variant="h6">등록된 E-book ({ebooks.length}권)</Typography>
-              <Button
-                variant="contained"
-                startIcon={<Add />}
-                onClick={() => setUploadDialog(true)}
-                className="upload-btn"
-              >
-                새 E-book 업로드
-              </Button>
             </Box>
 
             <TableContainer component={Paper} elevation={0}>
