@@ -109,6 +109,12 @@ router.get('/:ebookId/progress', async (req: AuthRequest, res) => {
 // Content creator endpoints
 router.post('/', requireContentCreator(), upload.single('ebookFile'), async (req: AuthRequest, res) => {
   try {
+    console.log('E-book upload request received:', {
+      user: req.user ? { id: req.user.id, role: req.user.role, email: req.user.email } : 'No user',
+      file: req.file ? { name: req.file.originalname, size: req.file.size } : 'No file',
+      body: req.body
+    });
+
     res.json({
       message: 'Upload ebook endpoint - to be implemented',
       file: req.file ? {
@@ -120,6 +126,7 @@ router.post('/', requireContentCreator(), upload.single('ebookFile'), async (req
       uploadedBy: req.user?.id
     });
   } catch (error) {
+    console.error('E-book upload error:', error);
     res.status(500).json({ error: 'Failed to upload ebook' });
   }
 });

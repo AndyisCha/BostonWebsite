@@ -137,7 +137,37 @@ export const requireCourseAccess = (req: AuthRequest, res: Response, next: NextF
 };
 
 // Middleware for content creation
-export const requireContentCreator = () => requireRole(['teacher', 'admin', 'super_master']);
+export const requireContentCreator = () => {
+  return (req: AuthRequest, res: Response, next: NextFunction) => {
+    console.log('Content creator access check:', {
+      user: req.user ? { id: req.user.id, role: req.user.role, email: req.user.email } : 'No user',
+      path: req.path,
+      method: req.method
+    });
+
+    if (!req.user) {
+      console.log('Content creator check failed: No user authenticated');
+      return res.status(401).json({
+        error: 'Authentication required',
+        message: 'Please log in to access this resource'
+      });
+    }
+
+    const allowedRoles = ['teacher', 'admin', 'super_master'];
+
+    if (!allowedRoles.includes(req.user.role)) {
+      console.log('Content creator check failed: Insufficient role', { userRole: req.user.role, requiredRoles: allowedRoles });
+      return res.status(403).json({
+        error: 'Insufficient permissions',
+        message: `This action requires ${allowedRoles.join(' or ')} role`,
+        userRole: req.user.role
+      });
+    }
+
+    console.log('Content creator check passed');
+    next();
+  };
+};
 
 // Optional user middleware (doesn't fail if no user)
 export const optionalAuth = async (req: AuthRequest, res: Response, next: NextFunction) => {
