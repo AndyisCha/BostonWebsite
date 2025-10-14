@@ -9,15 +9,15 @@ import multer from 'multer';
 import winston from 'winston';
 
 // Supabase configuration
-import { supabaseAdmin } from './lib/supabase';
+import { supabaseAdmin } from './lib/supabase.js';
 
 // Routes
-import authRoutes from './routes/authRoutes';
-import levelTestRoutes from './routes/levelTestRoutes';
-import ebookRoutes from './routes/ebookRoutes';
-import uploadRoutes from './routes/upload';
-import courseRoutes from './routes/courseRoutes';
-import lessonRoutes from './routes/lessonRoutes';
+import authRoutes from './routes/authRoutes.js';
+import levelTestRoutes from './routes/levelTestRoutes.js';
+import ebookRoutes from './routes/ebookRoutes.js';
+import uploadRoutes from './routes/upload.js';
+import courseRoutes from './routes/courseRoutes.js';
+import lessonRoutes from './routes/lessonRoutes.js';
 
 // Load environment variables
 dotenv.config();

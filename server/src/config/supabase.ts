@@ -1,6 +1,6 @@
 // Supabase 클라이언트 설정
 import { createClient } from '@supabase/supabase-js';
-import type { Database } from '../types/supabase';
+import type { Database } from '../types/supabase.js';
 
 if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
   console.warn('⚠️  Missing Supabase environment variables. Please configure your .env file.');

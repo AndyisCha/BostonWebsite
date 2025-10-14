@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
-import { LevelTestService } from '../services/levelTestService';
-import { CEFRLevel, TestAnswer } from '../types/cefr';
+import { LevelTestService } from '../services/levelTestService.js';
+import { CEFRLevel, TestAnswer } from '../types/cefr.js';
 
 const prisma = new PrismaClient();
 

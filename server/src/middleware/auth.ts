@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { supabaseAdmin } from '../lib/supabase';
+import { supabaseAdmin } from '../lib/supabase.js';
 import jwt from 'jsonwebtoken';
 
 type UserRole = 'student' | 'teacher' | 'admin' | 'super_master';

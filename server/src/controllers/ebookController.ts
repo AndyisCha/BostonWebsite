@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import { CEFRLevel } from '../types/cefr';
-import { AuthRequest } from '../middleware/auth';
-import { StorageService } from '../lib/storage';
+import { CEFRLevel } from '../types/cefr.js';
+import { AuthRequest } from '../middleware/auth.js';
+import { StorageService } from '../lib/storage.js';
 
 export class EbookController {
   static async uploadEbook(req: Request, res: Response) {

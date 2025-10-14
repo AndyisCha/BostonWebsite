@@ -1,7 +1,7 @@
 import express from 'express';
-import { uploadImage, uploadEbook, uploadAudio, handleUploadError } from '../middleware/upload';
-import { StorageService } from '../lib/storage';
-import { authenticate } from '../middleware/auth';
+import { uploadImage, uploadEbook, uploadAudio, handleUploadError } from '../middleware/upload.js';
+import { StorageService } from '../lib/storage.js';
+import { authenticate } from '../middleware/auth.js';
 
 const router = express.Router();
 

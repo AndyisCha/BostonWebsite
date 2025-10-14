@@ -1,4 +1,4 @@
-import { CEFRLevel, TestSession, TestAnswer, LevelTestResult } from '../types/cefr';
+import { CEFRLevel, TestSession, TestAnswer, LevelTestResult } from '../types/cefr.js';
 
 export class LevelTestService {
   private static readonly LEVEL_ORDER: CEFRLevel[] = [
