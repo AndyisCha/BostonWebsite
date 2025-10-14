@@ -91,6 +91,7 @@ Downloads/
 Favorites/
 LICENSE.txt
 Lib/
+!server/src/lib/
 Links/
 Music/
 NEWS.txt
