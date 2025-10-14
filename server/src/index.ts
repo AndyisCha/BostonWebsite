@@ -70,20 +70,47 @@ const corsOrigins = process.env.CORS_ORIGIN?.split(',').map(o => o.trim()) || [
 
 console.log(`🔒 CORS origins configured: ${corsOrigins.join(', ')}`);
 
-// Enable CORS with explicit configuration
+// Manual CORS headers - MUST be first to override Railway
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+
+  // Check if origin is allowed
+  if (origin && corsOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    console.log(`✅ CORS: Allowed origin ${origin}`);
+  } else if (!origin) {
+    // No origin header (server-to-server, Postman, etc.)
+    res.setHeader('Access-Control-Allow-Origin', '*');
+  } else {
+    console.warn(`⚠️  CORS: Blocked origin ${origin}`);
+  }
+
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+  res.setHeader('Access-Control-Expose-Headers', 'Content-Range, X-Content-Range');
+  res.setHeader('Access-Control-Max-Age', '600');
+
+  // Handle preflight
+  if (req.method === 'OPTIONS') {
+    console.log(`🔍 OPTIONS request for ${req.path} from ${origin}`);
+    return res.status(204).end();
+  }
+
+  next();
+});
+
+// Enable CORS with explicit configuration (backup)
 app.use(cors({
   origin: corsOrigins,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   exposedHeaders: ['Content-Range', 'X-Content-Range'],
-  maxAge: 600, // 10 minutes
+  maxAge: 600,
   preflightContinue: false,
   optionsSuccessStatus: 204
 }));
-
-// Handle OPTIONS requests explicitly
-app.options('*', cors());
 
 // Security middleware - AFTER CORS
 app.use(helmet({
