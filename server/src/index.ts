@@ -69,9 +69,27 @@ app.use(compression());
 app.use(cookieParser());
 
 // CORS configuration
-const corsOrigins = process.env.CORS_ORIGIN?.split(',') || ['http://localhost:3000'];
+const corsOrigins = process.env.CORS_ORIGIN?.split(',') || [
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'http://localhost:3002',
+  'http://localhost:3006',
+  'https://boston-website-omega.vercel.app'
+];
+
 app.use(cors({
-  origin: corsOrigins,
+  origin: (origin, callback) => {
+    // origin이 없으면 허용 (서버 간 통신, Postman 등)
+    if (!origin) return callback(null, true);
+
+    // 허용된 origin 목록에 있으면 허용
+    if (corsOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.warn(`⚠️  CORS blocked origin: ${origin}`);
+      callback(new Error(`Not allowed by CORS: ${origin}`));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
