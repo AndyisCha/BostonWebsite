@@ -119,6 +119,19 @@ app.use(cors(corsOptions));
 // Handle preflight requests globally
 app.options('*', cors(corsOptions));
 
+// DIAGNOSTIC: Track CORS header overwrites
+app.use((req, res, next) => {
+  const oldSetHeader = res.setHeader.bind(res);
+  res.setHeader = function(name: string, value: any) {
+    if (typeof name === 'string' && name.toLowerCase().startsWith('access-control')) {
+      console.log(`[CORS-SET] ${name}: ${value}`);
+      console.log(`[CORS-SET] Stack trace:`, new Error().stack?.split('\n').slice(2, 5).join('\n'));
+    }
+    return oldSetHeader(name, value);
+  };
+  next();
+});
+
 // Security middleware - AFTER CORS
 app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" }
