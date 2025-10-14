@@ -2,7 +2,7 @@
 builder = "NIXPACKS"
 
 [deploy]
-startCommand = "node railway-server.js"
+startCommand = "cd server && npm ci && npm run build && npm start"
 healthcheckPath = "/health"
 healthcheckTimeout = 300
 healthcheckRetries = 5
