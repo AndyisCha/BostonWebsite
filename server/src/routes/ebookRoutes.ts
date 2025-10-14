@@ -106,6 +106,30 @@ router.get('/:ebookId/progress', async (req: AuthRequest, res) => {
   }
 });
 
+// Development endpoint (no auth required) - REMOVE IN PRODUCTION
+router.post('/dev-upload', upload.single('ebookFile'), async (req: AuthRequest, res) => {
+  try {
+    console.log('DEV E-book upload request received (no auth):', {
+      file: req.file ? { name: req.file.originalname, size: req.file.size } : 'No file',
+      body: req.body
+    });
+
+    res.json({
+      message: 'DEV Upload ebook endpoint - to be implemented',
+      file: req.file ? {
+        originalname: req.file.originalname,
+        mimetype: req.file.mimetype,
+        size: req.file.size
+      } : null,
+      body: req.body,
+      note: 'This is a development endpoint with no authentication'
+    });
+  } catch (error) {
+    console.error('DEV E-book upload error:', error);
+    res.status(500).json({ error: 'Failed to upload ebook' });
+  }
+});
+
 // Content creator endpoints
 router.post('/', requireContentCreator(), upload.single('ebookFile'), async (req: AuthRequest, res) => {
   try {

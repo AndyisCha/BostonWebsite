@@ -212,7 +212,7 @@ const EbookManagement: React.FC = () => {
         setUploadProgress(0);
       });
 
-      xhr.open('POST', '/api/v1/ebooks');
+      xhr.open('POST', '/api/v1/ebooks/dev-upload');
       xhr.setRequestHeader('Authorization', `Bearer ${localStorage.getItem('token')}`);
       xhr.send(formData);
 
