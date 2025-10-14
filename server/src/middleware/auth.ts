@@ -35,24 +35,41 @@ export const authenticate = async (req: AuthRequest, res: Response, next: NextFu
     const { data: { user: authUser }, error: authError } = await supabaseAdmin.auth.getUser(token);
 
     if (authError || !authUser) {
+      console.error('Authentication failed:', authError?.message || 'No user found');
       return res.status(401).json({
         error: 'Invalid token',
         message: 'Authentication failed'
       });
     }
 
-    // For now, create user object from auth data
-    // Later we can query a users table if needed
+    // Validate email format
+    if (!authUser.email || !authUser.email.includes('@')) {
+      return res.status(401).json({
+        error: 'Invalid user data',
+        message: 'User email is required'
+      });
+    }
+
+    // Create user object from auth data with proper role validation
+    const userRole = authUser.user_metadata?.role as UserRole;
+    const validRoles: UserRole[] = ['student', 'teacher', 'admin', 'super_master'];
+
     const userData: User = {
       id: authUser.id,
       auth_id: authUser.id,
-      email: authUser.email || '',
-      name: authUser.user_metadata?.name || authUser.email?.split('@')[0] || '',
-      role: (authUser.user_metadata?.role as UserRole) || 'student',
+      email: authUser.email,
+      name: authUser.user_metadata?.name || authUser.email.split('@')[0],
+      role: validRoles.includes(userRole) ? userRole : 'student',
       is_active: true,
       created_at: authUser.created_at,
       updated_at: authUser.updated_at || authUser.created_at
     };
+
+    console.log('User authenticated successfully:', {
+      id: userData.id,
+      email: userData.email,
+      role: userData.role
+    });
 
     req.user = userData;
     next();
