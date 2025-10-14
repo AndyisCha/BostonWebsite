@@ -59,17 +59,8 @@ console.log(`- Railway environment: ${process.env.RAILWAY_ENVIRONMENT || 'not de
 console.log(`- Current working directory: ${process.cwd()}`);
 console.log(`- Available environment vars: ${Object.keys(process.env).length}`);
 
-// Security middleware
-app.use(helmet());
-
-// Compression middleware
-app.use(compression());
-
-// Cookie parser
-app.use(cookieParser());
-
-// CORS configuration
-const corsOrigins = process.env.CORS_ORIGIN?.split(',') || [
+// CORS configuration - MUST be before helmet()
+const corsOrigins = process.env.CORS_ORIGIN?.split(',').map(o => o.trim()) || [
   'http://localhost:3000',
   'http://localhost:3001',
   'http://localhost:3002',
@@ -77,23 +68,33 @@ const corsOrigins = process.env.CORS_ORIGIN?.split(',') || [
   'https://boston-website-omega.vercel.app'
 ];
 
-app.use(cors({
-  origin: (origin, callback) => {
-    // origin이 없으면 허용 (서버 간 통신, Postman 등)
-    if (!origin) return callback(null, true);
+console.log(`🔒 CORS origins configured: ${corsOrigins.join(', ')}`);
 
-    // 허용된 origin 목록에 있으면 허용
-    if (corsOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      console.warn(`⚠️  CORS blocked origin: ${origin}`);
-      callback(new Error(`Not allowed by CORS: ${origin}`));
-    }
-  },
+// Enable CORS with explicit configuration
+app.use(cors({
+  origin: corsOrigins,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  exposedHeaders: ['Content-Range', 'X-Content-Range'],
+  maxAge: 600, // 10 minutes
+  preflightContinue: false,
+  optionsSuccessStatus: 204
 }));
+
+// Handle OPTIONS requests explicitly
+app.options('*', cors());
+
+// Security middleware - AFTER CORS
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
+
+// Compression middleware
+app.use(compression());
+
+// Cookie parser
+app.use(cookieParser());
 
 // Rate limiting configuration from environment
 const limiter = rateLimit({
