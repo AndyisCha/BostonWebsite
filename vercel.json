@@ -3,10 +3,15 @@
   "outputDirectory": "dist",
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/((?!api).*)",
       "destination": "/index.html"
     }
   ],
+  "functions": {
+    "api/**/*.js": {
+      "maxDuration": 60
+    }
+  },
   "env": {
     "VITE_NODE_ENV": "production",
     "VITE_API_URL": "https://boston-english-server.railway.app/api/v1"

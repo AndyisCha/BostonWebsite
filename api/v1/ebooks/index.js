@@ -1,4 +1,12 @@
 // Vercel Serverless Function for E-book Upload
+
+// Disable body parser to handle FormData
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
 export default async function handler(req, res) {
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -28,66 +36,24 @@ export default async function handler(req, res) {
       // POST: Upload e-book
       console.log('[API] E-book upload request received');
       console.log('[API] Headers:', req.headers);
-      console.log('[API] Body type:', typeof req.body);
+      console.log('[API] Content-Type:', req.headers['content-type']);
 
-      let ebookData;
-
-      // Handle different content types
-      if (req.headers['content-type']?.includes('application/json')) {
-        ebookData = req.body;
-      } else if (req.headers['content-type']?.includes('multipart/form-data')) {
-        // For file uploads, we'd need to use a library like formidable
-        ebookData = { message: 'File upload detected, processing...' };
-      } else {
-        ebookData = req.body;
-      }
-
-      console.log('[API] Processed e-book data:', ebookData);
-
-      // Forward to Railway backend for actual processing
-      const RAILWAY_API_URL = 'https://boston-english-server.railway.app/api/v1/ebooks';
-
-      try {
-        console.log('[API] Forwarding to Railway backend...');
-        const railwayResponse = await fetch(RAILWAY_API_URL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': req.headers.authorization || ''
-          },
-          body: JSON.stringify(ebookData)
-        });
-
-        const railwayData = await railwayResponse.json();
-        console.log('[API] Railway response:', railwayData);
-
-        return res.status(railwayResponse.status).json({
-          success: railwayResponse.ok,
-          message: railwayResponse.ok ? 'E-book uploaded successfully via Railway' : 'Upload failed',
-          data: railwayData,
-          timestamp: new Date().toISOString(),
-          source: 'railway-backend'
-        });
-
-      } catch (railwayError) {
-        console.error('[API] Railway backend error:', railwayError);
-
-        // Fallback: Save locally if Railway is down
-        return res.status(200).json({
-          success: true,
-          message: 'E-book upload received (Railway backend unavailable)',
-          data: {
-            id: `ebook_${Date.now()}`,
-            title: ebookData?.title || 'Unknown Title',
-            author: ebookData?.author || 'Unknown Author',
-            uploadedAt: new Date().toISOString(),
-            status: 'pending_processing'
-          },
-          timestamp: new Date().toISOString(),
-          source: 'vercel-fallback',
-          note: 'Data saved locally, will sync with Railway when available'
-        });
-      }
+      // For now, return success locally without Railway
+      // Railway integration can be added later once the upload flow is working
+      return res.status(200).json({
+        success: true,
+        message: 'E-book upload endpoint is working! File upload processing will be implemented soon.',
+        data: {
+          id: `ebook_${Date.now()}`,
+          title: 'Test E-book',
+          author: 'Test Author',
+          uploadedAt: new Date().toISOString(),
+          status: 'pending_processing'
+        },
+        timestamp: new Date().toISOString(),
+        source: 'vercel-api',
+        note: 'This is a test response. File processing will be added in the next step.'
+      });
     }
 
     // Method not allowed
