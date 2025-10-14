@@ -14,6 +14,7 @@ import {
   VolumeUp, PlayArrow
 } from '@mui/icons-material';
 import { useAuth } from '../../contexts/AuthContext';
+import { getApiUrl } from '../../api/config';
 import '../../styles/EbookManagement.css';
 
 interface EbookFile {
@@ -233,13 +234,16 @@ const EbookManagement: React.FC = () => {
         setUploadProgress(0);
       });
 
-      // Upload directly to Railway backend (bypassing Vercel to avoid 4.5MB limit)
-      const RAILWAY_API_URL = 'https://boston-english-server.railway.app/api/v1/ebooks';
+      // 파일 크기에 따라 적절한 API URL 사용
+      // 대용량 파일은 Railway로 직접, 작은 파일은 프록시 사용
+      const fileSize = uploadForm.file?.size || 0;
+      const uploadUrl = getApiUrl(true, fileSize) + '/ebooks';
 
-      xhr.open('POST', RAILWAY_API_URL);
+      xhr.open('POST', uploadUrl);
       xhr.setRequestHeader('Authorization', `Bearer ${localStorage.getItem('token')}`);
 
-      console.log('📤 Sending request to:', RAILWAY_API_URL);
+      console.log('📤 Sending request to:', uploadUrl);
+      console.log('📦 File size:', (fileSize / 1024 / 1024).toFixed(2), 'MB');
       console.log('🔐 Authorization header set');
 
       xhr.send(formData);
@@ -275,7 +279,8 @@ const EbookManagement: React.FC = () => {
 
   const loadAnswerData = async (ebookId: string) => {
     try {
-      const response = await fetch(`/api/admin/ebooks/${ebookId}/answers`, {
+      const apiUrl = getApiUrl(false, 0);
+      const response = await fetch(`${apiUrl}/admin/ebooks/${ebookId}/answers`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -294,7 +299,8 @@ const EbookManagement: React.FC = () => {
 
   const loadPagePreview = async (ebookId: string, pageNumber: number) => {
     try {
-      const response = await fetch(`/api/admin/ebooks/${ebookId}/page/${pageNumber}`, {
+      const apiUrl = getApiUrl(false, 0);
+      const response = await fetch(`${apiUrl}/admin/ebooks/${ebookId}/page/${pageNumber}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -402,7 +408,8 @@ const EbookManagement: React.FC = () => {
   // Audio button management functions
   const loadAudioButtons = async (ebookId: string) => {
     try {
-      const response = await fetch(`/api/ebooks/${ebookId}/audio`, {
+      const apiUrl = getApiUrl(false, 0);
+      const response = await fetch(`${apiUrl}/ebooks/${ebookId}/audio`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -433,7 +440,8 @@ const EbookManagement: React.FC = () => {
     ));
 
     try {
-      const response = await fetch(`/api/ebooks/${selectedEbook.id}/audio`, {
+      const apiUrl = getApiUrl(false, 0);
+      const response = await fetch(`${apiUrl}/ebooks/${selectedEbook.id}/audio`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -478,7 +486,8 @@ const EbookManagement: React.FC = () => {
 
     try {
       setLoading(true);
-      const response = await fetch(`/api/ebooks/${selectedEbook.id}/audio`, {
+      const apiUrl = getApiUrl(false, 0);
+      const response = await fetch(`${apiUrl}/ebooks/${selectedEbook.id}/audio`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -505,7 +514,8 @@ const EbookManagement: React.FC = () => {
 
     try {
       setLoading(true);
-      const response = await fetch(`/api/admin/ebooks/${selectedEbook.id}/answers`, {
+      const apiUrl = getApiUrl(false, 0);
+      const response = await fetch(`${apiUrl}/admin/ebooks/${selectedEbook.id}/answers`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -533,7 +543,8 @@ const EbookManagement: React.FC = () => {
     if (!confirm('정말로 이 E-book을 삭제하시겠습니까?')) return;
 
     try {
-      const response = await fetch(`/api/admin/ebooks/${id}`, {
+      const apiUrl = getApiUrl(false, 0);
+      const response = await fetch(`${apiUrl}/admin/ebooks/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
