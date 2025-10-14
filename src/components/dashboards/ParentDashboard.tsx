@@ -88,81 +88,11 @@ export const ParentDashboard: React.FC = () => {
   useEffect(() => {
     const fetchData = () => {
       setTimeout(() => {
-        setChildren([
-          {
-            id: 'child-001',
-            name: '김민준',
-            level: 'B1-2',
-            recentScore: 88,
-            previousScore: 82,
-            testCount: 15,
-            studyHours: 42,
-            lastActivity: '2시간 전',
-            trend: 'up',
-            progressData: [
-              { name: '9/1', value: 78 },
-              { name: '9/8', value: 82 },
-              { name: '9/15', value: 85 },
-              { name: '9/22', value: 88 }
-            ]
-          },
-          {
-            id: 'child-002',
-            name: '김서연',
-            level: 'A2-3',
-            recentScore: 76,
-            previousScore: 79,
-            testCount: 12,
-            studyHours: 38,
-            lastActivity: '1일 전',
-            trend: 'down',
-            progressData: [
-              { name: '9/1', value: 82 },
-              { name: '9/8', value: 79 },
-              { name: '9/15', value: 78 },
-              { name: '9/22', value: 76 }
-            ]
-          }
-        ]);
+        // No children registered yet
+        setChildren([]);
 
-        setRecentActivities([
-          {
-            id: 'activity-001',
-            childName: '김민준',
-            type: 'test',
-            description: 'B1 Grammar Test 완료 (88점)',
-            timestamp: '2시간 전',
-            icon: <Quiz />,
-            color: 'primary'
-          },
-          {
-            id: 'activity-002',
-            childName: '김서연',
-            type: 'study',
-            description: 'Elementary Reading Book 3 학습 완료',
-            timestamp: '1일 전',
-            icon: <AutoStories />,
-            color: 'success'
-          },
-          {
-            id: 'activity-003',
-            childName: '김민준',
-            type: 'achievement',
-            description: '연속 학습 7일 달성!',
-            timestamp: '2일 전',
-            icon: <Grade />,
-            color: 'warning'
-          },
-          {
-            id: 'activity-004',
-            childName: '김서연',
-            type: 'level_up',
-            description: 'A2-2에서 A2-3으로 레벨업!',
-            timestamp: '1주일 전',
-            icon: <TrendingUp />,
-            color: 'info'
-          }
-        ]);
+        // No recent activities yet
+        setRecentActivities([]);
 
         setLoading(false);
       }, 1000);
@@ -211,7 +141,7 @@ export const ParentDashboard: React.FC = () => {
   };
 
   const totalChildren = children.length;
-  const avgScore = Math.round(children.reduce((sum, child) => sum + child.recentScore, 0) / children.length);
+  const avgScore = children.length > 0 ? Math.round(children.reduce((sum, child) => sum + child.recentScore, 0) / children.length) : 0;
   const totalStudyHours = children.reduce((sum, child) => sum + child.studyHours, 0);
   const recentAlerts = recentActivities.length;
 
@@ -263,7 +193,7 @@ export const ParentDashboard: React.FC = () => {
             title="연결된 자녀"
             value={totalChildren}
             label="명"
-            change="변화없음"
+            change="0명"
             changeType="neutral"
             icon={<People />}
             description="관리 중인 자녀 수"
@@ -276,7 +206,7 @@ export const ParentDashboard: React.FC = () => {
             title="평균 성적"
             value={avgScore}
             label="점"
-            change="+3점"
+            change="0점"
             changeType="increase"
             icon={<Grade />}
             description="자녀들의 평균 점수"
@@ -289,7 +219,7 @@ export const ParentDashboard: React.FC = () => {
             title="총 학습 시간"
             value={totalStudyHours}
             label="시간"
-            change="+12시간"
+            change="0시간"
             changeType="increase"
             icon={<Schedule />}
             description="이번 달 누적 시간"
@@ -302,7 +232,7 @@ export const ParentDashboard: React.FC = () => {
             title="최근 성적 알림"
             value={recentAlerts}
             label="개"
-            change="+2개"
+            change="0개"
             changeType="increase"
             icon={<Notifications />}
             description="읽지 않은 알림"

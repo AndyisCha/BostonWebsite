@@ -50,69 +50,72 @@ export const GlobalDashboard: React.FC = () => {
   useEffect(() => {
     const fetchData = () => {
       setTimeout(() => {
+        // Brand new global academy system - no members yet
         setCountries([
           {
             id: 'KR',
             name: '대한민국',
             master: 'Andy Country',
-            memberCount: 1245,
-            teacherCount: 89,
-            branchCount: 23,
+            memberCount: 0, // Starting completely empty
+            teacherCount: 0,
+            branchCount: 1, // Only one branch registered
             status: '활성'
           },
           {
             id: 'US',
             name: '미국',
             master: 'Sarah Johnson',
-            memberCount: 856,
-            teacherCount: 67,
-            branchCount: 18,
-            status: '활성'
+            memberCount: 0,
+            teacherCount: 0,
+            branchCount: 0, // No branches yet
+            status: '준비중'
           },
           {
             id: 'JP',
             name: '일본',
             master: 'Takeshi Yamamoto',
-            memberCount: 623,
-            teacherCount: 45,
-            branchCount: 12,
-            status: '활성'
+            memberCount: 0,
+            teacherCount: 0,
+            branchCount: 0,
+            status: '준비중'
           },
           {
             id: 'CN',
             name: '중국',
             master: 'Li Wei',
-            memberCount: 892,
-            teacherCount: 72,
-            branchCount: 19,
-            status: '활성'
+            memberCount: 0,
+            teacherCount: 0,
+            branchCount: 0,
+            status: '준비중'
           },
           {
             id: 'SG',
             name: '싱가포르',
             master: 'Kumar Raj',
-            memberCount: 423,
-            teacherCount: 28,
-            branchCount: 7,
-            status: '활성'
+            memberCount: 0,
+            teacherCount: 0,
+            branchCount: 0,
+            status: '준비중'
           }
         ]);
 
+        // No test data yet - brand new system
         setTestTrendData([
-          { name: '9/1', value: 245 },
-          { name: '9/5', value: 312 },
-          { name: '9/10', value: 289 },
-          { name: '9/15', value: 367 },
-          { name: '9/20', value: 445 },
-          { name: '9/25', value: 523 }
+          { name: '9/1', value: 0 },
+          { name: '9/5', value: 0 },
+          { name: '9/10', value: 0 },
+          { name: '9/15', value: 0 },
+          { name: '9/20', value: 0 },
+          { name: '9/25', value: 0 }
         ]);
 
+        // No members yet - all countries starting at zero
         setMembersByCountryData([
-          { name: '대한민국', value: 1245 },
-          { name: '중국', value: 892 },
-          { name: '미국', value: 856 },
-          { name: '일본', value: 623 },
-          { name: '싱가포르', value: 423 }
+          { name: '대한민국', value: 0 },
+          { name: '중국', value: 0 },
+          { name: '미국', value: 0 },
+          { name: '일본', value: 0 },
+          { name: '싱가포르', value: 0 }
         ]);
 
         setLoading(false);
@@ -207,7 +210,7 @@ export const GlobalDashboard: React.FC = () => {
             title="총 회원 수"
             value={totalMembers}
             label="명"
-            change="+12.5%"
+            change="0명"
             changeType="increase"
             icon={<People />}
             description="전체 등록된 회원"
@@ -220,7 +223,7 @@ export const GlobalDashboard: React.FC = () => {
             title="활성 회원"
             value={Math.round(totalMembers * 0.78)}
             label="명"
-            change="+8.3%"
+            change="0명"
             changeType="increase"
             icon={<PersonAdd />}
             description="최근 30일 활동"
@@ -233,7 +236,7 @@ export const GlobalDashboard: React.FC = () => {
             title="강사 수"
             value={totalTeachers}
             label="명"
-            change="+5.1%"
+            change="0명"
             changeType="increase"
             icon={<School />}
             description="전체 활동 강사"
@@ -244,10 +247,10 @@ export const GlobalDashboard: React.FC = () => {
         <Grid item xs={12} md={6} lg={3}>
           <KPICard
             title="평균 점수"
-            value={87.2}
+            value={0}
             label="점"
-            change="+2.3%"
-            changeType="increase"
+            change="0점"
+            changeType="neutral"
             icon={<TrendingUp />}
             description="레벨테스트 평균"
             loading={loading}
@@ -261,10 +264,10 @@ export const GlobalDashboard: React.FC = () => {
         <Grid item xs={12} md={6} lg={3}>
           <KPICard
             title="외부 이용자"
-            value={423}
+            value={0}
             label="명"
-            change="+15.2%"
-            changeType="increase"
+            change="0명"
+            changeType="neutral"
             icon={<Quiz />}
             description="학원코드 없는 사용자"
             loading={loading}
@@ -274,10 +277,10 @@ export const GlobalDashboard: React.FC = () => {
         <Grid item xs={12} md={6} lg={3}>
           <KPICard
             title="이번 주 시험 응시"
-            value={1234}
+            value={0}
             label="건"
-            change="+22.1%"
-            changeType="increase"
+            change="0건"
+            changeType="neutral"
             icon={<Quiz />}
             description="주간 레벨테스트"
             loading={loading}
@@ -287,10 +290,10 @@ export const GlobalDashboard: React.FC = () => {
         <Grid item xs={12} md={6} lg={3}>
           <KPICard
             title="E-book 사용시간"
-            value={18567}
+            value={0}
             label="시간"
-            change="+9.8%"
-            changeType="increase"
+            change="0시간"
+            changeType="neutral"
             icon={<AutoStories />}
             description="전체 학습 시간"
             loading={loading}
@@ -302,8 +305,8 @@ export const GlobalDashboard: React.FC = () => {
             title="전체 지점"
             value={totalBranches}
             label="개"
-            change="+3.4%"
-            changeType="increase"
+            change="0개"
+            changeType="neutral"
             icon={<Language />}
             description="운영 중인 지점"
             loading={loading}

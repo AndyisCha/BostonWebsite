@@ -27,7 +27,9 @@ import {
   Person,
   Edit,
   Security,
-  AdminPanelSettings
+  AdminPanelSettings,
+  QrCode,
+  History
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -93,10 +95,22 @@ const Layout: React.FC = () => {
       roles: ['SUPER_MASTER', 'COUNTRY_MASTER', 'BRANCH_ADMIN', 'TEACHER']
     },
     {
+      text: '학원 코드 관리',
+      icon: <QrCode />,
+      path: '/academy-codes',
+      roles: ['SUPER_MASTER', 'COUNTRY_MASTER', 'BRANCH_ADMIN']
+    },
+    {
       text: '권한 매트릭스',
       icon: <Security />,
       path: '/permissions',
       roles: ['SUPER_MASTER', 'COUNTRY_MASTER', 'BRANCH_ADMIN']
+    },
+    {
+      text: '감사 로그',
+      icon: <History />,
+      path: '/audit-logs',
+      roles: ['SUPER_MASTER', 'COUNTRY_MASTER']
     }
   ];
 

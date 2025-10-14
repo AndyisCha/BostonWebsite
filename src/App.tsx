@@ -17,6 +17,9 @@ import { EbookLibrary } from './components/EbookLibrary';
 import EbookManagement from './components/admin/EbookManagement';
 import UserManagement from './components/UserManagement';
 import { PermissionMatrix } from './components/PermissionMatrix';
+import { AcademyCodeManagement } from './components/admin/AcademyCodeManagement';
+import { PermissionsMatrix } from './components/admin/PermissionsMatrix';
+import { AuditLogs } from './components/admin/AuditLogs';
 import { LoadingSpinner } from './components/LoadingSpinner';
 
 // Type definitions
@@ -179,9 +182,21 @@ const AppContent: React.FC = () => {
             </ProtectedRoute>
           } />
 
+          <Route path="academy-codes" element={
+            <ProtectedRoute roles={['SUPER_MASTER', 'COUNTRY_MASTER', 'BRANCH_ADMIN']}>
+              <AcademyCodeManagement />
+            </ProtectedRoute>
+          } />
+
           <Route path="permissions" element={
             <ProtectedRoute roles={['SUPER_MASTER', 'COUNTRY_MASTER', 'BRANCH_ADMIN']}>
-              <PermissionMatrix />
+              <PermissionsMatrix />
+            </ProtectedRoute>
+          } />
+
+          <Route path="audit-logs" element={
+            <ProtectedRoute roles={['SUPER_MASTER', 'COUNTRY_MASTER']}>
+              <AuditLogs />
             </ProtectedRoute>
           } />
         </Route>

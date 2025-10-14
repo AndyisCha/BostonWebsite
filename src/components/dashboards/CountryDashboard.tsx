@@ -83,71 +83,29 @@ export const CountryDashboard: React.FC = () => {
   useEffect(() => {
     const fetchData = () => {
       setTimeout(() => {
+        // Start with only one branch - completely empty
         setBranches([
           {
-            id: 'seoul-gangnam',
-            name: '서울 강남점',
-            academyCode: 'BA-KR-GN-001',
-            memberCount: 342,
-            teacherCount: 24,
-            recentTestCount: 89,
+            id: 'seoul-main',
+            name: '보스턴 아카데미 신규지점',
+            academyCode: 'BA-KR-001',
+            memberCount: 0,
+            teacherCount: 0,
+            recentTestCount: 0,
             status: '활성',
-            manager: 'Andy Branch',
-            location: '서울시 강남구'
-          },
-          {
-            id: 'seoul-hongdae',
-            name: '서울 홍대점',
-            academyCode: 'BA-KR-HD-002',
-            memberCount: 287,
-            teacherCount: 19,
-            recentTestCount: 67,
-            status: '활성',
-            manager: '이미영',
-            location: '서울시 마포구'
-          },
-          {
-            id: 'busan-haeundae',
-            name: '부산 해운대점',
-            academyCode: 'BA-KR-HU-003',
-            memberCount: 198,
-            teacherCount: 14,
-            recentTestCount: 45,
-            status: '활성',
-            manager: '박진우',
-            location: '부산시 해운대구'
-          },
-          {
-            id: 'daegu-dongseong',
-            name: '대구 동성로점',
-            academyCode: 'BA-KR-DS-004',
-            memberCount: 156,
-            teacherCount: 12,
-            recentTestCount: 32,
-            status: '활성',
-            manager: '최수연',
-            location: '대구시 중구'
-          },
-          {
-            id: 'gwangju-chungjang',
-            name: '광주 충장로점',
-            academyCode: 'BA-KR-CJ-005',
-            memberCount: 134,
-            teacherCount: 9,
-            recentTestCount: 28,
-            status: '준비중',
-            manager: '김태호',
-            location: '광주시 동구'
+            manager: user?.email || '지점관리자',
+            location: '서울시'
           }
         ]);
 
+        // No test data yet
         setTestTrendData([
-          { name: '9/1', value: 186 },
-          { name: '9/5', value: 214 },
-          { name: '9/10', value: 198 },
-          { name: '9/15', value: 245 },
-          { name: '9/20', value: 289 },
-          { name: '9/25', value: 261 }
+          { name: '9/1', value: 0 },
+          { name: '9/5', value: 0 },
+          { name: '9/10', value: 0 },
+          { name: '9/15', value: 0 },
+          { name: '9/20', value: 0 },
+          { name: '9/25', value: 0 }
         ]);
 
         setLoading(false);
@@ -261,7 +219,7 @@ export const CountryDashboard: React.FC = () => {
   const totalMembers = branches.reduce((sum, branch) => sum + branch.memberCount, 0);
   const totalTeachers = branches.reduce((sum, branch) => sum + branch.teacherCount, 0);
   const activeBranches = branches.filter(branch => branch.status === '활성').length;
-  const avgScore = 85.7;
+  const avgScore = 0; // No scores yet
   const weeklyTests = branches.reduce((sum, branch) => sum + branch.recentTestCount, 0);
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -336,10 +294,10 @@ export const CountryDashboard: React.FC = () => {
         <Grid item xs={12} md={6} lg={2.4}>
           <KPICard
             title="외부 이용자"
-            value={Math.round(totalMembers * 0.15)}
+            value={0}
             label="명"
-            change="+12.1%"
-            changeType="increase"
+            change="0%"
+            changeType="neutral"
             icon={<PersonAdd />}
             description="학원코드 없는 사용자"
             loading={loading}
@@ -437,15 +395,15 @@ export const CountryDashboard: React.FC = () => {
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <Typography variant="body2">신규 가입 (이번 달)</Typography>
-                        <Chip label="+67명" size="small" color="success" />
+                        <Chip label="+0명" size="small" color="default" />
                       </Box>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <Typography variant="body2">활성 사용자 비율</Typography>
-                        <Chip label="78%" size="small" color="primary" />
+                        <Chip label="0%" size="small" color="default" />
                       </Box>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <Typography variant="body2">평균 학습 시간</Typography>
-                        <Chip label="24분/일" size="small" color="info" />
+                        <Chip label="0분/일" size="small" color="default" />
                       </Box>
                     </Box>
                   </CardContent>

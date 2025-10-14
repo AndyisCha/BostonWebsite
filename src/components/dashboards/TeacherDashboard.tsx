@@ -103,109 +103,21 @@ export const TeacherDashboard: React.FC = () => {
   useEffect(() => {
     const fetchData = () => {
       setTimeout(() => {
-        setStudents([
-          {
-            id: 'student-001',
-            name: '김민수',
-            email: 'minsu@example.com',
-            level: 'B2-1',
-            recentScore: 89,
-            avgScore: 85,
-            testCount: 12,
-            studyHours: 34,
-            lastActivity: '2시간 전',
-            status: 'active',
-            pendingComments: 2
-          },
-          {
-            id: 'student-002',
-            name: '이지은',
-            email: 'jieun@example.com',
-            level: 'B1-3',
-            recentScore: 92,
-            avgScore: 88,
-            testCount: 15,
-            studyHours: 42,
-            lastActivity: '1일 전',
-            status: 'active',
-            pendingComments: 1
-          },
-          {
-            id: 'student-003',
-            name: '박준호',
-            email: 'junho@example.com',
-            level: 'A2-2',
-            recentScore: 76,
-            avgScore: 78,
-            testCount: 8,
-            studyHours: 28,
-            lastActivity: '3시간 전',
-            status: 'active',
-            pendingComments: 0
-          },
-          {
-            id: 'student-004',
-            name: '최수영',
-            email: 'sooyoung@example.com',
-            level: 'C1-1',
-            recentScore: 95,
-            avgScore: 91,
-            testCount: 18,
-            studyHours: 56,
-            lastActivity: '5분 전',
-            status: 'active',
-            pendingComments: 3
-          },
-          {
-            id: 'student-005',
-            name: '강동원',
-            email: 'dongwon@example.com',
-            level: 'B2-2',
-            recentScore: 82,
-            avgScore: 84,
-            testCount: 10,
-            studyHours: 31,
-            lastActivity: '1주일 전',
-            status: 'inactive',
-            pendingComments: 0
-          }
-        ]);
+        // No students assigned yet - new teacher
+        setStudents([]);
 
+        // No score data yet - no students
         setScoreData([
-          { name: '9/1', value: 82 },
-          { name: '9/5', value: 85 },
-          { name: '9/10', value: 83 },
-          { name: '9/15', value: 88 },
-          { name: '9/20', value: 91 },
-          { name: '9/25', value: 87 }
+          { name: '9/1', value: 0 },
+          { name: '9/5', value: 0 },
+          { name: '9/10', value: 0 },
+          { name: '9/15', value: 0 },
+          { name: '9/20', value: 0 },
+          { name: '9/25', value: 0 }
         ]);
 
-        setCommentTasks([
-          {
-            id: 'comment-001',
-            studentName: '김민수',
-            testName: 'B2 Reading Comprehension',
-            score: 89,
-            submittedAt: '2024-09-25 14:30',
-            priority: 'high'
-          },
-          {
-            id: 'comment-002',
-            studentName: '최수영',
-            testName: 'C1 Grammar Test',
-            score: 95,
-            submittedAt: '2024-09-25 12:15',
-            priority: 'medium'
-          },
-          {
-            id: 'comment-003',
-            studentName: '이지은',
-            testName: 'B1 Vocabulary Quiz',
-            score: 92,
-            submittedAt: '2024-09-24 16:45',
-            priority: 'low'
-          }
-        ]);
+        // No comment tasks - no students yet
+        setCommentTasks([]);
 
         setLoading(false);
       }, 1000);
@@ -335,7 +247,7 @@ export const TeacherDashboard: React.FC = () => {
 
   const totalStudents = students.length;
   const activeStudents = students.filter(s => s.status === 'active').length;
-  const avgScore = Math.round(students.reduce((sum, s) => sum + s.avgScore, 0) / students.length);
+  const avgScore = students.length > 0 ? Math.round(students.reduce((sum, s) => sum + s.avgScore, 0) / students.length) : 0;
   const pendingComments = students.reduce((sum, s) => sum + s.pendingComments, 0);
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -401,7 +313,7 @@ export const TeacherDashboard: React.FC = () => {
             title="내 지점 학생"
             value={totalStudents}
             label="명"
-            change="+2명"
+            change="0명"
             changeType="increase"
             icon={<People />}
             description="담당하는 학생 수"
@@ -414,7 +326,7 @@ export const TeacherDashboard: React.FC = () => {
             title="활성 학생"
             value={activeStudents}
             label="명"
-            change="+1명"
+            change="0명"
             changeType="increase"
             icon={<School />}
             description="최근 활동한 학생"
@@ -427,7 +339,7 @@ export const TeacherDashboard: React.FC = () => {
             title="평균 점수"
             value={avgScore}
             label="점"
-            change="+3.2점"
+            change="0점"
             changeType="increase"
             icon={<TrendingUp />}
             description="학생들의 평균 성적"
@@ -440,7 +352,7 @@ export const TeacherDashboard: React.FC = () => {
             title="미채점 코멘트"
             value={pendingComments}
             label="개"
-            change="변화없음"
+            change="0개"
             changeType="neutral"
             icon={<Comment />}
             description="작성 대기 중인 코멘트"
@@ -546,11 +458,11 @@ export const TeacherDashboard: React.FC = () => {
                       </Box>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <Typography variant="body2">긴급 처리</Typography>
-                        <Chip label="1건" size="small" color="error" />
+                        <Chip label="0건" size="small" color="error" />
                       </Box>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <Typography variant="body2">이번 주 완료</Typography>
-                        <Chip label="12건" size="small" color="success" />
+                        <Chip label="0건" size="small" color="success" />
                       </Box>
                     </Box>
                   </CardContent>
@@ -600,15 +512,15 @@ export const TeacherDashboard: React.FC = () => {
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <Typography variant="body2">오늘 접속한 학생</Typography>
-                        <Typography variant="h6" color="primary">3명</Typography>
+                        <Typography variant="h6" color="primary">0명</Typography>
                       </Box>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <Typography variant="body2">이번 주 시험 응시</Typography>
-                        <Typography variant="h6" color="success.main">18회</Typography>
+                        <Typography variant="h6" color="success.main">0회</Typography>
                       </Box>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <Typography variant="body2">평균 학습 시간</Typography>
-                        <Typography variant="h6" color="warning.main">38분</Typography>
+                        <Typography variant="h6" color="warning.main">0분</Typography>
                       </Box>
                     </Box>
                   </CardContent>
@@ -623,15 +535,11 @@ export const TeacherDashboard: React.FC = () => {
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <Star color="warning" fontSize="small" />
-                        <Typography variant="body2">우수 학생: 최수영 (C1-1, 91점)</Typography>
+                        <Typography variant="body2">담당 학생이 아직 없습니다</Typography>
                       </Box>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <TrendingUp color="success" fontSize="small" />
-                        <Typography variant="body2">성적 향상: 박준호 (+8점)</Typography>
-                      </Box>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <AccessTime color="info" fontSize="small" />
-                        <Typography variant="body2">학습왕: 이지은 (42시간)</Typography>
+                        <Typography variant="body2">학생이 배정되면 성과를 확인할 수 있습니다</Typography>
                       </Box>
                     </Box>
                   </CardContent>

@@ -206,7 +206,7 @@ export const StudentDashboard: React.FC = () => {
           {
             id: 'achievement-003',
             title: '완벽한 점수',
-            description: 'Grammar Test에서 100점 달성!',
+            description: '아직 달성한 성취가 없습니다',
             icon: <EmojiEvents />,
             color: 'warning',
             earnedAt: '2024-09-15'
@@ -489,24 +489,24 @@ export const StudentDashboard: React.FC = () => {
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <Typography variant="body2">최고 점수</Typography>
                         <Typography variant="h6" color="success.main" sx={{ fontWeight: 'bold' }}>
-                          91점
+                          0점
                         </Typography>
                       </Box>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <Typography variant="body2">평균 점수</Typography>
                         <Typography variant="h6" color="primary" sx={{ fontWeight: 'bold' }}>
-                          84점
+                          0점
                         </Typography>
                       </Box>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <Typography variant="body2">시험 횟수</Typography>
                         <Typography variant="h6" color="text.primary" sx={{ fontWeight: 'bold' }}>
-                          15회
+                          0회
                         </Typography>
                       </Box>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <Typography variant="body2">향상도</Typography>
-                        <Chip label="+13점 UP!" size="small" color="success" />
+                        <Chip label="아직 없음" size="small" color="default" />
                       </Box>
                     </Box>
                   </CardContent>

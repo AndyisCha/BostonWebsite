@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { GlobalDashboard } from './dashboards/GlobalDashboard';
 import { CountryDashboard } from './dashboards/CountryDashboard';
+import { BranchDashboard } from './dashboards/BranchDashboard';
 import { TeacherDashboard } from './dashboards/TeacherDashboard';
 import { ParentDashboard } from './dashboards/ParentDashboard';
 import { StudentDashboard } from './dashboards/StudentDashboard';
@@ -48,6 +49,7 @@ const Dashboard: React.FC = () => {
   const isAdmin = user?.role === 'SUPER_MASTER' || user?.role === 'COUNTRY_MASTER' || user?.role === 'BRANCH_ADMIN';
   const isSuperMaster = user?.role === 'SUPER_MASTER';
   const isCountryMaster = user?.role === 'COUNTRY_MASTER';
+  const isBranchAdmin = user?.role === 'BRANCH_ADMIN';
   const isTeacher = user?.role === 'TEACHER';
   const isParent = user?.role === 'PARENT';
 
@@ -337,6 +339,11 @@ const Dashboard: React.FC = () => {
   // COUNTRY_MASTER는 나라 대시보드 표시
   if (isCountryMaster) {
     return <CountryDashboard />;
+  }
+
+  // BRANCH_ADMIN는 지점 대시보드 표시
+  if (isBranchAdmin) {
+    return <BranchDashboard />;
   }
 
   // TEACHER는 교사 대시보드 표시
