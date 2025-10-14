@@ -184,6 +184,10 @@ const EbookManagement: React.FC = () => {
 
     try {
       setLoading(true);
+      console.log('🚀 Starting E-book upload...');
+      console.log('📁 File:', uploadForm.file?.name, uploadForm.file?.size, 'bytes');
+      console.log('📚 Title:', uploadForm.title);
+
       const xhr = new XMLHttpRequest();
 
       xhr.upload.addEventListener('progress', (e) => {
@@ -193,15 +197,32 @@ const EbookManagement: React.FC = () => {
       });
 
       xhr.addEventListener('load', () => {
-        if (xhr.status === 200) {
-          const response = JSON.parse(xhr.responseText);
-          setEbooks(prev => [response, ...prev]);
-          setUploadDialog(false);
-          resetUploadForm();
-          alert('E-book이 성공적으로 업로드되었습니다!');
-        } else {
-          alert('업로드 중 오류가 발생했습니다.');
+        console.log('📡 Response status:', xhr.status);
+        console.log('📄 Response text:', xhr.responseText);
+
+        try {
+          if (xhr.status === 200) {
+            const response = JSON.parse(xhr.responseText);
+            console.log('✅ Parsed response:', response);
+
+            if (response.success) {
+              setEbooks(prev => [response.data || response, ...prev]);
+              setUploadDialog(false);
+              resetUploadForm();
+              alert(`✅ E-book이 성공적으로 업로드되었습니다!\n\n${response.message || '업로드 완료'}`);
+            } else {
+              console.error('❌ Upload failed:', response);
+              alert(`❌ 업로드 실패: ${response.message || response.error || '알 수 없는 오류'}`);
+            }
+          } else {
+            console.error('❌ HTTP error:', xhr.status, xhr.responseText);
+            alert(`❌ 서버 오류 (${xhr.status}): ${xhr.responseText.substring(0, 100)}`);
+          }
+        } catch (parseError) {
+          console.error('❌ Failed to parse response:', parseError);
+          alert(`❌ 응답 분석 실패: ${xhr.responseText.substring(0, 100)}`);
         }
+
         setLoading(false);
         setUploadProgress(0);
       });
@@ -214,6 +235,10 @@ const EbookManagement: React.FC = () => {
 
       xhr.open('POST', '/api/v1/ebooks');
       xhr.setRequestHeader('Authorization', `Bearer ${localStorage.getItem('token')}`);
+
+      console.log('📤 Sending request to:', '/api/v1/ebooks');
+      console.log('🔐 Authorization header set');
+
       xhr.send(formData);
 
     } catch (error) {
