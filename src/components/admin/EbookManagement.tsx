@@ -233,10 +233,13 @@ const EbookManagement: React.FC = () => {
         setUploadProgress(0);
       });
 
-      xhr.open('POST', '/api/v1/ebooks');
+      // Upload directly to Railway backend (bypassing Vercel to avoid 4.5MB limit)
+      const RAILWAY_API_URL = 'https://boston-english-server.railway.app/api/v1/ebooks';
+
+      xhr.open('POST', RAILWAY_API_URL);
       xhr.setRequestHeader('Authorization', `Bearer ${localStorage.getItem('token')}`);
 
-      console.log('📤 Sending request to:', '/api/v1/ebooks');
+      console.log('📤 Sending request to:', RAILWAY_API_URL);
       console.log('🔐 Authorization header set');
 
       xhr.send(formData);
