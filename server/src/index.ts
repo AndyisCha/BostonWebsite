@@ -49,7 +49,7 @@ const logger = winston.createLogger({
 });
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = parseInt(process.env.PORT || '3001');
 
 console.log(`🔍 Environment check:`);
 console.log(`- PORT: ${PORT}`);
