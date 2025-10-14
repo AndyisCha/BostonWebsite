@@ -59,58 +59,65 @@ console.log(`- Railway environment: ${process.env.RAILWAY_ENVIRONMENT || 'not de
 console.log(`- Current working directory: ${process.cwd()}`);
 console.log(`- Available environment vars: ${Object.keys(process.env).length}`);
 
-// CORS configuration - MUST be before helmet()
-const corsOrigins = process.env.CORS_ORIGIN?.split(',').map(o => o.trim()) || [
-  'http://localhost:3000',
-  'http://localhost:3001',
-  'http://localhost:3002',
-  'http://localhost:3006',
-  'https://boston-website-omega.vercel.app'
-];
+// CORS configuration - Allowlist-based
+const allowlist = (process.env.CORS_ORIGINS || "")
+  .split(",")
+  .map(s => s.trim())
+  .filter(Boolean);
 
-console.log(`🔒 CORS origins configured: ${corsOrigins.join(', ')}`);
+// Fallback to defaults if no env var
+if (allowlist.length === 0) {
+  allowlist.push(
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://localhost:3002',
+    'http://localhost:3006',
+    'https://boston-website-omega.vercel.app'
+  );
+}
 
-// Manual CORS headers - MUST be first to override Railway
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
+console.log(`🔒 CORS allowlist: ${allowlist.join(', ')}`);
 
-  // Check if origin is allowed
-  if (origin && corsOrigins.includes(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-    console.log(`✅ CORS: Allowed origin ${origin}`);
-  } else if (!origin) {
-    // No origin header (server-to-server, Postman, etc.)
-    res.setHeader('Access-Control-Allow-Origin', '*');
-  } else {
+// Check if origin is allowed (including *.vercel.app wildcard)
+const isAllowedOrigin = (origin?: string | undefined): boolean => {
+  if (!origin) return true; // Server-to-server, Postman, etc.
+  if (allowlist.includes(origin)) return true;
+
+  // Allow all *.vercel.app domains
+  try {
+    const u = new URL(origin);
+    if (u.hostname.endsWith('.vercel.app')) {
+      console.log(`✅ CORS: Allowed Vercel preview domain ${origin}`);
+      return true;
+    }
+  } catch (e) {
+    // Invalid URL
+  }
+
+  return false;
+};
+
+const corsOptions: cors.CorsOptions = {
+  origin(origin, cb) {
+    if (isAllowedOrigin(origin || undefined)) {
+      console.log(`✅ CORS: Allowed origin ${origin}`);
+      return cb(null, true);
+    }
     console.warn(`⚠️  CORS: Blocked origin ${origin}`);
-  }
-
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
-  res.setHeader('Access-Control-Expose-Headers', 'Content-Range, X-Content-Range');
-  res.setHeader('Access-Control-Max-Age', '600');
-
-  // Handle preflight
-  if (req.method === 'OPTIONS') {
-    console.log(`🔍 OPTIONS request for ${req.path} from ${origin}`);
-    return res.status(204).end();
-  }
-
-  next();
-});
-
-// Enable CORS with explicit configuration (backup)
-app.use(cors({
-  origin: corsOrigins,
+    cb(new Error(`Not allowed by CORS: ${origin}`));
+  },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  exposedHeaders: ['Content-Range', 'X-Content-Range'],
-  maxAge: 600,
-  preflightContinue: false,
-  optionsSuccessStatus: 204
-}));
+  exposedHeaders: ['Content-Length', 'Content-Type'],
+  maxAge: 86400, // 24 hours preflight cache
+};
+
+// CORS middleware - MUST be before other middleware
+app.use(cors(corsOptions));
+
+// Handle preflight requests globally
+app.options('*', cors(corsOptions));
 
 // Security middleware - AFTER CORS
 app.use(helmet({
@@ -293,14 +300,14 @@ const server = app.listen(PORT, '0.0.0.0', () => {
   logger.info('Server started successfully', {
     port: PORT,
     environment: process.env.NODE_ENV || 'development',
-    corsOrigins: corsOrigins,
+    corsAllowlist: allowlist,
     apiPrefix: process.env.API_PREFIX || '/api/v1',
     timestamp: new Date().toISOString()
   });
 
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📚 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🌐 CORS origins: ${corsOrigins.join(', ')}`);
+  console.log(`🌐 CORS allowlist: ${allowlist.join(', ')}`);
   console.log(`📡 API prefix: ${process.env.API_PREFIX || '/api/v1'}`);
   console.log(`📝 Logs: ${process.env.LOG_LEVEL || 'info'} level`);
   console.log(`✅ Server is ready to accept connections`);
