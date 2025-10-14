@@ -7,12 +7,13 @@ NPM_CONFIG_PRODUCTION = "false"
 
 [phases.setup]
 nixPkgs = ["nodejs-18_x", "npm-8_x"]
+workDir = "/app/server"
 
 [phases.install]
-cmd = "echo 'No dependencies needed - using Node.js built-ins'"
+cmd = "cd server && npm ci"
 
 [phases.build]
-cmd = "echo 'No build needed for Railway server'"
+cmd = "cd server && npm run build"
 
 [start]
-cmd = "node railway-server.js"
+cmd = "cd server && npm start"
