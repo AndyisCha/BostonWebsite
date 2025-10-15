@@ -149,7 +149,7 @@ const AppContent: React.FC = () => {
           } />
 
           <Route path="ebooks" element={
-            <ProtectedRoute roles={['STUDENT', 'TEACHER', 'PARENT']}>
+            <ProtectedRoute roles={['STUDENT', 'TEACHER', 'PARENT', 'BRANCH_ADMIN']}>
               <EbookLibrary userId={user?.id || ''} />
             </ProtectedRoute>
           } />
@@ -179,7 +179,7 @@ const AppContent: React.FC = () => {
           } />
 
           <Route path="ebook-files" element={
-            <ProtectedRoute roles={['SUPER_MASTER', 'COUNTRY_MASTER', 'BRANCH_ADMIN', 'TEACHER']}>
+            <ProtectedRoute roles={['SUPER_MASTER', 'COUNTRY_MASTER']}>
               <PdfTestPage />
             </ProtectedRoute>
           } />

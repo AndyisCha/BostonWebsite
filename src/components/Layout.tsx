@@ -80,13 +80,13 @@ const Layout: React.FC = () => {
       text: 'E-book 라이브러리',
       icon: <MenuBook />,
       path: '/ebooks',
-      roles: ['STUDENT', 'TEACHER', 'PARENT']
+      roles: ['STUDENT', 'TEACHER', 'PARENT', 'BRANCH_ADMIN']
     },
     {
       text: 'E-book 파일 관리',
       icon: <MenuBook />,
       path: '/ebook-files',
-      roles: ['SUPER_MASTER', 'COUNTRY_MASTER', 'BRANCH_ADMIN', 'TEACHER']
+      roles: ['SUPER_MASTER', 'COUNTRY_MASTER']
     },
     {
       text: '사용자 관리',
