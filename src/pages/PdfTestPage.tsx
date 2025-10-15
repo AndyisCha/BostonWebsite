@@ -90,7 +90,7 @@ export const PdfTestPage: React.FC = () => {
   // 정답 편집 상태
   const [answers, setAnswers] = useState<Answer[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(10); // TODO: 실제 페이지 수 가져오기
+  const [totalPages, setTotalPages] = useState(10); // PdfViewer의 onPdfLoaded에서 업데이트됨
   const [newAnswerText, setNewAnswerText] = useState('');
 
   // 오디오 편집 상태
@@ -288,6 +288,7 @@ export const PdfTestPage: React.FC = () => {
             objectPath={viewPath}
             userEmail={userEmail}
             onError={handleViewError}
+            onPdfLoaded={(numPages) => setTotalPages(numPages)}
           />
         )}
       </Box>

@@ -11,6 +11,7 @@ interface PdfViewerProps {
   userEmail?: string;
   watermarkText?: string;
   onError?: (error: Error) => void;
+  onPdfLoaded?: (numPages: number) => void;
 }
 
 /**
@@ -26,6 +27,7 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({
   userEmail,
   watermarkText,
   onError,
+  onPdfLoaded,
 }) => {
   const pdfCanvasRef = useRef<HTMLCanvasElement>(null);
   const drawingCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -137,6 +139,11 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({
         setNumPages(pdf.numPages);
         setCurrentPage(1);
         setLoading(false);
+
+        // 페이지 수를 부모 컴포넌트로 전달
+        if (onPdfLoaded) {
+          onPdfLoaded(pdf.numPages);
+        }
       } catch (err: any) {
         console.error('PDF 로드 실패:', err);
         setError(err.message || 'PDF 로드 실패');
