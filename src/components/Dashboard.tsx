@@ -500,7 +500,7 @@ const Dashboard: React.FC = () => {
                           </div>
                           <div>
                             <div>{user.name}</div>
-                            <div style={{ fontSize: '0.8rem', color: '#666' }}>
+                            <div style={{ fontSize: '0.8rem', color: 'var(--color-text-secondary)' }}>
                               {user.email}
                             </div>
                           </div>

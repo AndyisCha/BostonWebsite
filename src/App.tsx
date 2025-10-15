@@ -1,8 +1,10 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { CssBaseline, Box } from '@mui/material';
+import { Box } from '@mui/material';
 import { QueryClient, QueryClientProvider } from 'react-query';
+
+// Theme
+import { BostonThemeProvider } from './theme';
 
 // Context
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -14,7 +16,6 @@ import { RegistrationForm } from './components/RegistrationForm';
 import Dashboard from './components/Dashboard';
 import { LevelTest } from './components/LevelTest';
 import { EbookLibrary } from './components/EbookLibrary';
-import EbookManagement from './components/admin/EbookManagement';
 import UserManagement from './components/UserManagement';
 import { PermissionMatrix } from './components/PermissionMatrix';
 import { AcademyCodeManagement } from './components/admin/AcademyCodeManagement';
@@ -22,6 +23,7 @@ import { PermissionsMatrix } from './components/admin/PermissionsMatrix';
 import { AuditLogs } from './components/admin/AuditLogs';
 import { LoadingSpinner } from './components/LoadingSpinner';
 import { PdfTestPage } from './pages/PdfTestPage';
+import { ThemePreview } from './components/common/ThemePreview';
 
 // Type definitions
 export type CEFRLevel =
@@ -62,25 +64,6 @@ export interface FilterState {
   languages: Language[];
   countries: Country[];
 }
-
-// Create theme
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: '#1976d2',
-    },
-    secondary: {
-      main: '#dc004e',
-    },
-  },
-  typography: {
-    fontFamily: [
-      'Roboto',
-      'Arial',
-      'sans-serif'
-    ].join(','),
-  },
-});
 
 // Create QueryClient
 const queryClient = new QueryClient({
@@ -171,12 +154,6 @@ const AppContent: React.FC = () => {
             </ProtectedRoute>
           } />
 
-          <Route path="ebook-management" element={
-            <ProtectedRoute roles={['SUPER_MASTER', 'COUNTRY_MASTER', 'BRANCH_ADMIN', 'TEACHER']}>
-              <EbookManagement />
-            </ProtectedRoute>
-          } />
-
           <Route path="users" element={
             <ProtectedRoute roles={['SUPER_MASTER', 'COUNTRY_MASTER', 'BRANCH_ADMIN', 'TEACHER']}>
               <UserManagement />
@@ -206,6 +183,12 @@ const AppContent: React.FC = () => {
               <PdfTestPage />
             </ProtectedRoute>
           } />
+
+          <Route path="theme-preview" element={
+            <ProtectedRoute roles={['SUPER_MASTER']}>
+              <ThemePreview />
+            </ProtectedRoute>
+          } />
         </Route>
 
         {/* Catch all route */}
@@ -218,14 +201,13 @@ const AppContent: React.FC = () => {
 const App: React.FC = () => {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
+      <BostonThemeProvider>
         <Router>
           <AuthProvider>
             <AppContent />
           </AuthProvider>
         </Router>
-      </ThemeProvider>
+      </BostonThemeProvider>
     </QueryClientProvider>
   );
 };

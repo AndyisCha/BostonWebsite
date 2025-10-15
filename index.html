@@ -4,8 +4,24 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' http://localhost:* https://localhost:* https://boston-english-server.railway.app https://api.github.com wss://boston-english-server.railway.app https://*.supabase.co wss://*.supabase.co; object-src 'none'; media-src 'self'; frame-src 'none';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net data:; img-src 'self' data: blob: https:; connect-src 'self' http://localhost:* https://localhost:* https://boston-english-server.railway.app https://api.github.com wss://boston-english-server.railway.app https://*.supabase.co wss://*.supabase.co; object-src 'none'; media-src 'self'; frame-src 'none';">
     <title>Boston English Academy - 영어 학습 플랫폼</title>
+
+    <!-- FOUC 방지: 페이지 로드 전에 테마 설정 -->
+    <script>
+      (function() {
+        try {
+          const stored = localStorage.getItem('boston-theme-mode');
+          const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          const mode = stored || (systemPrefersDark ? 'dark' : 'light');
+          document.documentElement.setAttribute('data-theme', mode);
+          document.documentElement.classList.add(mode);
+        } catch (e) {
+          document.documentElement.setAttribute('data-theme', 'light');
+          document.documentElement.classList.add('light');
+        }
+      })();
+    </script>
     <style>
       * {
         margin: 0;

@@ -1,37 +1,37 @@
-/* EbookLibrary CSS */
+/* EbookLibrary CSS - Design System Integrated */
 
 .ebook-library-container {
-  padding: 24px;
+  padding: var(--spacing-6);
   min-height: 100vh;
-  background-color: #f5f5f5;
+  background-color: var(--color-background-subtle);
 }
 
 /* 라이브러리 헤더 */
 .library-header {
-  margin-bottom: 24px;
+  margin-bottom: var(--spacing-6);
 }
 
 .library-header h4 {
-  color: #1976d2;
+  color: var(--color-primary-main);
   font-weight: 600;
-  margin-bottom: 24px;
+  margin-bottom: var(--spacing-6);
   text-align: center;
 }
 
 /* Enhanced Search Section */
 .search-section {
-  background: white;
-  padding: 20px;
-  border-radius: 16px;
+  background: var(--color-background-paper);
+  padding: var(--spacing-5);
+  border-radius: var(--radius-lg);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
+  margin-bottom: var(--spacing-5);
   position: relative;
 }
 
 .enhanced-search {
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  transition: all 0.3s ease;
+  transition: all var(--duration-normal) ease;
 }
 
 .enhanced-search:hover {
@@ -42,33 +42,33 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: var(--spacing-4);
 }
 
 .view-toggle {
   display: flex;
-  gap: 4px;
-  padding: 4px;
-  background: #f5f5f5;
-  border-radius: 8px;
+  gap: var(--spacing-1);
+  padding: var(--spacing-1);
+  background: var(--color-background-subtle);
+  border-radius: var(--radius-base);
 }
 
 /* Recent Books Section */
 .recent-books-section {
-  margin-bottom: 16px;
-  padding: 16px 0;
-  border-top: 1px solid #e0e0e0;
+  margin-bottom: var(--spacing-4);
+  padding: var(--spacing-4) 0;
+  border-top: 1px solid var(--color-border-light);
 }
 
 .recent-books-list {
   display: flex;
-  gap: 8px;
+  gap: var(--spacing-2);
   flex-wrap: wrap;
 }
 
 .recent-book-chip {
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--duration-fast) ease;
 }
 
 .recent-book-chip:hover {
@@ -78,21 +78,21 @@
 
 .filter-controls {
   display: flex;
-  gap: 12px;
+  gap: var(--spacing-3);
   align-items: center;
   flex-wrap: wrap;
-  margin-bottom: 16px;
+  margin-bottom: var(--spacing-4);
 }
 
 .filter-panel {
-  background: #f8f9fa;
-  padding: 16px;
-  border-radius: 8px;
-  margin-top: 16px;
+  background: var(--color-surface-secondary);
+  padding: var(--spacing-4);
+  border-radius: var(--radius-base);
+  margin-top: var(--spacing-4);
 }
 
 .filter-group {
-  margin-bottom: 16px;
+  margin-bottom: var(--spacing-4);
 }
 
 .filter-group:last-child {
@@ -101,16 +101,16 @@
 
 .search-results-info {
   text-align: center;
-  padding: 8px 0;
-  border-top: 1px solid #e0e0e0;
-  margin-top: 16px;
+  padding: var(--spacing-2) 0;
+  border-top: 1px solid var(--color-border-light);
+  margin-top: var(--spacing-4);
 }
 
 .ebook-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 24px;
-  margin-top: 24px;
+  gap: var(--spacing-6);
+  margin-top: var(--spacing-6);
 }
 
 .ebook-card {
@@ -118,13 +118,13 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  background: white;
+  transition: all var(--duration-normal) var(--easing-standard);
+  background: var(--color-background-paper);
   overflow: hidden;
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid var(--color-border-light);
 }
 
 .ebook-card.grid-view {
@@ -145,28 +145,28 @@
 
 .ebook-card.list-view .ebook-info {
   flex: 1;
-  padding: 16px 20px;
+  padding: var(--spacing-4) var(--spacing-5);
 }
 
 .ebook-card-header {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: var(--spacing-2);
+  right: var(--spacing-2);
   z-index: 2;
   display: flex;
-  gap: 4px;
+  gap: var(--spacing-1);
   align-items: flex-start;
 }
 
 /* Enhanced Card Actions */
 .card-actions {
   display: flex;
-  gap: 4px;
+  gap: var(--spacing-1);
   opacity: 0;
-  transition: opacity 0.2s ease;
+  transition: opacity var(--duration-fast) ease;
   background: rgba(255, 255, 255, 0.95);
-  border-radius: 8px;
-  padding: 4px;
+  border-radius: var(--radius-base);
+  padding: var(--spacing-1);
   backdrop-filter: blur(10px);
 }
 
@@ -175,7 +175,7 @@
 }
 
 .bookmark-btn, .preview-btn {
-  transition: all 0.2s ease;
+  transition: all var(--duration-fast) ease;
 }
 
 .bookmark-btn:hover, .preview-btn:hover {
@@ -184,7 +184,7 @@
 
 .badge {
   padding: 2px 6px;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   font-size: 0.6rem;
   font-weight: bold;
   color: white;
@@ -192,11 +192,11 @@
 }
 
 .badge-new {
-  background: linear-gradient(45deg, #4caf50, #66bb6a);
+  background: linear-gradient(45deg, var(--color-success-main), var(--color-success-light));
 }
 
 .badge-hot {
-  background: linear-gradient(45deg, #ff5722, #ff7043);
+  background: linear-gradient(45deg, var(--color-warning-main), var(--color-warning-light));
 }
 
 .badge-locked {
@@ -213,9 +213,9 @@
   width: 100%;
   height: 200px;
   object-fit: cover;
-  background: linear-gradient(45deg, #e3f2fd, #bbdefb);
+  background: linear-gradient(45deg, var(--color-primary-light), var(--color-surface-secondary));
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all var(--duration-normal) ease;
 }
 
 .ebook-cover:hover {
@@ -227,7 +227,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: var(--spacing-3);
 }
 
 /* Reading Progress Circle */
@@ -242,13 +242,13 @@
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  background: #f0f0f0;
+  background: var(--color-surface-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 0.7rem;
   font-weight: 600;
-  color: #333;
+  color: var(--color-text-primary);
 }
 
 .progress-fill {
@@ -257,56 +257,56 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: conic-gradient(#1976d2 0deg, transparent 0deg);
+  background: conic-gradient(var(--color-primary-main) 0deg, transparent 0deg);
   border-radius: 50%;
-  transition: transform 0.3s ease;
+  transition: transform var(--duration-normal) ease;
   mask: radial-gradient(closest-side, transparent 65%, black 65%);
 }
 
 /* Clickable Title */
 .clickable-title {
   cursor: pointer;
-  transition: color 0.2s ease;
+  transition: color var(--duration-fast) ease;
 }
 
 .clickable-title:hover {
-  color: #1976d2;
+  color: var(--color-primary-main);
 }
 
 /* Book Meta */
 .book-meta {
   display: flex;
-  gap: 12px;
+  gap: var(--spacing-3);
   align-items: center;
-  margin: 12px 0;
+  margin: var(--spacing-3) 0;
   font-size: 0.85rem;
-  color: #666;
+  color: var(--color-text-secondary);
 }
 
 .recent-indicator {
   display: flex;
   align-items: center;
-  gap: 4px;
-  color: #1976d2;
+  gap: var(--spacing-1);
+  color: var(--color-primary-main);
   font-weight: 500;
 }
 
 /* Enhanced Button */
 .card-bottom {
   margin-top: auto;
-  padding-top: 12px;
+  padding-top: var(--spacing-3);
 }
 
 .read-button {
   width: 100%;
-  padding: 12px 16px;
-  background: linear-gradient(45deg, #1976d2, #42a5f5);
+  padding: var(--spacing-3) var(--spacing-4);
+  background: linear-gradient(45deg, var(--color-primary-main), var(--color-primary-light));
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-base);
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--duration-fast) ease;
   position: relative;
   overflow: hidden;
 }
@@ -332,7 +332,7 @@
 }
 
 .read-button.disabled {
-  background: #ccc;
+  background: var(--color-action-disabled);
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
@@ -343,7 +343,7 @@
 }
 
 .ebook-info {
-  padding: 16px;
+  padding: var(--spacing-4);
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -351,85 +351,85 @@
 
 .level-chip {
   align-self: flex-start;
-  margin-bottom: 12px;
+  margin-bottom: var(--spacing-3);
   font-weight: bold;
   font-size: 0.75rem;
-  padding: 4px 8px;
-  border-radius: 12px;
+  padding: var(--spacing-1) var(--spacing-2);
+  border-radius: var(--radius-md);
   color: white;
 }
 
-.level-chip.level-a1 { background-color: #4caf50; }
-.level-chip.level-a2 { background-color: #8bc34a; }
-.level-chip.level-a3 { background-color: #cddc39; color: #333; }
-.level-chip.level-b1 { background-color: #ffeb3b; color: #333; }
-.level-chip.level-b2 { background-color: #ffc107; color: #333; }
-.level-chip.level-c1 { background-color: #ff9800; }
-.level-chip.level-c2 { background-color: #f44336; }
+.level-chip.level-a1 { background-color: var(--color-success-main); }
+.level-chip.level-a2 { background-color: var(--color-success-light); }
+.level-chip.level-a3 { background-color: #cddc39; color: var(--color-text-primary); }
+.level-chip.level-b1 { background-color: #ffeb3b; color: var(--color-text-primary); }
+.level-chip.level-b2 { background-color: var(--color-warning-main); color: var(--color-text-primary); }
+.level-chip.level-c1 { background-color: var(--color-warning-dark); }
+.level-chip.level-c2 { background-color: var(--color-error-main); }
 
 .ebook-info h6 {
-  margin: 0 0 8px 0;
+  margin: 0 0 var(--spacing-2) 0;
   font-size: 1.1rem;
   font-weight: 600;
-  color: #333;
+  color: var(--color-text-primary);
   line-height: 1.3;
 }
 
 .ebook-info .author {
   font-size: 0.9rem;
-  color: #666;
-  margin-bottom: 12px;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-3);
 }
 
 .ebook-info .description {
   font-size: 0.85rem;
-  color: #777;
+  color: var(--color-text-tertiary);
   line-height: 1.4;
-  margin-bottom: 12px;
+  margin-bottom: var(--spacing-3);
   flex: 1;
 }
 
 .ebook-info .categories {
-  margin-bottom: 8px;
+  margin-bottom: var(--spacing-2);
 }
 
 .ebook-info .page-count {
   font-size: 0.75rem;
-  color: #999;
-  margin-bottom: 16px;
+  color: var(--color-text-hint);
+  margin-bottom: var(--spacing-4);
 }
 
 .ebook-info button {
   margin-top: auto;
-  background: linear-gradient(45deg, #1976d2, #42a5f5);
+  background: linear-gradient(45deg, var(--color-primary-main), var(--color-primary-light));
   color: white;
   border: none;
   padding: 10px 20px;
-  border-radius: 8px;
+  border-radius: var(--radius-base);
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: background var(--duration-fast) ease;
 }
 
 .ebook-info button:hover {
-  background: linear-gradient(45deg, #1565c0, #1976d2);
+  background: linear-gradient(45deg, var(--color-primary-dark), var(--color-primary-main));
 }
 
 .ebook-info button.disabled {
-  background: #ccc;
-  color: #666;
+  background: var(--color-action-disabled);
+  color: var(--color-text-disabled);
   cursor: not-allowed;
 }
 
 .ebook-info button.disabled:hover {
-  background: #ccc;
+  background: var(--color-action-disabled);
   transform: none;
 }
 
 /* 페이지네이션 */
 .pagination-container {
-  margin-top: 32px;
-  padding: 24px 0;
+  margin-top: var(--spacing-8);
+  padding: var(--spacing-6) 0;
 }
 
 .loading-container {
@@ -440,18 +440,18 @@
 }
 
 .error-message {
-  margin-bottom: 16px;
-  padding: 12px;
-  background-color: #ffebee;
-  border: 1px solid #f44336;
-  border-radius: 8px;
-  color: #c62828;
+  margin-bottom: var(--spacing-4);
+  padding: var(--spacing-3);
+  background-color: var(--color-error-surface);
+  border: 1px solid var(--color-error-main);
+  border-radius: var(--radius-base);
+  color: var(--color-error-dark);
 }
 
 .empty-state {
   text-align: center;
-  padding: 48px 24px;
-  color: #666;
+  padding: var(--spacing-12) var(--spacing-6);
+  color: var(--color-text-secondary);
 }
 
 .empty-state p {
@@ -462,10 +462,10 @@
 /* Preview Dialog Styles */
 .preview-dialog .preview-header {
   display: flex;
-  gap: 20px;
-  padding: 24px;
-  border-bottom: 1px solid #e0e0e0;
-  background: linear-gradient(135deg, #f8f9fa, #ffffff);
+  gap: var(--spacing-5);
+  padding: var(--spacing-6);
+  border-bottom: 1px solid var(--color-border-light);
+  background: linear-gradient(135deg, var(--color-surface-secondary), var(--color-background-paper));
 }
 
 .preview-info {
@@ -475,8 +475,8 @@
 .preview-meta {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-top: 12px;
+  gap: var(--spacing-3);
+  margin-top: var(--spacing-3);
   flex-wrap: wrap;
 }
 
@@ -484,9 +484,9 @@
   width: 120px;
   height: 160px;
   object-fit: cover;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-  transition: transform 0.3s ease;
+  transition: transform var(--duration-normal) ease;
 }
 
 .preview-cover:hover {
@@ -494,25 +494,25 @@
 }
 
 .preview-content {
-  padding: 24px;
+  padding: var(--spacing-6);
   max-height: 400px;
   overflow-y: auto;
 }
 
 .preview-categories {
-  margin: 16px 0;
-  padding: 16px;
-  background: #f8f9fa;
-  border-radius: 8px;
+  margin: var(--spacing-4) 0;
+  padding: var(--spacing-4);
+  background: var(--color-surface-secondary);
+  border-radius: var(--radius-base);
 }
 
 .preview-actions {
   display: flex;
-  gap: 12px;
-  margin-top: 24px;
+  gap: var(--spacing-3);
+  margin-top: var(--spacing-6);
   justify-content: center;
-  padding-top: 16px;
-  border-top: 1px solid #e0e0e0;
+  padding-top: var(--spacing-4);
+  border-top: 1px solid var(--color-border-light);
 }
 
 /* Enhanced animations */
@@ -549,17 +549,17 @@
 /* Responsive Design */
 @media (max-width: 768px) {
   .ebook-library-container {
-    padding: 16px;
+    padding: var(--spacing-4);
   }
 
   .search-section {
-    padding: 16px;
+    padding: var(--spacing-4);
   }
 
   .filter-controls {
     flex-direction: column;
     align-items: stretch;
-    gap: 8px;
+    gap: var(--spacing-2);
   }
 
   .filter-controls > * {
@@ -568,7 +568,7 @@
 
   .ebook-grid {
     grid-template-columns: 1fr;
-    gap: 16px;
+    gap: var(--spacing-4);
   }
 
   .ebook-card {
@@ -587,11 +587,11 @@
   }
 
   .search-section {
-    padding: 12px;
+    padding: var(--spacing-3);
   }
 
   .filter-panel {
-    padding: 12px;
+    padding: var(--spacing-3);
   }
 
   .ebook-cover {
@@ -599,12 +599,12 @@
   }
 
   .ebook-info {
-    padding: 12px;
+    padding: var(--spacing-3);
   }
 
   .badge {
     font-size: 0.5rem;
-    padding: 1px 4px;
+    padding: 1px var(--spacing-1);
   }
 
   .pagination-container .MuiPagination-root {

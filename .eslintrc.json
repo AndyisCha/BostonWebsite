@@ -1,0 +1,80 @@
+{
+  "env": {
+    "browser": true,
+    "es2021": true
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:react/recommended",
+    "plugin:react-hooks/recommended",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true
+    },
+    "ecmaVersion": "latest",
+    "sourceType": "module"
+  },
+  "plugins": ["react", "@typescript-eslint"],
+  "rules": {
+    // ========================================
+    // 보스턴어학원 디자인 시스템 규칙
+    // ========================================
+
+    /**
+     * 인라인 색상 금지 (HEX 코드 사용 금지)
+     *
+     * ❌ 잘못된 예:
+     * <Box sx={{ backgroundColor: '#1976d2' }}>
+     * const color = '#FF5722';
+     *
+     * ✅ 올바른 예:
+     * <Box sx={{ backgroundColor: 'primary.main' }}>
+     * import { lightModeColors } from './theme';
+     * const color = lightModeColors.primary.main;
+     */
+    "no-restricted-syntax": [
+      "error",
+      {
+        "selector": "Literal[value=/#[0-9A-Fa-f]{3,8}/]",
+        "message": "인라인 HEX 색상 코드 사용 금지. src/theme/tokens/colors.ts의 토큰을 사용하세요."
+      },
+      {
+        "selector": "TemplateLiteral Literal[value=/#[0-9A-Fa-f]{3,8}/]",
+        "message": "인라인 HEX 색상 코드 사용 금지. src/theme/tokens/colors.ts의 토큰을 사용하세요."
+      }
+    ],
+
+    /**
+     * React 설정
+     */
+    "react/react-in-jsx-scope": "off", // React 17+ 자동 import
+    "react/prop-types": "off", // TypeScript 사용으로 불필요
+
+    /**
+     * TypeScript 설정
+     */
+    "@typescript-eslint/no-explicit-any": "warn", // any 사용 경고 (완전 금지는 아님)
+    "@typescript-eslint/no-unused-vars": [
+      "warn",
+      {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_"
+      }
+    ]
+  },
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  },
+  "ignorePatterns": [
+    "node_modules/",
+    "dist/",
+    "build/",
+    "*.config.js",
+    "*.config.ts"
+  ]
+}

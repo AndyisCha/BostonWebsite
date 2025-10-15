@@ -25,7 +25,6 @@ import {
   People,
   ExitToApp,
   Person,
-  Edit,
   Security,
   AdminPanelSettings,
   QrCode,
@@ -35,6 +34,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { ImpersonationBanner } from './ImpersonationBanner';
 import { ImpersonationModal } from './ImpersonationModal';
+import { ThemeToggleButton } from '../theme';
 
 const DRAWER_WIDTH = 240;
 
@@ -83,9 +83,9 @@ const Layout: React.FC = () => {
       roles: ['STUDENT', 'TEACHER', 'PARENT']
     },
     {
-      text: 'E-book 편집',
-      icon: <Edit />,
-      path: '/ebook-management',
+      text: 'E-book 파일 관리',
+      icon: <MenuBook />,
+      path: '/ebook-files',
       roles: ['SUPER_MASTER', 'COUNTRY_MASTER', 'BRANCH_ADMIN', 'TEACHER']
     },
     {
@@ -111,6 +111,12 @@ const Layout: React.FC = () => {
       icon: <History />,
       path: '/audit-logs',
       roles: ['SUPER_MASTER', 'COUNTRY_MASTER']
+    },
+    {
+      text: '🎨 디자인 시스템',
+      icon: <AdminPanelSettings />,
+      path: '/theme-preview',
+      roles: ['SUPER_MASTER']
     }
   ];
 
@@ -183,6 +189,9 @@ const Layout: React.FC = () => {
               {getRoleDisplayName(user?.role || '')}
             </Typography>
           </Typography>
+
+          {/* 테마 전환 버튼 */}
+          <ThemeToggleButton size="medium" />
 
           <IconButton
             size="large"
