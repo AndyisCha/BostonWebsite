@@ -1,7 +1,9 @@
 /**
  * PDF 업로드/보기 API 서비스
- * 서버와 통신하여 PDF 업로드 및 보기 URL을 관리합니다.
+ * Supabase Storage를 직접 사용하여 PDF 업로드 및 보기 URL을 관리합니다.
  */
+
+import { supabase } from '../lib/supabase';
 
 // API 베이스 URL (환경변수에서 가져오기)
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
@@ -157,7 +159,7 @@ export async function completeUpload(objectPath: string): Promise<{
 }
 
 /**
- * 보기용 서명 URL 요청 (1시간 만료)
+ * Supabase Storage에서 보기용 URL 직접 생성 (1시간 만료)
  * @param objectPath 객체 경로
  */
 export async function requestViewUrl(objectPath: string): Promise<{
@@ -165,26 +167,32 @@ export async function requestViewUrl(objectPath: string): Promise<{
   expiresAt: string;
   expiresIn: number;
 }> {
-  console.log(`👁️ 보기 URL 요청: objectPath=${objectPath}`);
+  console.log(`👁️ Supabase Storage에서 보기 URL 생성: objectPath=${objectPath}`);
 
-  const response = await fetch(`${API_BASE_URL}${API_PREFIX}/pdf/view-url`, {
-    method: 'POST',
-    headers: getHeaders(),
-    body: JSON.stringify({ objectPath }),
-  });
+  // Supabase Storage에서 서명된 URL 생성 (1시간 = 3600초)
+  const { data, error } = await supabase.storage
+    .from('ebook-files')
+    .createSignedUrl(objectPath, 3600);
 
-  const data = await handleResponse<{
-    url: string;
-    expiresAt: string;
-    expiresIn: number;
-  }>(response);
+  if (error || !data) {
+    console.error('❌ 서명 URL 생성 실패:', error);
+    throw new Error(`서명 URL 생성 실패: ${error?.message || '알 수 없는 오류'}`);
+  }
 
-  console.log(`✅ 보기 URL 수신: expiresAt=${data.expiresAt}`);
-  return data;
+  const expiresIn = 3600;
+  const expiresAt = new Date(Date.now() + expiresIn * 1000).toISOString();
+
+  console.log(`✅ 보기 URL 생성 완료: expiresAt=${expiresAt}`);
+
+  return {
+    url: data.signedUrl,
+    expiresAt,
+    expiresIn
+  };
 }
 
 /**
- * 사용자의 PDF 목록 조회
+ * Supabase에서 사용자의 PDF 목록 직접 조회
  */
 export async function listUserPdfs(): Promise<{
   pdfs: Array<{
@@ -200,27 +208,39 @@ export async function listUserPdfs(): Promise<{
   }>;
   count: number;
 }> {
-  console.log(`📋 PDF 목록 조회`);
+  console.log(`📋 Supabase에서 PDF 목록 조회`);
 
-  const response = await fetch(`${API_BASE_URL}${API_PREFIX}/pdf/list`, {
-    method: 'GET',
-    headers: getHeaders(),
-  });
+  // 인증된 사용자 확인
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
 
-  const data = await handleResponse<{
-    pdfs: Array<any>;
-    count: number;
-  }>(response);
+  if (authError || !user) {
+    throw new Error('로그인이 필요합니다.');
+  }
 
-  console.log(`✅ PDF 목록 수신: count=${data.count}`);
-  return data;
+  // pdfs 테이블에서 사용자의 PDF 목록 조회
+  const { data, error, count } = await supabase
+    .from('pdfs')
+    .select('*', { count: 'exact' })
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('❌ PDF 목록 조회 실패:', error);
+    throw new Error(`PDF 목록 조회 실패: ${error.message}`);
+  }
+
+  console.log(`✅ PDF 목록 수신: count=${count}`);
+
+  return {
+    pdfs: data || [],
+    count: count || 0
+  };
 }
 
 /**
- * 전체 업로드 프로세스 (헬퍼 함수)
- * 1. 서명 URL 요청
- * 2. 파일 업로드
- * 3. 완료 처리
+ * Supabase Storage에 직접 업로드 (새 방식)
+ * 1. Supabase Storage에 파일 업로드
+ * 2. pdfs 테이블에 레코드 생성
  */
 export async function uploadPdf(
   file: File,
@@ -229,22 +249,73 @@ export async function uploadPdf(
   objectPath: string;
   fileId: string;
 }> {
-  console.log(`🚀 PDF 업로드 프로세스 시작: ${file.name}`);
+  console.log(`🚀 Supabase 직접 업로드 시작: ${file.name}`);
 
-  // 1. 서명 URL 요청
-  const { uploadUrl, objectPath, fileId } = await requestSignedUploadUrl(
-    file.name,
-    file.size,
-    file.type
-  );
+  // 사용자 ID 가져오기 (인증된 사용자)
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
 
-  // 2. 파일 업로드
-  await uploadFileToSignedUrl(uploadUrl, file, onProgress);
+  if (authError || !user) {
+    throw new Error('로그인이 필요합니다.');
+  }
 
-  // 3. 완료 처리
-  await completeUpload(objectPath);
+  const userId = user.id;
+  const timestamp = Date.now();
+  const fileExtension = file.name.split('.').pop();
+  const safeFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+  const objectPath = `uploads/${userId}/${timestamp}-${safeFileName}`;
 
-  console.log(`✅ PDF 업로드 프로세스 완료: objectPath=${objectPath}`);
+  console.log(`📤 파일 업로드 중: ${objectPath}`);
 
-  return { objectPath, fileId };
+  // 1. Supabase Storage에 업로드
+  const { data: uploadData, error: uploadError } = await supabase.storage
+    .from('ebook-files')
+    .upload(objectPath, file, {
+      cacheControl: '3600',
+      upsert: false
+    });
+
+  if (uploadError) {
+    console.error('❌ Supabase Storage 업로드 실패:', uploadError);
+    throw new Error(`파일 업로드 실패: ${uploadError.message}`);
+  }
+
+  console.log('✅ Supabase Storage 업로드 완료');
+
+  // 진행률 업데이트 (Storage 업로드 완료 = 80%)
+  if (onProgress) {
+    onProgress(80);
+  }
+
+  // 2. pdfs 테이블에 레코드 생성
+  const { data: pdfRecord, error: dbError } = await supabase
+    .from('pdfs')
+    .insert({
+      user_id: userId,
+      object_path: objectPath,
+      file_name: file.name,
+      size_bytes: file.size,
+      mime_type: file.type,
+      status: 'ready'
+    })
+    .select()
+    .single();
+
+  if (dbError) {
+    console.error('❌ 데이터베이스 레코드 생성 실패:', dbError);
+    // 업로드된 파일 삭제 시도
+    await supabase.storage.from('ebook-files').remove([objectPath]);
+    throw new Error(`데이터베이스 저장 실패: ${dbError.message}`);
+  }
+
+  console.log(`✅ PDF 업로드 완료: fileId=${pdfRecord.id}`);
+
+  // 진행률 완료 (100%)
+  if (onProgress) {
+    onProgress(100);
+  }
+
+  return {
+    objectPath,
+    fileId: pdfRecord.id
+  };
 }

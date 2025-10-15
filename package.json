@@ -10,6 +10,7 @@
     "@mui/material": "^5.15.3",
     "@mui/x-date-pickers": "^8.11.3",
     "@mui/x-date-pickers-pro": "^8.11.3",
+    "@supabase/supabase-js": "^2.75.0",
     "@types/fabric": "^5.3.7",
     "@types/lodash": "^4.17.20",
     "axios": "^1.6.2",
