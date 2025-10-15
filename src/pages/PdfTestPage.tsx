@@ -14,6 +14,7 @@ import { PdfUploader } from '../components/PdfUploader';
 import { PdfViewer } from '../components/PdfViewer';
 import { EpubViewer } from '../components/EpubViewer';
 import { listUserPdfs } from '../services/pdfService';
+import { ebookService, Answer as EbookAnswer, AudioButton as EbookAudioButton } from '../services/ebookService';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -149,14 +150,31 @@ export const PdfTestPage: React.FC = () => {
   };
 
   // 정답/오디오 편집 열기
-  const handleOpenEdit = (file: any, mode: 'answers' | 'audio') => {
+  const handleOpenEdit = async (file: any, mode: 'answers' | 'audio') => {
     setSelectedFile(file);
     setEditMode(mode);
     setCurrentPage(1);
-    // TODO: 서버에서 기존 정답/오디오 데이터 로드
-    setAnswers([]);
-    setAudioButtons([]);
     setEditDialog(true);
+
+    // 서버에서 기존 정답/오디오 데이터 로드
+    try {
+      if (mode === 'answers') {
+        const response = await ebookService.getAnswers(file.id);
+        if (response.data?.answers) {
+          setAnswers(response.data.answers);
+        }
+      } else {
+        const response = await ebookService.getAudioButtons(file.id);
+        if (response.data?.audioButtons) {
+          setAudioButtons(response.data.audioButtons);
+        }
+      }
+    } catch (error) {
+      console.error('데이터 로드 실패:', error);
+      // 실패해도 다이얼로그는 열림 (빈 상태로)
+      setAnswers([]);
+      setAudioButtons([]);
+    }
   };
 
   // 정답 추가
@@ -208,19 +226,24 @@ export const PdfTestPage: React.FC = () => {
 
   // 정답/오디오 저장
   const handleSaveEdits = async () => {
-    try {
-      // TODO: 서버 API 호출하여 정답/오디오 데이터 저장
-      console.log('저장할 데이터:', {
-        fileId: selectedFile?.id,
-        answers: editMode === 'answers' ? answers : undefined,
-        audioButtons: editMode === 'audio' ? audioButtons : undefined
-      });
+    if (!selectedFile?.id) {
+      alert('파일 ID가 없습니다.');
+      return;
+    }
 
-      alert('저장되었습니다!');
+    try {
+      if (editMode === 'answers') {
+        await ebookService.saveAnswers(selectedFile.id, answers);
+        alert('정답이 저장되었습니다!');
+      } else {
+        await ebookService.saveAudioButtons(selectedFile.id, audioButtons);
+        alert('오디오 버튼이 저장되었습니다!');
+      }
+
       setEditDialog(false);
-    } catch (error) {
+    } catch (error: any) {
       console.error('저장 실패:', error);
-      alert('저장에 실패했습니다.');
+      alert(`저장에 실패했습니다: ${error.message || '알 수 없는 오류'}`);
     }
   };
 
@@ -751,13 +774,26 @@ export const PdfTestPage: React.FC = () => {
 
                       try {
                         setUploadingAudio(true);
-                        // TODO: 실제 오디오 파일 업로드 구현
-                        const fakeAudioUrl = URL.createObjectURL(file);
-                        handleAddAudioButton(fakeAudioUrl);
-                        alert('오디오 파일이 추가되었습니다!');
-                      } catch (error) {
+
+                        if (!selectedFile?.id) {
+                          alert('파일 ID가 없습니다.');
+                          return;
+                        }
+
+                        // 실제 오디오 파일 업로드
+                        const response = await ebookService.uploadAudioFile(
+                          selectedFile.id,
+                          file,
+                          currentPage
+                        );
+
+                        if (response.data?.audioUrl) {
+                          handleAddAudioButton(response.data.audioUrl);
+                          alert('오디오 파일이 업로드되었습니다!');
+                        }
+                      } catch (error: any) {
                         console.error('오디오 업로드 실패:', error);
-                        alert('오디오 업로드에 실패했습니다.');
+                        alert(`오디오 업로드에 실패했습니다: ${error.message || '알 수 없는 오류'}`);
                       } finally {
                         setUploadingAudio(false);
                       }
