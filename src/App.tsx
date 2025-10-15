@@ -21,6 +21,7 @@ import { AcademyCodeManagement } from './components/admin/AcademyCodeManagement'
 import { PermissionsMatrix } from './components/admin/PermissionsMatrix';
 import { AuditLogs } from './components/admin/AuditLogs';
 import { LoadingSpinner } from './components/LoadingSpinner';
+import { PdfTestPage } from './pages/PdfTestPage';
 
 // Type definitions
 export type CEFRLevel =
@@ -197,6 +198,12 @@ const AppContent: React.FC = () => {
           <Route path="audit-logs" element={
             <ProtectedRoute roles={['SUPER_MASTER', 'COUNTRY_MASTER']}>
               <AuditLogs />
+            </ProtectedRoute>
+          } />
+
+          <Route path="ebook-files" element={
+            <ProtectedRoute roles={['SUPER_MASTER', 'COUNTRY_MASTER', 'BRANCH_ADMIN', 'TEACHER']}>
+              <PdfTestPage />
             </ProtectedRoute>
           } />
         </Route>

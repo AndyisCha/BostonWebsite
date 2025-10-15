@@ -18,6 +18,7 @@ import ebookRoutes from './routes/ebookRoutes.js';
 import uploadRoutes from './routes/upload.js';
 import courseRoutes from './routes/courseRoutes.js';
 import lessonRoutes from './routes/lessonRoutes.js';
+import pdfRoutes from './routes/pdfRoutes.js';
 
 // Load environment variables
 dotenv.config();
@@ -228,6 +229,7 @@ apiRouter.use('/ebooks', ebookRoutes);
 apiRouter.use('/upload', uploadRoutes);
 apiRouter.use('/courses', courseRoutes);
 apiRouter.use('/courses/:courseId/lessons', lessonRoutes);
+apiRouter.use('/pdf', pdfRoutes);
 
 
 // Mount API router with prefix

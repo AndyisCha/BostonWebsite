@@ -42,6 +42,7 @@ interface EbookViewerProps {
 export const EbookViewer: React.FC<EbookViewerProps> = ({ ebook, userId, onClose }) => {
   const [currentPage, setCurrentPage] = useState(0);
   const [drawingMode, setDrawingMode] = useState(false);
+  const [eraserMode, setEraserMode] = useState(false);
   const [brushColor, setBrushColor] = useState('#000000');
   const [brushWidth, setBrushWidth] = useState(2);
   const [showAnswers, setShowAnswers] = useState<Record<string, boolean>>({});
@@ -116,11 +117,19 @@ export const EbookViewer: React.FC<EbookViewerProps> = ({ ebook, userId, onClose
 
       if (drawingMode) {
         const brush = fabricCanvasRef.current.freeDrawingBrush;
-        brush.color = brushColor;
-        brush.width = brushWidth;
+
+        if (eraserMode) {
+          // 지우개 모드: 흰색 브러시 사용 (또는 destination-out)
+          brush.color = '#ffffff';
+          brush.width = brushWidth * 2; // 지우개는 더 굵게
+        } else {
+          // 펜 모드
+          brush.color = brushColor;
+          brush.width = brushWidth;
+        }
       }
     }
-  }, [drawingMode, brushColor, brushWidth]);
+  }, [drawingMode, brushColor, brushWidth, eraserMode]);
 
   const loadDrawing = async () => {
     if (!fabricCanvasRef.current) return;
@@ -338,6 +347,16 @@ export const EbookViewer: React.FC<EbookViewerProps> = ({ ebook, userId, onClose
 
   const toggleDrawingMode = () => {
     setDrawingMode(!drawingMode);
+    if (!drawingMode) {
+      setEraserMode(false); // 그리기 모드 활성화 시 지우개 모드 해제
+    }
+  };
+
+  const toggleEraserMode = () => {
+    if (!drawingMode) {
+      setDrawingMode(true); // 그리기 모드가 아니면 먼저 활성화
+    }
+    setEraserMode(!eraserMode);
   };
 
   const clearCanvas = () => {
@@ -457,7 +476,22 @@ export const EbookViewer: React.FC<EbookViewerProps> = ({ ebook, userId, onClose
 
         {drawingMode && (
           <div className="drawing-tools">
-            <button className="tool-pen" onClick={undoLastAction}>
+            <button
+              className={`tool-pen ${!eraserMode ? 'active' : ''}`}
+              onClick={() => setEraserMode(false)}
+              style={{ backgroundColor: !eraserMode ? '#2196f3' : '#e0e0e0', color: !eraserMode ? '#fff' : '#000' }}
+            >
+              <Edit />
+            </button>
+            <button
+              className={`tool-eraser ${eraserMode ? 'active' : ''}`}
+              onClick={toggleEraserMode}
+              style={{ backgroundColor: eraserMode ? '#f44336' : '#e0e0e0', color: eraserMode ? '#fff' : '#000' }}
+              title="지우개"
+            >
+              🧹
+            </button>
+            <button className="tool-undo" onClick={undoLastAction}>
               <Undo />
             </button>
             <button className="tool-clear" onClick={clearCanvas}>
@@ -467,7 +501,8 @@ export const EbookViewer: React.FC<EbookViewerProps> = ({ ebook, userId, onClose
               type="color"
               value={brushColor}
               onChange={(e) => setBrushColor(e.target.value)}
-              style={{ width: 40, height: 40, border: 'none', borderRadius: '50%' }}
+              disabled={eraserMode}
+              style={{ width: 40, height: 40, border: 'none', borderRadius: '50%', opacity: eraserMode ? 0.5 : 1 }}
             />
             <input
               type="range"
@@ -475,7 +510,8 @@ export const EbookViewer: React.FC<EbookViewerProps> = ({ ebook, userId, onClose
               max="20"
               value={brushWidth}
               onChange={(e) => setBrushWidth(parseInt(e.target.value))}
-              style={{ width: 40 }}
+              style={{ width: 100 }}
+              title={`브러시 크기: ${brushWidth}`}
             />
           </div>
         )}
