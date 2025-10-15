@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { CEFRLevel } from '../types/cefr.js';
 import { AuthRequest } from '../middleware/auth.js';
 import { StorageService } from '../lib/storage.js';
+import { supabaseAdmin } from '../lib/supabase.js';
 
 export class EbookController {
   static async uploadEbook(req: Request, res: Response) {
@@ -229,7 +230,19 @@ export class EbookController {
         return res.status(400).json({ error: 'Missing required fields' });
       }
 
-      // TODO: Save audio button positions to database
+      // Supabase에 오디오 버튼 데이터 저장
+      const { data, error } = await supabaseAdmin
+        .from('pdfs')
+        .update({ audio_buttons: audioButtons })
+        .eq('id', ebookId)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Supabase error:', error);
+        return res.status(500).json({ error: 'Failed to save audio buttons to database' });
+      }
+
       res.json({
         success: true,
         message: 'Audio buttons saved successfully',
@@ -253,22 +266,23 @@ export class EbookController {
         return res.status(400).json({ error: 'Missing ebook ID' });
       }
 
-      // TODO: Implement with Supabase - get audio buttons for ebook
+      // Supabase에서 오디오 버튼 데이터 가져오기
+      const { data, error } = await supabaseAdmin
+        .from('pdfs')
+        .select('audio_buttons')
+        .eq('id', ebookId)
+        .single();
+
+      if (error) {
+        console.error('Supabase error:', error);
+        return res.status(500).json({ error: 'Failed to get audio buttons from database' });
+      }
+
       res.json({
         success: true,
         data: {
           ebookId,
-          audioButtons: [
-            // Example data structure
-            {
-              id: 'audio-1',
-              pageNumber: 1,
-              audioUrl: '/api/audio/sample.mp3',
-              title: 'Reading Audio',
-              position: { x: 50, y: 20 },
-              duration: 120
-            }
-          ]
+          audioButtons: data?.audio_buttons || []
         }
       });
     } catch (error) {
@@ -325,11 +339,18 @@ export class EbookController {
         return res.status(400).json({ error: 'Missing required fields' });
       }
 
-      // TODO: Supabase에 정답 데이터 저장
-      // await supabase
-      //   .from('ebooks')
-      //   .update({ answers })
-      //   .eq('id', ebookId)
+      // Supabase에 정답 데이터 저장
+      const { data, error } = await supabaseAdmin
+        .from('pdfs')
+        .update({ answers })
+        .eq('id', ebookId)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Supabase error:', error);
+        return res.status(500).json({ error: 'Failed to save answers to database' });
+      }
 
       res.json({
         success: true,
@@ -354,18 +375,23 @@ export class EbookController {
         return res.status(400).json({ error: 'Missing ebook ID' });
       }
 
-      // TODO: Supabase에서 정답 데이터 가져오기
-      // const { data } = await supabase
-      //   .from('ebooks')
-      //   .select('answers')
-      //   .eq('id', ebookId)
-      //   .single()
+      // Supabase에서 정답 데이터 가져오기
+      const { data, error } = await supabaseAdmin
+        .from('pdfs')
+        .select('answers')
+        .eq('id', ebookId)
+        .single();
+
+      if (error) {
+        console.error('Supabase error:', error);
+        return res.status(500).json({ error: 'Failed to get answers from database' });
+      }
 
       res.json({
         success: true,
         data: {
           ebookId,
-          answers: [] // TODO: 실제 데이터 반환
+          answers: data?.answers || []
         }
       });
     } catch (error) {
@@ -384,7 +410,19 @@ export class EbookController {
         return res.status(400).json({ error: 'Missing required fields' });
       }
 
-      // TODO: Supabase에 메타데이터 저장
+      // Supabase에 메타데이터 저장
+      const { data, error } = await supabaseAdmin
+        .from('pdfs')
+        .update({ metadata })
+        .eq('id', ebookId)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Supabase error:', error);
+        return res.status(500).json({ error: 'Failed to update metadata in database' });
+      }
+
       res.json({
         success: true,
         message: 'Metadata updated successfully',
