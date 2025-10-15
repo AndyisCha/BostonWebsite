@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import { fabric } from 'fabric';
 import { requestViewUrl } from '../services/pdfService';
+import { Answer, AudioButton } from '../services/ebookService';
 
 // PDF.js 워커 설정
 pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
@@ -12,6 +13,8 @@ interface PdfViewerProps {
   watermarkText?: string;
   onError?: (error: Error) => void;
   onPdfLoaded?: (numPages: number) => void;
+  answers?: Answer[];
+  audioButtons?: AudioButton[];
 }
 
 /**
@@ -28,6 +31,8 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({
   watermarkText,
   onError,
   onPdfLoaded,
+  answers = [],
+  audioButtons = [],
 }) => {
   const pdfCanvasRef = useRef<HTMLCanvasElement>(null);
   const drawingCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -485,6 +490,86 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({
             border: drawingMode ? '2px dashed #2196f3' : 'none',
           }}
         />
+
+        {/* 정답/오디오 버튼 오버레이 */}
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          pointerEvents: 'none',
+          zIndex: 5,
+        }}>
+          {/* 정답 표시 */}
+          {answers
+            .filter(answer => answer.pageNumber === currentPage)
+            .map((answer) => (
+              <div
+                key={answer.id}
+                style={{
+                  position: 'absolute',
+                  left: `${answer.x}%`,
+                  top: `${answer.y}%`,
+                  transform: 'translate(-50%, -50%)',
+                  backgroundColor: 'rgba(76, 175, 80, 0.9)',
+                  color: 'white',
+                  padding: '8px 12px',
+                  borderRadius: '4px',
+                  fontSize: '14px',
+                  fontWeight: 'bold',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
+                  whiteSpace: 'nowrap',
+                  pointerEvents: 'auto',
+                  cursor: 'help',
+                }}
+                title={answer.text}
+              >
+                ✓ {answer.text}
+              </div>
+            ))}
+
+          {/* 오디오 버튼 표시 */}
+          {audioButtons
+            .filter(button => button.pageNumber === currentPage)
+            .map((button) => (
+              <button
+                key={button.id}
+                onClick={() => {
+                  const audio = new Audio(button.audioUrl);
+                  audio.play().catch(err => console.error('오디오 재생 실패:', err));
+                }}
+                style={{
+                  position: 'absolute',
+                  left: `${button.x}%`,
+                  top: `${button.y}%`,
+                  transform: 'translate(-50%, -50%)',
+                  backgroundColor: 'rgba(33, 150, 243, 0.9)',
+                  color: 'white',
+                  border: 'none',
+                  padding: '10px 16px',
+                  borderRadius: '50px',
+                  fontSize: '16px',
+                  fontWeight: 'bold',
+                  boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
+                  cursor: 'pointer',
+                  pointerEvents: 'auto',
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = 'rgba(33, 150, 243, 1)';
+                  e.currentTarget.style.transform = 'translate(-50%, -50%) scale(1.1)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'rgba(33, 150, 243, 0.9)';
+                  e.currentTarget.style.transform = 'translate(-50%, -50%) scale(1)';
+                }}
+                title={button.label || '오디오 재생'}
+              >
+                {button.label || '🔊'}
+              </button>
+            ))}
+        </div>
       </div>
 
       {/* 안내 메시지 */}

@@ -66,7 +66,11 @@ interface AudioButton {
 export const PdfTestPage: React.FC = () => {
   const [tabValue, setTabValue] = useState(0);
   const [uploadedPath, setUploadedPath] = useState<string | null>(null);
+  const [uploadedFileId, setUploadedFileId] = useState<string | null>(null);
   const [viewPath, setViewPath] = useState<string | null>(null);
+  const [viewFileId, setViewFileId] = useState<string | null>(null);
+  const [viewAnswers, setViewAnswers] = useState<Answer[]>([]);
+  const [viewAudioButtons, setViewAudioButtons] = useState<AudioButton[]>([]);
   const [pdfList, setPdfList] = useState<any[]>([]);
   const [userEmail] = useState('admin@bostonacademy.com');
   const [loading, setLoading] = useState(false);
@@ -107,6 +111,7 @@ export const PdfTestPage: React.FC = () => {
   const handleUploadSuccess = (objectPath: string, fileId: string) => {
     console.log('✅ 업로드 성공:', { objectPath, fileId });
     setUploadedPath(objectPath);
+    setUploadedFileId(fileId);
 
     // TODO: 메타데이터를 서버에 저장
     console.log('📝 메타데이터:', metadata);
@@ -135,8 +140,33 @@ export const PdfTestPage: React.FC = () => {
   };
 
   // 파일 보기
-  const handleView = (objectPath: string) => {
-    setViewPath(objectPath);
+  const handleView = async (file: any) => {
+    setViewPath(file.object_path);
+    setViewFileId(file.id);
+
+    // 정답과 오디오 버튼 로드
+    try {
+      const [answersResponse, audioResponse] = await Promise.all([
+        ebookService.getAnswers(file.id),
+        ebookService.getAudioButtons(file.id)
+      ]);
+
+      if (answersResponse.data?.answers) {
+        setViewAnswers(answersResponse.data.answers);
+      } else {
+        setViewAnswers([]);
+      }
+
+      if (audioResponse.data?.audioButtons) {
+        setViewAudioButtons(audioResponse.data.audioButtons);
+      } else {
+        setViewAudioButtons([]);
+      }
+    } catch (error) {
+      console.error('정답/오디오 로드 실패:', error);
+      setViewAnswers([]);
+      setViewAudioButtons([]);
+    }
   };
 
   // 뷰어 에러 핸들러
@@ -147,6 +177,9 @@ export const PdfTestPage: React.FC = () => {
   // 뷰어 닫기
   const handleCloseViewer = () => {
     setViewPath(null);
+    setViewFileId(null);
+    setViewAnswers([]);
+    setViewAudioButtons([]);
   };
 
   // 정답/오디오 편집 열기
@@ -282,6 +315,8 @@ export const PdfTestPage: React.FC = () => {
             objectPath={viewPath}
             userEmail={userEmail}
             onError={handleViewError}
+            answers={viewAnswers}
+            audioButtons={viewAudioButtons}
           />
         ) : (
           <PdfViewer
@@ -289,6 +324,8 @@ export const PdfTestPage: React.FC = () => {
             userEmail={userEmail}
             onError={handleViewError}
             onPdfLoaded={(numPages) => setTotalPages(numPages)}
+            answers={viewAnswers}
+            audioButtons={viewAudioButtons}
           />
         )}
       </Box>
@@ -322,14 +359,14 @@ export const PdfTestPage: React.FC = () => {
               </CardContent>
             </Card>
 
-            {uploadedPath && (
+            {uploadedPath && uploadedFileId && (
               <Alert severity="success" sx={{ mt: 2 }}>
                 <Typography variant="subtitle2">✅ 업로드 완료!</Typography>
                 <Typography variant="body2">
                   <strong>Object Path:</strong> <code>{uploadedPath}</code>
                 </Typography>
                 <Button
-                  onClick={() => handleView(uploadedPath)}
+                  onClick={() => handleView({ id: uploadedFileId, object_path: uploadedPath })}
                   variant="contained"
                   size="small"
                   sx={{ mt: 1 }}
@@ -474,7 +511,7 @@ export const PdfTestPage: React.FC = () => {
                           <Box display="flex" gap={1} justifyContent="center">
                             <Tooltip title="보기">
                               <IconButton
-                                onClick={() => handleView(pdf.object_path)}
+                                onClick={() => handleView(pdf)}
                                 disabled={pdf.status !== 'ready'}
                                 color="primary"
                                 size="small"
