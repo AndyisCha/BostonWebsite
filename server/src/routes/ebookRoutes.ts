@@ -157,6 +157,35 @@ router.delete('/:ebookId', requireContentCreator(), async (req: AuthRequest, res
   }
 });
 
+// 정답 endpoints
+router.get('/:ebookId/answers', async (req: AuthRequest, res) => {
+  try {
+    const { EbookController } = await import('../controllers/ebookController.js');
+    await EbookController.getAnswers(req, res);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to get answers' });
+  }
+});
+
+router.put('/:ebookId/answers', requireContentCreator(), async (req: AuthRequest, res) => {
+  try {
+    const { EbookController } = await import('../controllers/ebookController.js');
+    await EbookController.saveAnswers(req, res);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to save answers' });
+  }
+});
+
+// 메타데이터 endpoints
+router.put('/:ebookId/metadata', requireContentCreator(), async (req: AuthRequest, res) => {
+  try {
+    const { EbookController } = await import('../controllers/ebookController.js');
+    await EbookController.updateMetadata(req, res);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update metadata' });
+  }
+});
+
 // Audio endpoints
 router.get('/:ebookId/audio', async (req: AuthRequest, res) => {
   try {

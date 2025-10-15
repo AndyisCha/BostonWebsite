@@ -314,4 +314,89 @@ export class EbookController {
       res.status(500).json({ error: 'Failed to stream audio' });
     }
   }
+
+  // 정답 관리
+  static async saveAnswers(req: Request, res: Response) {
+    try {
+      const { ebookId } = req.params;
+      const { answers } = req.body;
+
+      if (!ebookId || !answers) {
+        return res.status(400).json({ error: 'Missing required fields' });
+      }
+
+      // TODO: Supabase에 정답 데이터 저장
+      // await supabase
+      //   .from('ebooks')
+      //   .update({ answers })
+      //   .eq('id', ebookId)
+
+      res.json({
+        success: true,
+        message: 'Answers saved successfully',
+        data: {
+          ebookId,
+          answers,
+          updatedAt: new Date().toISOString()
+        }
+      });
+    } catch (error) {
+      console.error('Error saving answers:', error);
+      res.status(500).json({ error: 'Failed to save answers' });
+    }
+  }
+
+  static async getAnswers(req: Request, res: Response) {
+    try {
+      const { ebookId } = req.params;
+
+      if (!ebookId) {
+        return res.status(400).json({ error: 'Missing ebook ID' });
+      }
+
+      // TODO: Supabase에서 정답 데이터 가져오기
+      // const { data } = await supabase
+      //   .from('ebooks')
+      //   .select('answers')
+      //   .eq('id', ebookId)
+      //   .single()
+
+      res.json({
+        success: true,
+        data: {
+          ebookId,
+          answers: [] // TODO: 실제 데이터 반환
+        }
+      });
+    } catch (error) {
+      console.error('Error getting answers:', error);
+      res.status(500).json({ error: 'Failed to get answers' });
+    }
+  }
+
+  // E-book 메타데이터 업데이트
+  static async updateMetadata(req: Request, res: Response) {
+    try {
+      const { ebookId } = req.params;
+      const { metadata } = req.body;
+
+      if (!ebookId || !metadata) {
+        return res.status(400).json({ error: 'Missing required fields' });
+      }
+
+      // TODO: Supabase에 메타데이터 저장
+      res.json({
+        success: true,
+        message: 'Metadata updated successfully',
+        data: {
+          ebookId,
+          metadata,
+          updatedAt: new Date().toISOString()
+        }
+      });
+    } catch (error) {
+      console.error('Error updating metadata:', error);
+      res.status(500).json({ error: 'Failed to update metadata' });
+    }
+  }
 }

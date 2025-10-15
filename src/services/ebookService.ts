@@ -64,6 +64,25 @@ export interface DrawingData {
   updatedAt: string;
 }
 
+export interface Answer {
+  id: string;
+  pageNumber: number;
+  text: string;
+  x: number;
+  y: number;
+  width?: number;
+  height?: number;
+}
+
+export interface AudioButton {
+  id: string;
+  pageNumber: number;
+  audioUrl: string;
+  x: number;
+  y: number;
+  label?: string;
+}
+
 class EbookApiService {
   private baseURL = '/ebooks';
 
@@ -205,6 +224,69 @@ class EbookApiService {
   getCoverImageUrl(coverImage: string): string {
     const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
     return `${baseUrl}/ebooks/cover/${coverImage}`;
+  }
+
+  // 정답 저장
+  async saveAnswers(ebookId: string, answers: Answer[]): Promise<ApiResponse<any>> {
+    try {
+      return await api.put(`${this.baseURL}/${ebookId}/answers`, { answers });
+    } catch (error: any) {
+      throw new Error(error.message || '정답 저장에 실패했습니다.');
+    }
+  }
+
+  // 정답 불러오기
+  async getAnswers(ebookId: string): Promise<ApiResponse<{ answers: Answer[] }>> {
+    try {
+      return await api.get(`${this.baseURL}/${ebookId}/answers`);
+    } catch (error: any) {
+      throw new Error(error.message || '정답 불러오기에 실패했습니다.');
+    }
+  }
+
+  // 오디오 버튼 저장
+  async saveAudioButtons(ebookId: string, audioButtons: AudioButton[]): Promise<ApiResponse<any>> {
+    try {
+      return await api.put(`${this.baseURL}/${ebookId}/audio`, { audioButtons });
+    } catch (error: any) {
+      throw new Error(error.message || '오디오 버튼 저장에 실패했습니다.');
+    }
+  }
+
+  // 오디오 버튼 불러오기
+  async getAudioButtons(ebookId: string): Promise<ApiResponse<{ audioButtons: AudioButton[] }>> {
+    try {
+      return await api.get(`${this.baseURL}/${ebookId}/audio`);
+    } catch (error: any) {
+      throw new Error(error.message || '오디오 버튼 불러오기에 실패했습니다.');
+    }
+  }
+
+  // 오디오 파일 업로드
+  async uploadAudioFile(ebookId: string, file: File, pageNumber: number): Promise<ApiResponse<any>> {
+    try {
+      const formData = new FormData();
+      formData.append('audioFile', file);
+      formData.append('ebookId', ebookId);
+      formData.append('pageNumber', pageNumber.toString());
+
+      return await api.post(`${this.baseURL}/${ebookId}/audio`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+    } catch (error: any) {
+      throw new Error(error.message || '오디오 파일 업로드에 실패했습니다.');
+    }
+  }
+
+  // E-book 메타데이터 업데이트
+  async updateMetadata(ebookId: string, metadata: any): Promise<ApiResponse<any>> {
+    try {
+      return await api.put(`${this.baseURL}/${ebookId}/metadata`, { metadata });
+    } catch (error: any) {
+      throw new Error(error.message || '메타데이터 업데이트에 실패했습니다.');
+    }
   }
 }
 
