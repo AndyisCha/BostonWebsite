@@ -45,11 +45,11 @@
   ],
   "env": {
     "VITE_NODE_ENV": "production",
-    "VITE_API_URL": "/api/proxy"
+    "VITE_API_URL": "https://boston-english-server.railway.app/api/v1"
   },
   "build": {
     "env": {
-      "VITE_API_URL": "/api/proxy"
+      "VITE_API_URL": "https://boston-english-server.railway.app/api/v1"
     }
   }
 }
