@@ -222,7 +222,7 @@ class EbookApiService {
 
   // E-book 커버 이미지 URL 생성
   getCoverImageUrl(coverImage: string): string {
-    const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
+    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api/v1';
     return `${baseUrl}/ebooks/cover/${coverImage}`;
   }
 
