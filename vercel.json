@@ -22,7 +22,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://boston-english-server.railway.app https://api.github.com wss://boston-english-server.railway.app; object-src 'none'; media-src 'self'; frame-src 'none';"
+          "value": "default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://boston-english-server.railway.app https://api.github.com wss://boston-english-server.railway.app https://*.supabase.co wss://*.supabase.co; object-src 'none'; media-src 'self'; frame-src 'none';"
         },
         {
           "key": "X-Frame-Options",
