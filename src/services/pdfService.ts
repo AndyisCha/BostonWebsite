@@ -210,12 +210,13 @@ export async function listUserPdfs(): Promise<{
 }> {
   console.log(`📋 Supabase에서 PDF 목록 조회`);
 
-  // 인증된 사용자 확인
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-  if (authError || !user) {
+  // 사용자 정보 가져오기 (localStorage에서)
+  const userStr = localStorage.getItem('user');
+  if (!userStr) {
     throw new Error('로그인이 필요합니다.');
   }
+
+  const user = JSON.parse(userStr);
 
   // pdfs 테이블에서 사용자의 PDF 목록 조회
   const { data, error, count } = await supabase
@@ -251,13 +252,13 @@ export async function uploadPdf(
 }> {
   console.log(`🚀 Supabase 직접 업로드 시작: ${file.name}`);
 
-  // 사용자 ID 가져오기 (인증된 사용자)
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-  if (authError || !user) {
+  // 사용자 정보 가져오기 (localStorage에서)
+  const userStr = localStorage.getItem('user');
+  if (!userStr) {
     throw new Error('로그인이 필요합니다.');
   }
 
+  const user = JSON.parse(userStr);
   const userId = user.id;
   const timestamp = Date.now();
   const fileExtension = file.name.split('.').pop();
