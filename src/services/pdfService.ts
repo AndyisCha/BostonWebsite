@@ -227,9 +227,12 @@ export async function listUserPdfs(): Promise<{
   console.log(`📋 Supabase에서 PDF 목록 조회`);
 
   // 사용자 정보 가져오기 (localStorage에서)
+  console.log('📝 LocalStorage keys:', Object.keys(localStorage));
   const userStr = localStorage.getItem('user');
+  console.log('👤 User data from localStorage:', userStr ? 'Found' : 'Not found');
+
   if (!userStr) {
-    throw new Error('로그인이 필요합니다.');
+    throw new Error('로그인이 필요합니다. 로그아웃 후 다시 로그인해주세요.');
   }
 
   const user = JSON.parse(userStr);
@@ -269,9 +272,12 @@ export async function uploadPdf(
   console.log(`🚀 Supabase 직접 업로드 시작: ${file.name}`);
 
   // 사용자 정보 가져오기 (localStorage에서)
+  console.log('📝 LocalStorage keys:', Object.keys(localStorage));
   const userStr = localStorage.getItem('user');
+  console.log('👤 User data from localStorage:', userStr ? 'Found' : 'Not found');
+
   if (!userStr) {
-    throw new Error('로그인이 필요합니다.');
+    throw new Error('로그인이 필요합니다. 로그아웃 후 다시 로그인해주세요.');
   }
 
   const user = JSON.parse(userStr);
