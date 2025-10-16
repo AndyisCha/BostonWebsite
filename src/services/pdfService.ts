@@ -271,7 +271,8 @@ export async function uploadPdf(
   const { data: uploadData, error: uploadError } = await supabase.storage
     .from('ebook-files')
     .upload(objectPath, file, {
-      cacheControl: '3600',
+      cacheControl: 'max-age=3600',
+      contentType: file.type || 'application/pdf',
       upsert: false
     });
 
