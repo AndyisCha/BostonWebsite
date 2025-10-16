@@ -8,13 +8,15 @@ import {
 } from '@mui/material';
 import {
   ExpandMore, Visibility, Edit, VolumeUp, CloudUpload, Refresh,
-  ArrowBack, Info, Assessment, Delete
+  ArrowBack, Info, Assessment, Delete, Login
 } from '@mui/icons-material';
 import { PdfUploader } from '../components/PdfUploader';
 import { PdfViewer } from '../components/PdfViewer';
 import { EpubViewer } from '../components/EpubViewer';
 import { listUserPdfs } from '../services/pdfService';
 import { ebookService, Answer as EbookAnswer, AudioButton as EbookAudioButton } from '../services/ebookService';
+import { useAuth } from '../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -64,6 +66,9 @@ interface AudioButton {
  * E-book 파일 관리 페이지 (통합)
  */
 export const PdfTestPage: React.FC = () => {
+  const { user, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
+
   const [tabValue, setTabValue] = useState(0);
   const [uploadedPath, setUploadedPath] = useState<string | null>(null);
   const [uploadedFileId, setUploadedFileId] = useState<string | null>(null);
@@ -72,7 +77,7 @@ export const PdfTestPage: React.FC = () => {
   const [viewAnswers, setViewAnswers] = useState<Answer[]>([]);
   const [viewAudioButtons, setViewAudioButtons] = useState<AudioButton[]>([]);
   const [pdfList, setPdfList] = useState<any[]>([]);
-  const [userEmail] = useState('admin@bostonacademy.com');
+  const [userEmail] = useState(user?.email || 'admin@bostonacademy.com');
   const [loading, setLoading] = useState(false);
 
   // 메타데이터 폼 상태
@@ -127,6 +132,11 @@ export const PdfTestPage: React.FC = () => {
 
   // PDF 목록 로드
   const loadPdfList = async () => {
+    if (!user) {
+      console.warn('⚠️ 로그인이 필요합니다.');
+      return;
+    }
+
     try {
       setLoading(true);
       const { pdfs } = await listUserPdfs();
@@ -290,6 +300,34 @@ export const PdfTestPage: React.FC = () => {
   };
 
   const stats = getStatistics();
+
+  // 로그인 체크 (authLoading이 끝난 후)
+  if (!authLoading && !user) {
+    return (
+      <Box p={3} display="flex" flexDirection="column" alignItems="center" justifyContent="center" minHeight="60vh">
+        <Login sx={{ fontSize: 64, color: 'primary.main', mb: 2 }} />
+        <Typography variant="h5" gutterBottom>
+          로그인이 필요합니다
+        </Typography>
+        <Typography variant="body1" color="textSecondary" gutterBottom>
+          E-book 관리 기능을 사용하려면 로그인이 필요합니다.
+        </Typography>
+        <Button
+          variant="contained"
+          size="large"
+          sx={{ mt: 3 }}
+          onClick={() => navigate('/login')}
+        >
+          로그인 페이지로 이동
+        </Button>
+        <Alert severity="info" sx={{ mt: 3, maxWidth: 600 }}>
+          <Typography variant="body2">
+            💡 이미 로그인하셨다면 페이지를 새로고침해보세요. (Ctrl+F5 또는 Cmd+Shift+R)
+          </Typography>
+        </Alert>
+      </Box>
+    );
+  }
 
   // 뷰어가 열려있으면 뷰어만 표시
   if (viewPath) {
