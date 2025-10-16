@@ -86,8 +86,11 @@ export const EbookViewer: React.FC<EbookViewerProps> = ({ ebook, userId, onClose
       const brush = fabricCanvasRef.current.freeDrawingBrush;
       brush.color = brushColor;
       brush.width = brushWidth;
+    }
 
-      loadDrawing();
+    // 페이지 변경 시 캔버스 초기화
+    if (fabricCanvasRef.current) {
+      fabricCanvasRef.current.clear();
     }
 
     // Load user preferences and bookmarks
