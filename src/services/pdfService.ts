@@ -283,14 +283,14 @@ export async function uploadPdf(
 
   console.log(`📤 파일 업로드 중: ${objectPath}`);
 
-  // 1. Supabase Storage에 업로드
+  // 파일 타입 확인
+  const contentType = getFileContentType(file);
+  console.log(`📋 파일 정보: type="${file.type}", contentType="${contentType}"`);
+
+  // 1. Supabase Storage에 업로드 (옵션 최소화)
   const { data: uploadData, error: uploadError } = await supabase.storage
     .from('ebook-files')
-    .upload(objectPath, file, {
-      cacheControl: 'max-age=3600',
-      contentType: getFileContentType(file),
-      upsert: false
-    });
+    .upload(objectPath, file);
 
   if (uploadError) {
     console.error('❌ Supabase Storage 업로드 실패:', uploadError);
