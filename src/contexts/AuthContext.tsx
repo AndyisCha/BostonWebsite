@@ -118,7 +118,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     // 정식 최고 관리자 계정 - Andy (SUPER_MASTER)
     if (email === 'admin@bostonacademy.kr' && password === 'BostonAdmin2024!') {
       const adminUser: User = {
-        id: 'super-admin-001',
+        id: '2c569121-9096-4aff-b160-11531597b73a', // Supabase Auth UUID
         email: 'admin@bostonacademy.kr',
         role: 'SUPER_MASTER',
         firstName: 'Andy',
