@@ -3,9 +3,9 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-// 환경 변수 검증 및 정리
-const cleanUrl = supabaseUrl?.trim();
-const cleanKey = supabaseAnonKey?.trim();
+// 환경 변수 검증 및 정리 (줄바꿈 제거)
+const cleanUrl = supabaseUrl?.trim().replace(/[\n\r\t]/g, '');
+const cleanKey = supabaseAnonKey?.trim().replace(/[\n\r\t\s]/g, '');
 
 // 환경 변수 디버깅
 console.log('🔍 Supabase 환경 변수:', {
@@ -13,17 +13,12 @@ console.log('🔍 Supabase 환경 변수:', {
   urlLength: cleanUrl?.length,
   key: cleanKey ? `${cleanKey.substring(0, 20)}...` : 'MISSING',
   keyLength: cleanKey?.length,
-  keyType: typeof cleanKey
+  keyType: typeof cleanKey,
+  originalKeyLength: supabaseAnonKey?.length
 });
 
 if (!cleanUrl || !cleanKey) {
   throw new Error('Missing Supabase environment variables');
-}
-
-// 유효성 검증
-if (cleanKey.includes('\n') || cleanKey.includes('\r') || cleanKey.includes('\t')) {
-  console.error('❌ Supabase anon key contains invalid characters');
-  throw new Error('Invalid Supabase anon key format');
 }
 
 // Supabase 클라이언트 생성 (명시적 옵션)
