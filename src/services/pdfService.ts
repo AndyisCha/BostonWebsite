@@ -39,6 +39,22 @@ async function handleResponse<T>(response: Response): Promise<T> {
   return response.json();
 }
 
+// 파일 Content-Type 안전하게 가져오기
+function getFileContentType(file: File): string {
+  // file.type이 빈 문자열("")일 수 있으므로 trim() 체크
+  if (file.type && file.type.trim()) {
+    return file.type;
+  }
+
+  // 파일 확장자로 MIME 타입 추론
+  const ext = file.name.split('.').pop()?.toLowerCase();
+  if (ext === 'pdf') return 'application/pdf';
+  if (ext === 'epub') return 'application/epub+zip';
+
+  // 기본값
+  return 'application/octet-stream';
+}
+
 /**
  * 서명된 업로드 URL 요청
  * @param fileName 파일명
@@ -272,7 +288,7 @@ export async function uploadPdf(
     .from('ebook-files')
     .upload(objectPath, file, {
       cacheControl: 'max-age=3600',
-      contentType: file.type || 'application/pdf',
+      contentType: getFileContentType(file),
       upsert: false
     });
 
@@ -296,7 +312,7 @@ export async function uploadPdf(
       object_path: objectPath,
       file_name: file.name,
       size_bytes: file.size,
-      mime_type: file.type,
+      mime_type: getFileContentType(file),
       status: 'ready'
     })
     .select()
