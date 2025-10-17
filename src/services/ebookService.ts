@@ -73,6 +73,9 @@ export interface Answer {
   y: number;
   width?: number;
   height?: number;
+  fontSize?: number;  // 텍스트 크기 (기본: 14)
+  color?: string;     // 텍스트 색상 (기본: #4caf50)
+  visible?: boolean;  // 정답 표시 여부 (편집 시 사용)
 }
 
 export interface AudioButton {

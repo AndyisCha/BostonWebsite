@@ -13,6 +13,7 @@ import {
 import { PdfUploader } from '../components/PdfUploader';
 import { PdfViewer } from '../components/PdfViewer';
 import { EpubViewer } from '../components/EpubViewer';
+import { AnswerEditViewer } from '../components/AnswerEditViewer';
 import { listUserPdfs } from '../services/pdfService';
 import { ebookService, Answer as EbookAnswer, AudioButton as EbookAudioButton } from '../services/ebookService';
 import { useAuth } from '../contexts/AuthContext';
@@ -51,6 +52,9 @@ interface Answer {
   y: number;
   width?: number;
   height?: number;
+  fontSize?: number;  // 텍스트 크기 (기본: 14)
+  color?: string;     // 텍스트 색상 (기본: #4caf50)
+  visible?: boolean;  // 정답 표시 여부 (편집 시 사용)
 }
 
 interface AudioButton {
@@ -100,7 +104,6 @@ export const PdfTestPage: React.FC = () => {
   const [answers, setAnswers] = useState<Answer[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(10); // PdfViewer의 onPdfLoaded에서 업데이트됨
-  const [newAnswerText, setNewAnswerText] = useState('');
 
   // 오디오 편집 상태
   const [audioButtons, setAudioButtons] = useState<AudioButton[]>([]);
@@ -218,34 +221,6 @@ export const PdfTestPage: React.FC = () => {
       setAnswers([]);
       setAudioButtons([]);
     }
-  };
-
-  // 정답 추가
-  const handleAddAnswer = () => {
-    if (!newAnswerText.trim()) return;
-
-    const newAnswer: Answer = {
-      id: `answer-${Date.now()}`,
-      pageNumber: currentPage,
-      text: newAnswerText,
-      x: 50, // 기본 위치 (%)
-      y: 50,
-      width: 200,
-      height: 40
-    };
-
-    setAnswers([...answers, newAnswer]);
-    setNewAnswerText('');
-  };
-
-  // 정답 삭제
-  const handleDeleteAnswer = (answerId: string) => {
-    setAnswers(answers.filter(a => a.id !== answerId));
-  };
-
-  // 정답 수정
-  const handleUpdateAnswer = (answerId: string, updates: Partial<Answer>) => {
-    setAnswers(answers.map(a => a.id === answerId ? { ...a, ...updates } : a));
   };
 
   // 오디오 버튼 추가
@@ -674,175 +649,16 @@ export const PdfTestPage: React.FC = () => {
           {editMode === 'answers' ? '📝 정답 편집' : '🔊 오디오 편집'}: {selectedFile?.file_name}
         </DialogTitle>
         <DialogContent>
-          {/* 페이지 네비게이션 */}
-          <Box display="flex" alignItems="center" gap={2} mb={3} p={2} bgcolor="grey.100" borderRadius={1}>
-            <Typography variant="body2" fontWeight="bold">
-              페이지:
-            </Typography>
-            <Button
-              size="small"
-              variant="outlined"
-              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-              disabled={currentPage <= 1}
-            >
-              이전
-            </Button>
-            <Typography variant="body1" fontWeight="bold">
-              {currentPage} / {totalPages}
-            </Typography>
-            <Button
-              size="small"
-              variant="outlined"
-              onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-              disabled={currentPage >= totalPages}
-            >
-              다음
-            </Button>
-            <TextField
-              size="small"
-              type="number"
-              label="이동"
-              value={currentPage}
-              onChange={(e) => {
-                const page = parseInt(e.target.value) || 1;
-                setCurrentPage(Math.max(1, Math.min(totalPages, page)));
-              }}
-              sx={{
-                width: 100,
-                bgcolor: 'white',
-                borderRadius: 1
-              }}
-              inputProps={{ min: 1, max: totalPages }}
-            />
-            <TextField
-              size="small"
-              type="number"
-              label="총 페이지"
-              value={totalPages}
-              onChange={(e) => {
-                const pages = parseInt(e.target.value) || 10;
-                setTotalPages(Math.max(1, pages));
-              }}
-              sx={{
-                width: 110,
-                bgcolor: 'white',
-                borderRadius: 1
-              }}
-              inputProps={{ min: 1 }}
-            />
-          </Box>
-
           {editMode === 'answers' ? (
-            /* 정답 편집 UI */
-            <Box>
-              <Typography variant="h6" gutterBottom>
-                페이지 {currentPage}의 정답 ({answers.filter(a => a.pageNumber === currentPage).length}개)
-              </Typography>
-
-              {/* 새 정답 추가 */}
-              <Card sx={{ mb: 2, p: 2, bgcolor: 'primary.50' }}>
-                <Typography variant="subtitle2" gutterBottom>
-                  ➕ 새 정답 추가
-                </Typography>
-                <Box display="flex" gap={1}>
-                  <TextField
-                    fullWidth
-                    size="small"
-                    placeholder="정답 텍스트를 입력하세요"
-                    value={newAnswerText}
-                    onChange={(e) => setNewAnswerText(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && handleAddAnswer()}
-                  />
-                  <Button
-                    variant="contained"
-                    onClick={handleAddAnswer}
-                    disabled={!newAnswerText.trim()}
-                  >
-                    추가
-                  </Button>
-                </Box>
-              </Card>
-
-              {/* 정답 목록 */}
-              <Box>
-                {answers.filter(a => a.pageNumber === currentPage).length === 0 ? (
-                  <Alert severity="info">
-                    이 페이지에 추가된 정답이 없습니다.
-                  </Alert>
-                ) : (
-                  <Grid container spacing={2}>
-                    {answers
-                      .filter(a => a.pageNumber === currentPage)
-                      .map((answer) => (
-                        <Grid item xs={12} key={answer.id}>
-                          <Card variant="outlined">
-                            <CardContent>
-                              <Box display="flex" justifyContent="space-between" alignItems="start">
-                                <Box flex={1}>
-                                  <TextField
-                                    fullWidth
-                                    value={answer.text}
-                                    onChange={(e) =>
-                                      handleUpdateAnswer(answer.id, { text: e.target.value })
-                                    }
-                                    variant="standard"
-                                    sx={{ mb: 2 }}
-                                  />
-                                  <Grid container spacing={2}>
-                                    <Grid item xs={6}>
-                                      <TextField
-                                        fullWidth
-                                        size="small"
-                                        label="X 위치 (%)"
-                                        type="number"
-                                        value={answer.x}
-                                        onChange={(e) =>
-                                          handleUpdateAnswer(answer.id, {
-                                            x: parseInt(e.target.value) || 0
-                                          })
-                                        }
-                                        inputProps={{ min: 0, max: 100 }}
-                                      />
-                                    </Grid>
-                                    <Grid item xs={6}>
-                                      <TextField
-                                        fullWidth
-                                        size="small"
-                                        label="Y 위치 (%)"
-                                        type="number"
-                                        value={answer.y}
-                                        onChange={(e) =>
-                                          handleUpdateAnswer(answer.id, {
-                                            y: parseInt(e.target.value) || 0
-                                          })
-                                        }
-                                        inputProps={{ min: 0, max: 100 }}
-                                      />
-                                    </Grid>
-                                  </Grid>
-                                </Box>
-                                <IconButton
-                                  color="error"
-                                  onClick={() => handleDeleteAnswer(answer.id)}
-                                  sx={{ ml: 1 }}
-                                >
-                                  <Delete />
-                                </IconButton>
-                              </Box>
-                            </CardContent>
-                          </Card>
-                        </Grid>
-                      ))}
-                  </Grid>
-                )}
-              </Box>
-
-              <Alert severity="warning" sx={{ mt: 2 }}>
-                <Typography variant="body2">
-                  💡 위치는 페이지 전체 크기 대비 백분율(%)로 설정됩니다. (0~100)
-                </Typography>
-              </Alert>
-            </Box>
+            /* 새로운 정답 편집 UI */
+            <AnswerEditViewer
+              objectPath={selectedFile?.object_path || ''}
+              currentPage={currentPage}
+              answers={answers}
+              onPageChange={setCurrentPage}
+              onAnswersChange={setAnswers}
+              onPdfLoaded={setTotalPages}
+            />
           ) : (
             /* 오디오 편집 UI */
             <Box>
