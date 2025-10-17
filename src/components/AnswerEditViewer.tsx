@@ -279,7 +279,7 @@ export const AnswerEditViewer: React.FC<AnswerEditViewerProps> = ({
           🔑 정답 추가
         </Button>
 
-        <Typography variant="caption" color="textSecondary" ml={2}>
+        <Typography variant="caption" color="text.secondary" ml={2}>
           💡 열쇠를 드래그하여 위치 조정, 클릭하여 정답 표시/숨김
         </Typography>
       </Box>
@@ -331,9 +331,13 @@ export const AnswerEditViewer: React.FC<AnswerEditViewerProps> = ({
                   🔑
                 </div>
 
-                {/* 정답 텍스트 (visible일 때만) */}
+                {/* 정답 텍스트 (visible일 때만) - 드래그 가능 */}
                 {answer.visible && (
                   <div
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      handleMouseDown(e, answer);
+                    }}
                     style={{
                       position: 'absolute',
                       left: `${answer.x}%`,
@@ -347,7 +351,8 @@ export const AnswerEditViewer: React.FC<AnswerEditViewerProps> = ({
                       fontWeight: 'bold',
                       boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
                       whiteSpace: 'nowrap',
-                      pointerEvents: 'none',
+                      cursor: draggingId === answer.id ? 'grabbing' : 'grab',
+                      userSelect: 'none',
                       zIndex: 9,
                       border: `2px solid ${color}`,
                     }}
@@ -370,9 +375,10 @@ export const AnswerEditViewer: React.FC<AnswerEditViewerProps> = ({
               borderRadius: 1,
               border: '1px solid',
               borderColor: 'grey.300',
+              color: 'text.primary',  // 명시적으로 텍스트 색상 지정
             }}
           >
-            <Typography variant="h6" gutterBottom>
+            <Typography variant="h6" gutterBottom color="text.primary">
               정답 편집
             </Typography>
 
@@ -386,7 +392,7 @@ export const AnswerEditViewer: React.FC<AnswerEditViewerProps> = ({
               />
 
               <Box>
-                <Typography variant="caption" gutterBottom display="block">
+                <Typography variant="caption" gutterBottom display="block" color="text.primary">
                   텍스트 색상
                 </Typography>
                 <input
@@ -404,7 +410,7 @@ export const AnswerEditViewer: React.FC<AnswerEditViewerProps> = ({
               </Box>
 
               <Box>
-                <Typography variant="caption" gutterBottom display="block">
+                <Typography variant="caption" gutterBottom display="block" color="text.primary">
                   텍스트 크기: {selected.fontSize || 16}px
                 </Typography>
                 <input
@@ -418,7 +424,7 @@ export const AnswerEditViewer: React.FC<AnswerEditViewerProps> = ({
               </Box>
 
               <Box>
-                <Typography variant="caption" gutterBottom display="block">
+                <Typography variant="caption" gutterBottom display="block" color="text.primary">
                   위치
                 </Typography>
                 <Box display="flex" gap={1}>
