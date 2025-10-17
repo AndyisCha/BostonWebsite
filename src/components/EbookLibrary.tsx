@@ -287,11 +287,22 @@ export const EbookLibrary: React.FC<EbookLibraryProps> = ({ userId }) => {
 
       // PDF 파일인 경우 PdfViewer 사용
       if (ebook.isPdf && ebook.object_path) {
+        console.log('📖 PDF 열기:', ebook.id, ebook.object_path);
+
         // PDF의 정답 및 오디오 버튼 데이터 불러오기
         const [answersResult, audioButtonsResult] = await Promise.all([
-          ebookService.getAnswers(ebook.id).catch(() => ({ success: true, data: { answers: [] } })),
-          ebookService.getAudioButtons(ebook.id).catch(() => ({ success: true, data: { audioButtons: [] } }))
+          ebookService.getAnswers(ebook.id).catch((err) => {
+            console.error('❌ 정답 로드 실패:', err);
+            return { success: true, data: { answers: [] } };
+          }),
+          ebookService.getAudioButtons(ebook.id).catch((err) => {
+            console.error('❌ 오디오 버튼 로드 실패:', err);
+            return { success: true, data: { audioButtons: [] } };
+          })
         ]);
+
+        console.log('✅ 정답 데이터:', answersResult.data.answers);
+        console.log('✅ 오디오 버튼 데이터:', audioButtonsResult.data.audioButtons);
 
         setSelectedPdf({
           path: ebook.object_path,
