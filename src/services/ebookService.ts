@@ -1,4 +1,5 @@
 import { api, ApiResponse } from './api';
+import { supabase } from '../lib/supabase';
 
 // E-book 관련 타입 정의
 export interface Ebook {
@@ -226,38 +227,98 @@ class EbookApiService {
     return `${baseUrl}/ebooks/cover/${coverImage}`;
   }
 
-  // 정답 저장
+  // 정답 저장 (Supabase 직접 저장)
   async saveAnswers(ebookId: string, answers: Answer[]): Promise<ApiResponse<any>> {
     try {
-      return await api.put(`${this.baseURL}/${ebookId}/answers`, { answers });
+      console.log('💾 Supabase에 직접 정답 저장:', { ebookId, answersCount: answers.length });
+
+      const { data, error } = await supabase
+        .from('ebooks')
+        .update({ answers: answers })
+        .eq('id', ebookId)
+        .select();
+
+      if (error) {
+        console.error('❌ Supabase 저장 실패:', error);
+        throw new Error(error.message);
+      }
+
+      console.log('✅ Supabase 저장 성공:', data);
+      return { success: true, data };
     } catch (error: any) {
+      console.error('❌ 정답 저장 에러:', error);
       throw new Error(error.message || '정답 저장에 실패했습니다.');
     }
   }
 
-  // 정답 불러오기
+  // 정답 불러오기 (Supabase 직접 조회)
   async getAnswers(ebookId: string): Promise<ApiResponse<{ answers: Answer[] }>> {
     try {
-      return await api.get(`${this.baseURL}/${ebookId}/answers`);
+      console.log('📖 Supabase에서 정답 불러오기:', ebookId);
+
+      const { data, error } = await supabase
+        .from('ebooks')
+        .select('answers')
+        .eq('id', ebookId)
+        .single();
+
+      if (error) {
+        console.error('❌ Supabase 조회 실패:', error);
+        throw new Error(error.message);
+      }
+
+      console.log('✅ Supabase 조회 성공:', data);
+      return { success: true, data: { answers: data?.answers || [] } };
     } catch (error: any) {
+      console.error('❌ 정답 불러오기 에러:', error);
       throw new Error(error.message || '정답 불러오기에 실패했습니다.');
     }
   }
 
-  // 오디오 버튼 저장
+  // 오디오 버튼 저장 (Supabase 직접 저장)
   async saveAudioButtons(ebookId: string, audioButtons: AudioButton[]): Promise<ApiResponse<any>> {
     try {
-      return await api.put(`${this.baseURL}/${ebookId}/audio`, { audioButtons });
+      console.log('💾 Supabase에 직접 오디오 버튼 저장:', { ebookId, buttonsCount: audioButtons.length });
+
+      const { data, error } = await supabase
+        .from('ebooks')
+        .update({ audio_buttons: audioButtons })
+        .eq('id', ebookId)
+        .select();
+
+      if (error) {
+        console.error('❌ Supabase 저장 실패:', error);
+        throw new Error(error.message);
+      }
+
+      console.log('✅ Supabase 저장 성공:', data);
+      return { success: true, data };
     } catch (error: any) {
+      console.error('❌ 오디오 버튼 저장 에러:', error);
       throw new Error(error.message || '오디오 버튼 저장에 실패했습니다.');
     }
   }
 
-  // 오디오 버튼 불러오기
+  // 오디오 버튼 불러오기 (Supabase 직접 조회)
   async getAudioButtons(ebookId: string): Promise<ApiResponse<{ audioButtons: AudioButton[] }>> {
     try {
-      return await api.get(`${this.baseURL}/${ebookId}/audio`);
+      console.log('📖 Supabase에서 오디오 버튼 불러오기:', ebookId);
+
+      const { data, error } = await supabase
+        .from('ebooks')
+        .select('audio_buttons')
+        .eq('id', ebookId)
+        .single();
+
+      if (error) {
+        console.error('❌ Supabase 조회 실패:', error);
+        throw new Error(error.message);
+      }
+
+      console.log('✅ Supabase 조회 성공:', data);
+      return { success: true, data: { audioButtons: data?.audio_buttons || [] } };
     } catch (error: any) {
+      console.error('❌ 오디오 버튼 불러오기 에러:', error);
       throw new Error(error.message || '오디오 버튼 불러오기에 실패했습니다.');
     }
   }
