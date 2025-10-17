@@ -14,6 +14,7 @@ import {
 import { EbookViewer } from './EbookViewer';
 import { PdfViewer } from './PdfViewer';
 import { listUserPdfs } from '../services/pdfService';
+import { ebookService, Answer, AudioButton } from '../services/ebookService';
 import '../styles/EbookLibrary.css';
 
 // EbookViewer에서 요구하는 타입 정의
@@ -74,10 +75,17 @@ interface EbookLibraryProps {
   userId: string;
 }
 
+interface SelectedPdfData {
+  path: string;
+  id: string;
+  answers: Answer[];
+  audioButtons: AudioButton[];
+}
+
 export const EbookLibrary: React.FC<EbookLibraryProps> = ({ userId }) => {
   const [ebooks, setEbooks] = useState<Ebook[]>([]);
   const [selectedEbook, setSelectedEbook] = useState<EbookData | null>(null);
-  const [selectedPdf, setSelectedPdf] = useState<{ path: string; id: string } | null>(null);
+  const [selectedPdf, setSelectedPdf] = useState<SelectedPdfData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -279,7 +287,18 @@ export const EbookLibrary: React.FC<EbookLibraryProps> = ({ userId }) => {
 
       // PDF 파일인 경우 PdfViewer 사용
       if (ebook.isPdf && ebook.object_path) {
-        setSelectedPdf({ path: ebook.object_path, id: ebook.id });
+        // PDF의 정답 및 오디오 버튼 데이터 불러오기
+        const [answersResult, audioButtonsResult] = await Promise.all([
+          ebookService.getAnswers(ebook.id).catch(() => ({ success: true, data: { answers: [] } })),
+          ebookService.getAudioButtons(ebook.id).catch(() => ({ success: true, data: { audioButtons: [] } }))
+        ]);
+
+        setSelectedPdf({
+          path: ebook.object_path,
+          id: ebook.id,
+          answers: answersResult.data.answers || [],
+          audioButtons: audioButtonsResult.data.audioButtons || []
+        });
         return;
       }
 
@@ -393,6 +412,8 @@ export const EbookLibrary: React.FC<EbookLibraryProps> = ({ userId }) => {
           objectPath={selectedPdf.path}
           userEmail={userId}
           onError={handlePdfError}
+          answers={selectedPdf.answers}
+          audioButtons={selectedPdf.audioButtons}
         />
       </Box>
     );
