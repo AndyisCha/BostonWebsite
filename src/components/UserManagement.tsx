@@ -156,8 +156,30 @@ const UserManagement: React.FC = () => {
   const handleBulkAction = (action: 'activate' | 'deactivate' | 'delete') => {
     const actionText = action === 'activate' ? '활성화' : action === 'deactivate' ? '비활성화' : '삭제';
     if (window.confirm(`선택된 ${selectedUsers.length}명의 사용자를 ${actionText}하시겠습니까?`)) {
-      // 실제로는 API 호출
       console.log(`${actionText} 작업:`, selectedUsers);
+
+      if (action === 'delete') {
+        // 선택된 사용자들을 삭제
+        setUsers(prevUsers => prevUsers.filter(user => !selectedUsers.includes(user.id)));
+
+        // 통계 재계산
+        const remainingUsers = users.filter(user => !selectedUsers.includes(user.id));
+        setUserStats({
+          total: remainingUsers.length,
+          students: remainingUsers.filter(u => u.role === 'student').length,
+          teachers: remainingUsers.filter(u => u.role === 'teacher').length,
+          admins: remainingUsers.filter(u => u.role === 'admin').length
+        });
+      } else if (action === 'activate' || action === 'deactivate') {
+        // 선택된 사용자들의 상태 변경
+        const newStatus = action === 'activate' ? 'active' : 'inactive';
+        setUsers(prevUsers =>
+          prevUsers.map(user =>
+            selectedUsers.includes(user.id) ? { ...user, status: newStatus } : user
+          )
+        );
+      }
+
       setSelectedUsers([]);
     }
   };
@@ -169,14 +191,34 @@ const UserManagement: React.FC = () => {
     switch (action) {
       case 'edit':
         console.log('사용자 편집:', user);
+        // TODO: 편집 모달 열기
         break;
       case 'toggle':
         const newStatus = user.status === 'active' ? 'inactive' : 'active';
         console.log(`사용자 상태 변경: ${user.name} -> ${newStatus}`);
+
+        // 상태 업데이트
+        setUsers(prevUsers =>
+          prevUsers.map(u =>
+            u.id === userId ? { ...u, status: newStatus } : u
+          )
+        );
         break;
       case 'delete':
         if (window.confirm(`${user.name} 사용자를 삭제하시겠습니까?`)) {
           console.log('사용자 삭제:', user);
+
+          // 사용자 삭제
+          setUsers(prevUsers => prevUsers.filter(u => u.id !== userId));
+
+          // 통계 재계산
+          const remainingUsers = users.filter(u => u.id !== userId);
+          setUserStats({
+            total: remainingUsers.length,
+            students: remainingUsers.filter(u => u.role === 'student').length,
+            teachers: remainingUsers.filter(u => u.role === 'teacher').length,
+            admins: remainingUsers.filter(u => u.role === 'admin').length
+          });
         }
         break;
     }
