@@ -3,16 +3,12 @@
   "outputDirectory": "dist",
   "rewrites": [
     {
-      "source": "/api/proxy/:path*",
-      "destination": "https://boston-english-server.railway.app/api/v1/:path*"
-    },
-    {
       "source": "/((?!api).*)",
       "destination": "/index.html"
     }
   ],
   "functions": {
-    "api/**/*.js": {
+    "api/**/*.{js,ts}": {
       "maxDuration": 60
     }
   },
