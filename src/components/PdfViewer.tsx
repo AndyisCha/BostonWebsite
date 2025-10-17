@@ -504,30 +504,57 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({
           {/* 정답 표시 */}
           {answers
             .filter(answer => answer.pageNumber === currentPage)
-            .map((answer) => (
-              <div
-                key={answer.id}
-                style={{
-                  position: 'absolute',
-                  left: `${answer.x}%`,
-                  top: `${answer.y}%`,
-                  transform: 'translate(-50%, -50%)',
-                  backgroundColor: 'rgba(76, 175, 80, 0.9)',
-                  color: 'white',
-                  padding: '8px 12px',
-                  borderRadius: '4px',
-                  fontSize: '14px',
-                  fontWeight: 'bold',
-                  boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
-                  whiteSpace: 'nowrap',
-                  pointerEvents: 'auto',
-                  cursor: 'help',
-                }}
-                title={answer.text}
-              >
-                ✓ {answer.text}
-              </div>
-            ))}
+            .map((answer) => {
+              const fontSize = answer.fontSize || 16;
+              const color = answer.color || '#4caf50';
+              const textX = answer.textX ?? answer.x;
+              const textY = answer.textY ?? (answer.y - 10);
+
+              return (
+                <div key={answer.id}>
+                  {/* 열쇠 아이콘 */}
+                  <div
+                    style={{
+                      position: 'absolute',
+                      left: `${answer.x}%`,
+                      top: `${answer.y}%`,
+                      transform: 'translate(-50%, -50%)',
+                      fontSize: '24px',
+                      pointerEvents: 'auto',
+                      cursor: 'pointer',
+                      zIndex: 10,
+                    }}
+                    title={answer.text}
+                  >
+                    🔑
+                  </div>
+
+                  {/* 정답 텍스트 */}
+                  <div
+                    style={{
+                      position: 'absolute',
+                      left: `${textX}%`,
+                      top: `${textY}%`,
+                      transform: 'translate(-50%, -50%)',
+                      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                      color: color,
+                      padding: '8px 12px',
+                      borderRadius: '4px',
+                      fontSize: `${fontSize}px`,
+                      fontWeight: 'bold',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+                      whiteSpace: 'nowrap',
+                      pointerEvents: 'auto',
+                      cursor: 'help',
+                      zIndex: 9,
+                      border: `2px solid ${color}`,
+                    }}
+                  >
+                    {answer.text}
+                  </div>
+                </div>
+              );
+            })}
 
           {/* 오디오 버튼 표시 */}
           {audioButtons
