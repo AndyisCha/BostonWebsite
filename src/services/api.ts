@@ -1,7 +1,26 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 
 // API 기본 설정
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api/v1';
+// 프로덕션에서는 Vercel 프록시 사용, 로컬에서는 직접 연결
+const getBaseUrl = (): string => {
+  // 프로덕션 환경 (Vercel)
+  if (import.meta.env.PROD && window.location.hostname.includes('vercel.app')) {
+    return '/api/proxy';
+  }
+  // 환경 변수가 설정되어 있으면 사용
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+  // 기본값: 로컬 개발 환경
+  return 'http://localhost:3001/api/v1';
+};
+
+const API_BASE_URL = getBaseUrl();
+
+// 디버깅: 사용 중인 API URL 로그
+console.log('🌐 API Base URL:', API_BASE_URL);
+console.log('🌐 Environment:', import.meta.env.MODE);
+console.log('🌐 Hostname:', window.location.hostname);
 
 // Enhanced error interface
 export interface ApiError {
