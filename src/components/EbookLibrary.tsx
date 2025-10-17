@@ -13,6 +13,7 @@ import {
 } from '@mui/icons-material';
 import { EbookViewer } from './EbookViewer';
 import { PdfViewer } from './PdfViewer';
+import { listUserPdfs } from '../services/pdfService';
 import '../styles/EbookLibrary.css';
 
 // EbookViewer에서 요구하는 타입 정의
@@ -190,9 +191,9 @@ export const EbookLibrary: React.FC<EbookLibraryProps> = ({ userId }) => {
       setLoading(true);
 
       // ebooks 테이블과 pdfs 테이블 모두 조회
-      const [ebooksResponse, pdfsResponse] = await Promise.all([
+      const [ebooksResponse, pdfsData] = await Promise.all([
         fetch(`/api/ebooks/user/${userId}`).catch(() => ({ ok: false, json: async () => [] })),
-        fetch(`/api/pdfs/list`).catch(() => ({ ok: false, json: async () => ({ pdfs: [] }) }))
+        listUserPdfs().catch(() => ({ pdfs: [], count: 0 }))
       ]);
 
       let allEbooks: Ebook[] = [];
@@ -204,24 +205,21 @@ export const EbookLibrary: React.FC<EbookLibraryProps> = ({ userId }) => {
       }
 
       // pdfs 테이블 데이터 추가 (PDF 형식으로 변환)
-      if (pdfsResponse.ok) {
-        const pdfsData = await pdfsResponse.json();
-        const pdfsFormatted: Ebook[] = pdfsData.pdfs.map((pdf: any) => ({
-          id: pdf.id,
-          title: pdf.file_name || pdf.title || 'Untitled PDF',
-          author: pdf.author || 'Unknown',
-          description: pdf.description,
-          level: pdf.level || 'A1_1',
-          pageCount: pdf.page_count,
-          isNew: false,
-          isHot: false,
-          hasAccess: pdf.status === 'ready',
-          isPdf: true,
-          object_path: pdf.object_path,
-          file_name: pdf.file_name
-        }));
-        allEbooks = [...allEbooks, ...pdfsFormatted];
-      }
+      const pdfsFormatted: Ebook[] = pdfsData.pdfs.map((pdf: any) => ({
+        id: pdf.id,
+        title: pdf.file_name || pdf.title || 'Untitled PDF',
+        author: pdf.author || 'Unknown',
+        description: pdf.description,
+        level: pdf.level || 'A1_1',
+        pageCount: pdf.page_count,
+        isNew: false,
+        isHot: false,
+        hasAccess: pdf.status === 'ready',
+        isPdf: true,
+        object_path: pdf.object_path,
+        file_name: pdf.file_name
+      }));
+      allEbooks = [...allEbooks, ...pdfsFormatted];
 
       setEbooks(allEbooks);
       setTotalBooks(allEbooks.length);

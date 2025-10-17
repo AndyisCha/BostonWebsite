@@ -20,6 +20,8 @@ import { KPICard } from '../common/KPICard';
 import { DataTable, Column } from '../common/DataTable';
 import { GlobalFilter } from '../common/GlobalFilter';
 import { CustomBarChart, CustomLineChart } from '../common/Charts';
+import { EbookLibrary } from '../EbookLibrary';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface CountryData {
   id: string;
@@ -42,10 +44,12 @@ interface MembersByCountryData {
 }
 
 export const GlobalDashboard: React.FC = () => {
+  const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [countries, setCountries] = useState<CountryData[]>([]);
   const [testTrendData, setTestTrendData] = useState<TestTrendData[]>([]);
   const [membersByCountryData, setMembersByCountryData] = useState<MembersByCountryData[]>([]);
+  const [showEbookLibrary, setShowEbookLibrary] = useState(false);
 
   useEffect(() => {
     const fetchData = () => {
@@ -193,6 +197,23 @@ export const GlobalDashboard: React.FC = () => {
   const totalMembers = countries.reduce((sum, country) => sum + country.memberCount, 0);
   const totalTeachers = countries.reduce((sum, country) => sum + country.teacherCount, 0);
   const totalBranches = countries.reduce((sum, country) => sum + country.branchCount, 0);
+
+  // E-book 라이브러리 보기 모드
+  if (showEbookLibrary) {
+    return (
+      <Box>
+        <Button
+          startIcon={<AutoStories />}
+          onClick={() => setShowEbookLibrary(false)}
+          sx={{ mb: 2 }}
+          variant="outlined"
+        >
+          대시보드로 돌아가기
+        </Button>
+        <EbookLibrary />
+      </Box>
+    );
+  }
 
   return (
     <Box>
@@ -356,7 +377,7 @@ export const GlobalDashboard: React.FC = () => {
 
       {/* 액션 버튼 카드 */}
       <Grid container spacing={3} sx={{ mt: 2 }}>
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12} md={6} lg={4}>
           <Card>
             <CardContent>
               <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
@@ -371,7 +392,7 @@ export const GlobalDashboard: React.FC = () => {
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12} md={6} lg={4}>
           <Card>
             <CardContent>
               <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
@@ -382,6 +403,26 @@ export const GlobalDashboard: React.FC = () => {
               </Typography>
               <Button variant="contained" color="secondary" startIcon={<School />}>
                 지점 계정 생성
+              </Button>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} md={6} lg={4}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+                E-book 관리
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                전체 E-book 라이브러리를 보고 관리합니다.
+              </Typography>
+              <Button
+                variant="contained"
+                color="info"
+                startIcon={<AutoStories />}
+                onClick={() => setShowEbookLibrary(true)}
+              >
+                E-book 라이브러리 열기
               </Button>
             </CardContent>
           </Card>
