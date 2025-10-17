@@ -168,7 +168,7 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({
     return () => {
       isMounted = false;
     };
-  }, [objectPath, onError]);
+  }, [objectPath]); // onError, onPdfLoaded는 의존성에서 제거 (무한 루프 방지)
 
   /**
    * Fabric.js Canvas 초기화 (한 번만 실행)

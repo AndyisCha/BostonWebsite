@@ -371,6 +371,12 @@ export const EbookLibrary: React.FC<EbookLibraryProps> = ({ userId }) => {
     return level.replace('_', '-');
   };
 
+  // PDF 에러 핸들러 (useCallback으로 메모이제이션)
+  const handlePdfError = useCallback((error: Error) => {
+    console.error('PDF 로드 에러:', error);
+    setError(error.message);
+  }, []);
+
   // PDF 뷰어 표시
   if (selectedPdf) {
     return (
@@ -386,10 +392,7 @@ export const EbookLibrary: React.FC<EbookLibraryProps> = ({ userId }) => {
         <PdfViewer
           objectPath={selectedPdf.path}
           userEmail={userId}
-          onError={(error) => {
-            console.error('PDF 로드 에러:', error);
-            setError(error.message);
-          }}
+          onError={handlePdfError}
         />
       </Box>
     );
