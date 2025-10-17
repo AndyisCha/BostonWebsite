@@ -48,8 +48,10 @@ interface Answer {
   id: string;
   pageNumber: number;
   text: string;
-  x: number;
-  y: number;
+  x: number;          // 열쇠 아이콘 X 위치 (%)
+  y: number;          // 열쇠 아이콘 Y 위치 (%)
+  textX?: number;     // 정답 텍스트 X 위치 (%, 없으면 x 사용)
+  textY?: number;     // 정답 텍스트 Y 위치 (%, 없으면 y-10 사용)
   width?: number;
   height?: number;
   fontSize?: number;  // 텍스트 크기 (기본: 14)

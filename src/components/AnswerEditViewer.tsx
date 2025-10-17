@@ -11,8 +11,10 @@ export interface Answer {
   id: string;
   pageNumber: number;
   text: string;
-  x: number;
-  y: number;
+  x: number;          // 열쇠 아이콘 X 위치 (%)
+  y: number;          // 열쇠 아이콘 Y 위치 (%)
+  textX?: number;     // 정답 텍스트 X 위치 (%, 없으면 x 사용)
+  textY?: number;     // 정답 텍스트 Y 위치 (%, 없으면 y-10 사용)
   fontSize?: number;
   color?: string;
   visible?: boolean;
@@ -57,6 +59,7 @@ export const AnswerEditViewer: React.FC<AnswerEditViewerProps> = ({
 
   // 드래깅 상태
   const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [draggingTarget, setDraggingTarget] = useState<'key' | 'text' | null>(null);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
 
   /**
@@ -169,7 +172,7 @@ export const AnswerEditViewer: React.FC<AnswerEditViewerProps> = ({
   /**
    * 열쇠 아이콘 드래그 시작
    */
-  const handleMouseDown = (e: React.MouseEvent, answer: Answer) => {
+  const handleKeyMouseDown = (e: React.MouseEvent, answer: Answer) => {
     if (!containerRef.current) return;
 
     const rect = containerRef.current.getBoundingClientRect();
@@ -180,6 +183,7 @@ export const AnswerEditViewer: React.FC<AnswerEditViewerProps> = ({
     const answerY = (answer.y / 100) * canvasSize.height;
 
     setDraggingId(answer.id);
+    setDraggingTarget('key');
     setDragOffset({
       x: clickX - answerX,
       y: clickY - answerY,
@@ -187,10 +191,31 @@ export const AnswerEditViewer: React.FC<AnswerEditViewerProps> = ({
   };
 
   /**
+   * 정답 텍스트 드래그 시작
+   */
+  const handleTextMouseDown = (e: React.MouseEvent, answer: Answer) => {
+    if (!containerRef.current) return;
+
+    const rect = containerRef.current.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const clickY = e.clientY - rect.top;
+
+    const textPosX = ((answer.textX ?? answer.x) / 100) * canvasSize.width;
+    const textPosY = ((answer.textY ?? (answer.y - 10)) / 100) * canvasSize.height;
+
+    setDraggingId(answer.id);
+    setDraggingTarget('text');
+    setDragOffset({
+      x: clickX - textPosX,
+      y: clickY - textPosY,
+    });
+  };
+
+  /**
    * 드래그 중
    */
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (!draggingId || !containerRef.current) return;
+    if (!draggingId || !draggingTarget || !containerRef.current) return;
 
     const rect = containerRef.current.getBoundingClientRect();
     const mouseX = e.clientX - rect.left;
@@ -199,10 +224,19 @@ export const AnswerEditViewer: React.FC<AnswerEditViewerProps> = ({
     const newX = ((mouseX - dragOffset.x) / canvasSize.width) * 100;
     const newY = ((mouseY - dragOffset.y) / canvasSize.height) * 100;
 
-    handleUpdateAnswer(draggingId, {
-      x: Math.max(0, Math.min(100, newX)),
-      y: Math.max(0, Math.min(100, newY)),
-    });
+    if (draggingTarget === 'key') {
+      // 열쇠 아이콘 드래그
+      handleUpdateAnswer(draggingId, {
+        x: Math.max(0, Math.min(100, newX)),
+        y: Math.max(0, Math.min(100, newY)),
+      });
+    } else if (draggingTarget === 'text') {
+      // 정답 텍스트 드래그
+      handleUpdateAnswer(draggingId, {
+        textX: Math.max(0, Math.min(100, newX)),
+        textY: Math.max(0, Math.min(100, newY)),
+      });
+    }
   };
 
   /**
@@ -210,6 +244,7 @@ export const AnswerEditViewer: React.FC<AnswerEditViewerProps> = ({
    */
   const handleMouseUp = () => {
     setDraggingId(null);
+    setDraggingTarget(null);
   };
 
   /**
@@ -280,7 +315,7 @@ export const AnswerEditViewer: React.FC<AnswerEditViewerProps> = ({
         </Button>
 
         <Typography variant="caption" sx={{ color: '#555555' }} ml={2}>
-          💡 열쇠를 드래그하여 위치 조정, 클릭하여 정답 표시/숨김
+          💡 열쇠/텍스트를 개별 드래그 가능, 열쇠 클릭하여 정답 표시/숨김
         </Typography>
       </Box>
 
@@ -312,7 +347,7 @@ export const AnswerEditViewer: React.FC<AnswerEditViewerProps> = ({
                 <div
                   onMouseDown={(e) => {
                     e.preventDefault();
-                    handleMouseDown(e, answer);
+                    handleKeyMouseDown(e, answer);
                   }}
                   onClick={() => handleKeyClick(answer)}
                   style={{
@@ -321,7 +356,7 @@ export const AnswerEditViewer: React.FC<AnswerEditViewerProps> = ({
                     top: `${answer.y}%`,
                     transform: 'translate(-50%, -50%)',
                     fontSize: '32px',
-                    cursor: draggingId === answer.id ? 'grabbing' : 'grab',
+                    cursor: draggingId === answer.id && draggingTarget === 'key' ? 'grabbing' : 'grab',
                     userSelect: 'none',
                     zIndex: 10,
                     filter: selectedAnswer === answer.id ? 'drop-shadow(0 0 8px #2196f3)' : 'none',
@@ -331,18 +366,18 @@ export const AnswerEditViewer: React.FC<AnswerEditViewerProps> = ({
                   🔑
                 </div>
 
-                {/* 정답 텍스트 (visible일 때만) - 드래그 가능 */}
+                {/* 정답 텍스트 (visible일 때만) - 개별 드래그 가능 */}
                 {answer.visible && (
                   <div
                     onMouseDown={(e) => {
                       e.preventDefault();
-                      handleMouseDown(e, answer);
+                      handleTextMouseDown(e, answer);
                     }}
                     style={{
                       position: 'absolute',
-                      left: `${answer.x}%`,
-                      top: `${answer.y}%`,
-                      transform: 'translate(-50%, calc(-100% - 45px))',
+                      left: `${answer.textX ?? answer.x}%`,
+                      top: `${answer.textY ?? (answer.y - 10)}%`,
+                      transform: 'translate(-50%, -50%)',
                       backgroundColor: 'rgba(255, 255, 255, 0.95)',
                       color: color,
                       padding: '8px 12px',
@@ -351,7 +386,7 @@ export const AnswerEditViewer: React.FC<AnswerEditViewerProps> = ({
                       fontWeight: 'bold',
                       boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
                       whiteSpace: 'nowrap',
-                      cursor: draggingId === answer.id ? 'grabbing' : 'grab',
+                      cursor: draggingId === answer.id && draggingTarget === 'text' ? 'grabbing' : 'grab',
                       userSelect: 'none',
                       zIndex: 9,
                       border: `2px solid ${color}`,
@@ -431,7 +466,7 @@ export const AnswerEditViewer: React.FC<AnswerEditViewerProps> = ({
 
               <Box>
                 <Typography variant="caption" gutterBottom display="block" sx={{ color: '#333333' }}>
-                  위치
+                  열쇠 아이콘 위치
                 </Typography>
                 <Box display="flex" gap={1}>
                   <TextField
@@ -455,6 +490,44 @@ export const AnswerEditViewer: React.FC<AnswerEditViewerProps> = ({
                     size="small"
                     value={Math.round(selected.y)}
                     onChange={(e) => handleUpdateAnswer(selected.id, { y: parseInt(e.target.value) || 0 })}
+                    inputProps={{ min: 0, max: 100 }}
+                    sx={{ flex: 1 }}
+                    InputProps={{
+                      style: { color: '#000000' }
+                    }}
+                    InputLabelProps={{
+                      style: { color: '#666666' }
+                    }}
+                  />
+                </Box>
+              </Box>
+
+              <Box>
+                <Typography variant="caption" gutterBottom display="block" sx={{ color: '#333333' }}>
+                  정답 텍스트 위치
+                </Typography>
+                <Box display="flex" gap={1}>
+                  <TextField
+                    label="X (%)"
+                    type="number"
+                    size="small"
+                    value={Math.round(selected.textX ?? selected.x)}
+                    onChange={(e) => handleUpdateAnswer(selected.id, { textX: parseInt(e.target.value) || 0 })}
+                    inputProps={{ min: 0, max: 100 }}
+                    sx={{ flex: 1 }}
+                    InputProps={{
+                      style: { color: '#000000' }
+                    }}
+                    InputLabelProps={{
+                      style: { color: '#666666' }
+                    }}
+                  />
+                  <TextField
+                    label="Y (%)"
+                    type="number"
+                    size="small"
+                    value={Math.round(selected.textY ?? (selected.y - 10))}
+                    onChange={(e) => handleUpdateAnswer(selected.id, { textY: parseInt(e.target.value) || 0 })}
                     inputProps={{ min: 0, max: 100 }}
                     sx={{ flex: 1 }}
                     InputProps={{
