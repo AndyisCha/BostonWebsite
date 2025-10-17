@@ -52,6 +52,9 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({
   const [brushColor, setBrushColor] = useState('#000000');
   const [brushWidth, setBrushWidth] = useState(2);
 
+  // 정답 표시 상태 관리 (answerId를 Set으로 관리)
+  const [visibleAnswers, setVisibleAnswers] = useState<Set<string>>(new Set());
+
   /**
    * 워터마크 그리기
    */
@@ -356,6 +359,21 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({
     }
   };
 
+  /**
+   * 정답 표시/숨김 토글
+   */
+  const toggleAnswerVisibility = (answerId: string) => {
+    setVisibleAnswers(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(answerId)) {
+        newSet.delete(answerId);
+      } else {
+        newSet.add(answerId);
+      }
+      return newSet;
+    });
+  };
+
   // 로딩 중
   if (loading) {
     return (
@@ -509,11 +527,13 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({
               const color = answer.color || '#4caf50';
               const textX = answer.textX ?? answer.x;
               const textY = answer.textY ?? (answer.y - 10);
+              const isVisible = visibleAnswers.has(answer.id);
 
               return (
                 <div key={answer.id}>
                   {/* 열쇠 아이콘 */}
                   <div
+                    onClick={() => toggleAnswerVisibility(answer.id)}
                     style={{
                       position: 'absolute',
                       left: `${answer.x}%`,
@@ -523,35 +543,44 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({
                       pointerEvents: 'auto',
                       cursor: 'pointer',
                       zIndex: 10,
+                      transition: 'transform 0.2s',
                     }}
-                    title={answer.text}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'translate(-50%, -50%) scale(1.2)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'translate(-50%, -50%) scale(1)';
+                    }}
+                    title="클릭하여 정답 보기"
                   >
                     🔑
                   </div>
 
-                  {/* 정답 텍스트 */}
-                  <div
-                    style={{
-                      position: 'absolute',
-                      left: `${textX}%`,
-                      top: `${textY}%`,
-                      transform: 'translate(-50%, -50%)',
-                      backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                      color: color,
-                      padding: '8px 12px',
-                      borderRadius: '4px',
-                      fontSize: `${fontSize}px`,
-                      fontWeight: 'bold',
-                      boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
-                      whiteSpace: 'nowrap',
-                      pointerEvents: 'auto',
-                      cursor: 'help',
-                      zIndex: 9,
-                      border: `2px solid ${color}`,
-                    }}
-                  >
-                    {answer.text}
-                  </div>
+                  {/* 정답 텍스트 (클릭 시에만 표시) */}
+                  {isVisible && (
+                    <div
+                      style={{
+                        position: 'absolute',
+                        left: `${textX}%`,
+                        top: `${textY}%`,
+                        transform: 'translate(-50%, -50%)',
+                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                        color: color,
+                        padding: '8px 12px',
+                        borderRadius: '4px',
+                        fontSize: `${fontSize}px`,
+                        fontWeight: 'bold',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+                        whiteSpace: 'nowrap',
+                        pointerEvents: 'auto',
+                        cursor: 'help',
+                        zIndex: 9,
+                        border: `2px solid ${color}`,
+                      }}
+                    >
+                      {answer.text}
+                    </div>
+                  )}
                 </div>
               );
             })}

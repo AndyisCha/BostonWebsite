@@ -9,9 +9,10 @@ import {
 import {
   Search, FilterList, Clear, ExpandMore, ExpandLess, GridView,
   ViewList, Bookmark, BookmarkBorder, Star, StarBorder,
-  Share, Download, Visibility, AccessTime, TrendingUp
+  Share, Download, Visibility, AccessTime, TrendingUp, ArrowBack
 } from '@mui/icons-material';
 import { EbookViewer } from './EbookViewer';
+import { PdfViewer } from './PdfViewer';
 import '../styles/EbookLibrary.css';
 
 // EbookViewer에서 요구하는 타입 정의
@@ -53,6 +54,10 @@ interface Ebook {
     content: string;
     hasAnswers: boolean;
   }>;
+  // PDF 관련 필드
+  isPdf?: boolean;
+  object_path?: string;
+  file_name?: string;
 }
 
 interface SearchFilters {
@@ -71,6 +76,7 @@ interface EbookLibraryProps {
 export const EbookLibrary: React.FC<EbookLibraryProps> = ({ userId }) => {
   const [ebooks, setEbooks] = useState<Ebook[]>([]);
   const [selectedEbook, setSelectedEbook] = useState<EbookData | null>(null);
+  const [selectedPdf, setSelectedPdf] = useState<{ path: string; id: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -182,16 +188,44 @@ export const EbookLibrary: React.FC<EbookLibraryProps> = ({ userId }) => {
   const loadUserEbooks = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/ebooks/user/${userId}`);
 
-      if (!response.ok) {
-        throw new Error('Failed to load ebooks');
+      // ebooks 테이블과 pdfs 테이블 모두 조회
+      const [ebooksResponse, pdfsResponse] = await Promise.all([
+        fetch(`/api/ebooks/user/${userId}`).catch(() => ({ ok: false, json: async () => [] })),
+        fetch(`/api/pdfs/list`).catch(() => ({ ok: false, json: async () => ({ pdfs: [] }) }))
+      ]);
+
+      let allEbooks: Ebook[] = [];
+
+      // ebooks 테이블 데이터 추가
+      if (ebooksResponse.ok) {
+        const ebooksData = await ebooksResponse.json();
+        allEbooks = [...ebooksData];
       }
 
-      const data = await response.json();
-      setEbooks(data);
-      setTotalBooks(data.length);
-      setTotalPages(Math.ceil(data.length / booksPerPage));
+      // pdfs 테이블 데이터 추가 (PDF 형식으로 변환)
+      if (pdfsResponse.ok) {
+        const pdfsData = await pdfsResponse.json();
+        const pdfsFormatted: Ebook[] = pdfsData.pdfs.map((pdf: any) => ({
+          id: pdf.id,
+          title: pdf.file_name || pdf.title || 'Untitled PDF',
+          author: pdf.author || 'Unknown',
+          description: pdf.description,
+          level: pdf.level || 'A1_1',
+          pageCount: pdf.page_count,
+          isNew: false,
+          isHot: false,
+          hasAccess: pdf.status === 'ready',
+          isPdf: true,
+          object_path: pdf.object_path,
+          file_name: pdf.file_name
+        }));
+        allEbooks = [...allEbooks, ...pdfsFormatted];
+      }
+
+      setEbooks(allEbooks);
+      setTotalBooks(allEbooks.length);
+      setTotalPages(Math.ceil(allEbooks.length / booksPerPage));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error');
     } finally {
@@ -245,7 +279,13 @@ export const EbookLibrary: React.FC<EbookLibraryProps> = ({ userId }) => {
         return;
       }
 
-      // 전체 콘텐츠 로드
+      // PDF 파일인 경우 PdfViewer 사용
+      if (ebook.isPdf && ebook.object_path) {
+        setSelectedPdf({ path: ebook.object_path, id: ebook.id });
+        return;
+      }
+
+      // 일반 ebook인 경우 기존 로직 사용
       const response = await fetch(`/api/ebooks/${ebook.id}/content`, {
         method: 'POST',
         headers: {
@@ -280,6 +320,7 @@ export const EbookLibrary: React.FC<EbookLibraryProps> = ({ userId }) => {
 
   const closeEbook = () => {
     setSelectedEbook(null);
+    setSelectedPdf(null);
   };
 
   // 필터 핸들러 함수들
@@ -332,6 +373,31 @@ export const EbookLibrary: React.FC<EbookLibraryProps> = ({ userId }) => {
     return level.replace('_', '-');
   };
 
+  // PDF 뷰어 표시
+  if (selectedPdf) {
+    return (
+      <Box p={3}>
+        <Button
+          startIcon={<ArrowBack />}
+          onClick={closeEbook}
+          sx={{ mb: 2 }}
+          variant="outlined"
+        >
+          목록으로 돌아가기
+        </Button>
+        <PdfViewer
+          objectPath={selectedPdf.path}
+          userEmail={userId}
+          onError={(error) => {
+            console.error('PDF 로드 에러:', error);
+            setError(error.message);
+          }}
+        />
+      </Box>
+    );
+  }
+
+  // Ebook 뷰어 표시
   if (selectedEbook) {
     return (
       <EbookViewer
@@ -561,6 +627,7 @@ export const EbookLibrary: React.FC<EbookLibraryProps> = ({ userId }) => {
                   onContextMenu={(e) => handleContextMenu(e, ebook.id)}
                 >
                   <div className="ebook-card-header">
+                    {ebook.isPdf && <span className="badge badge-pdf">📄 PDF</span>}
                     {ebook.isNew && <span className="badge badge-new">NEW</span>}
                     {ebook.isHot && <span className="badge badge-hot">HOT</span>}
                     {!ebook.hasAccess && <span className="badge badge-locked">🔒</span>}
