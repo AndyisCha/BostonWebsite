@@ -701,13 +701,34 @@ export const PdfTestPage: React.FC = () => {
             <TextField
               size="small"
               type="number"
+              label="이동"
               value={currentPage}
               onChange={(e) => {
                 const page = parseInt(e.target.value) || 1;
                 setCurrentPage(Math.max(1, Math.min(totalPages, page)));
               }}
-              sx={{ width: 80 }}
+              sx={{
+                width: 100,
+                bgcolor: 'white',
+                borderRadius: 1
+              }}
               inputProps={{ min: 1, max: totalPages }}
+            />
+            <TextField
+              size="small"
+              type="number"
+              label="총 페이지"
+              value={totalPages}
+              onChange={(e) => {
+                const pages = parseInt(e.target.value) || 10;
+                setTotalPages(Math.max(1, pages));
+              }}
+              sx={{
+                width: 110,
+                bgcolor: 'white',
+                borderRadius: 1
+              }}
+              inputProps={{ min: 1 }}
             />
           </Box>
 
