@@ -279,7 +279,7 @@ export const AnswerEditViewer: React.FC<AnswerEditViewerProps> = ({
           🔑 정답 추가
         </Button>
 
-        <Typography variant="caption" color="text.secondary" ml={2}>
+        <Typography variant="caption" sx={{ color: '#555555' }} ml={2}>
           💡 열쇠를 드래그하여 위치 조정, 클릭하여 정답 표시/숨김
         </Typography>
       </Box>
@@ -378,7 +378,7 @@ export const AnswerEditViewer: React.FC<AnswerEditViewerProps> = ({
               color: 'text.primary',  // 명시적으로 텍스트 색상 지정
             }}
           >
-            <Typography variant="h6" gutterBottom color="text.primary">
+            <Typography variant="h6" gutterBottom sx={{ color: '#000000' }}>
               정답 편집
             </Typography>
 
@@ -389,10 +389,16 @@ export const AnswerEditViewer: React.FC<AnswerEditViewerProps> = ({
                 value={selected.text}
                 onChange={(e) => handleUpdateAnswer(selected.id, { text: e.target.value })}
                 size="small"
+                InputProps={{
+                  style: { color: '#000000' }
+                }}
+                InputLabelProps={{
+                  style: { color: '#666666' }
+                }}
               />
 
               <Box>
-                <Typography variant="caption" gutterBottom display="block" color="text.primary">
+                <Typography variant="caption" gutterBottom display="block" sx={{ color: '#333333' }}>
                   텍스트 색상
                 </Typography>
                 <input
@@ -410,7 +416,7 @@ export const AnswerEditViewer: React.FC<AnswerEditViewerProps> = ({
               </Box>
 
               <Box>
-                <Typography variant="caption" gutterBottom display="block" color="text.primary">
+                <Typography variant="caption" gutterBottom display="block" sx={{ color: '#333333' }}>
                   텍스트 크기: {selected.fontSize || 16}px
                 </Typography>
                 <input
@@ -424,7 +430,7 @@ export const AnswerEditViewer: React.FC<AnswerEditViewerProps> = ({
               </Box>
 
               <Box>
-                <Typography variant="caption" gutterBottom display="block" color="text.primary">
+                <Typography variant="caption" gutterBottom display="block" sx={{ color: '#333333' }}>
                   위치
                 </Typography>
                 <Box display="flex" gap={1}>
@@ -436,6 +442,12 @@ export const AnswerEditViewer: React.FC<AnswerEditViewerProps> = ({
                     onChange={(e) => handleUpdateAnswer(selected.id, { x: parseInt(e.target.value) || 0 })}
                     inputProps={{ min: 0, max: 100 }}
                     sx={{ flex: 1 }}
+                    InputProps={{
+                      style: { color: '#000000' }
+                    }}
+                    InputLabelProps={{
+                      style: { color: '#666666' }
+                    }}
                   />
                   <TextField
                     label="Y (%)"
@@ -445,6 +457,12 @@ export const AnswerEditViewer: React.FC<AnswerEditViewerProps> = ({
                     onChange={(e) => handleUpdateAnswer(selected.id, { y: parseInt(e.target.value) || 0 })}
                     inputProps={{ min: 0, max: 100 }}
                     sx={{ flex: 1 }}
+                    InputProps={{
+                      style: { color: '#000000' }
+                    }}
+                    InputLabelProps={{
+                      style: { color: '#666666' }
+                    }}
                   />
                 </Box>
               </Box>
