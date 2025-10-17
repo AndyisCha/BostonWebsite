@@ -238,7 +238,7 @@ class EbookApiService {
       console.log('💾 Supabase에 직접 정답 저장:', { ebookId, answersCount: answers.length });
 
       const { data, error } = await supabase
-        .from('ebooks')
+        .from('pdfs')
         .update({ answers: answers })
         .eq('id', ebookId)
         .select();
@@ -262,7 +262,7 @@ class EbookApiService {
       console.log('📖 Supabase에서 정답 불러오기:', ebookId);
 
       const { data, error } = await supabase
-        .from('ebooks')
+        .from('pdfs')
         .select('answers')
         .eq('id', ebookId)
         .single();
@@ -286,7 +286,7 @@ class EbookApiService {
       console.log('💾 Supabase에 직접 오디오 버튼 저장:', { ebookId, buttonsCount: audioButtons.length });
 
       const { data, error } = await supabase
-        .from('ebooks')
+        .from('pdfs')
         .update({ audio_buttons: audioButtons })
         .eq('id', ebookId)
         .select();
@@ -310,7 +310,7 @@ class EbookApiService {
       console.log('📖 Supabase에서 오디오 버튼 불러오기:', ebookId);
 
       const { data, error } = await supabase
-        .from('ebooks')
+        .from('pdfs')
         .select('audio_buttons')
         .eq('id', ebookId)
         .single();

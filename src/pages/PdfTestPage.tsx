@@ -156,6 +156,7 @@ export const PdfTestPage: React.FC = () => {
 
   // 파일 보기
   const handleView = async (file: any) => {
+    console.log('🔍 파일 보기 시작:', file.id);
     setViewPath(file.object_path);
     setViewFileId(file.id);
 
@@ -166,19 +167,26 @@ export const PdfTestPage: React.FC = () => {
         ebookService.getAudioButtons(file.id)
       ]);
 
+      console.log('📦 정답 응답:', answersResponse);
+      console.log('📦 오디오 응답:', audioResponse);
+
       if (answersResponse.data?.answers) {
+        console.log('✅ 정답 설정:', answersResponse.data.answers);
         setViewAnswers(answersResponse.data.answers);
       } else {
+        console.log('⚠️ 정답 없음');
         setViewAnswers([]);
       }
 
       if (audioResponse.data?.audioButtons) {
+        console.log('✅ 오디오 버튼 설정:', audioResponse.data.audioButtons);
         setViewAudioButtons(audioResponse.data.audioButtons);
       } else {
+        console.log('⚠️ 오디오 버튼 없음');
         setViewAudioButtons([]);
       }
     } catch (error) {
-      console.error('정답/오디오 로드 실패:', error);
+      console.error('❌ 정답/오디오 로드 실패:', error);
       setViewAnswers([]);
       setViewAudioButtons([]);
     }
