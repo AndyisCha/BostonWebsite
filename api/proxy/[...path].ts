@@ -19,9 +19,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    // URL 경로에서 proxy 제거하고 실제 경로 추출
-    const path = req.url?.replace('/api/proxy', '') || '';
-    const targetUrl = `${RAILWAY_API_URL}${path}`;
+    // catch-all 경로 파라미터 가져오기
+    const pathArray = req.query.path as string[];
+    const path = pathArray ? `/${pathArray.join('/')}` : '';
+
+    // 쿼리 파라미터 처리
+    const queryString = req.url?.split('?')[1];
+    const targetUrl = `${RAILWAY_API_URL}${path}${queryString ? `?${queryString}` : ''}`;
 
     console.log(`🔄 Proxying ${req.method} ${path} to ${targetUrl}`);
 
@@ -36,7 +40,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': req.headers.authorization || '',
-        ...req.headers
       },
       body: body
     });
@@ -50,6 +53,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     } catch {
       jsonData = { message: data };
     }
+
+    console.log(`✅ Proxy response: ${response.status}`);
 
     // 응답 반환
     res.status(response.status).json(jsonData);
