@@ -1,0 +1,212 @@
+name: Deploy to Railway (Production, Resilient)
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+    inputs:
+      force_nixpacks:
+        description: 'Force Nixpacks deployment'
+        required: false
+        default: 'false'
+
+concurrency:
+  group: deploy-production-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  BACKEND_URL: https://boston-english-server.railway.app
+  FRONTEND_URL: https://boston-website-omega.vercel.app
+  SERVICE_NAME: boston-server
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    outputs:
+      build_success: ${{ steps.build.outcome }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}/boston-server
+          tags: |
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest
+
+      - name: Build and push (GHCR)
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: ./server
+          file: ./server/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64
+        continue-on-error: true
+
+      - name: Notify build fail
+        if: steps.build.outcome == 'failure'
+        run: |
+          echo "⚠️  Build failed, will trigger fallback"
+          if [ -n "${{ secrets.SLACK_WEBHOOK }}" ]; then
+            curl -X POST "${{ secrets.SLACK_WEBHOOK }}" -H 'Content-type: application/json' \
+              --data '{"text":"⚠️  GHCR build failed, attempting fallback for boston-server"}'
+          fi
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    if: needs.build-and-push.outputs.build_success == 'success'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Railway CLI
+        run: npm i -g @railway/cli
+
+      - name: Trigger Railway deployment (from registry)
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          echo "🚀 Deploying from GHCR registry..."
+          railway up --service "${SERVICE_NAME}" --detach
+
+      - name: Wait and poll health (max 120s)
+        run: |
+          set -e
+          for i in {1..24}; do
+            echo "⏳ Health probe attempt $i/24"
+            if curl -sf "${BACKEND_URL}/health" >/dev/null && \
+               curl -sf "${BACKEND_URL}/api/v1/health" >/dev/null; then
+              echo "✅ Backend healthy"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "❌ Health check failed after 120s"
+          exit 1
+
+      - name: Rollback on failure
+        if: failure()
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          echo "🔄 Attempting rollback..."
+          railway rollback --yes || echo "⚠️  Rollback failed"
+
+      - name: Notify success
+        if: success()
+        run: |
+          echo "✅ Deploy successful"
+          if [ -n "${{ secrets.SLACK_WEBHOOK }}" ]; then
+            curl -X POST "${{ secrets.SLACK_WEBHOOK }}" -H 'Content-type: application/json' \
+              --data '{"text":"✅ Railway deployment successful for boston-server"}'
+          fi
+
+      - name: Notify failure
+        if: failure()
+        run: |
+          echo "❌ Deploy failed"
+          if [ -n "${{ secrets.SLACK_WEBHOOK }}" ]; then
+            curl -X POST "${{ secrets.SLACK_WEBHOOK }}" -H 'Content-type: application/json' \
+              --data '{"text":"❌ Railway deployment failed and rolled back"}'
+          fi
+
+  fallback-nixpacks:
+    needs: [build-and-push, deploy]
+    runs-on: ubuntu-latest
+    if: |
+      always() &&
+      (needs.build-and-push.outputs.build_success == 'failure' ||
+       needs.deploy.result == 'failure')
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Switch to Nixpacks
+        run: |
+          echo "🚑 Emergency: Switching to Nixpacks deployment"
+
+          if [ -f server/Dockerfile ]; then
+            mv server/Dockerfile server/Dockerfile.dockerhub-backup
+          fi
+
+          cat > server/nixpacks.toml <<'EOF'
+          [phases.setup]
+          nixPkgs = ['nodejs-18_x', 'npm-9_x', 'openssl']
+
+          [phases.install]
+          cmds = ['npm ci --only=production']
+
+          [phases.build]
+          cmds = ['npx prisma generate', 'npm run build']
+
+          [start]
+          cmd = 'npm start'
+
+          [env]
+          NODE_ENV = 'production'
+          EOF
+
+      - name: Commit and push Nixpacks config
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "🆘 Emergency fallback to Nixpacks" || true
+          git push || true
+
+      - name: Deploy with Nixpacks
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          npm i -g @railway/cli
+          railway up --service "${SERVICE_NAME}" --detach
+
+      - name: Verify fallback deployment
+        run: |
+          sleep 45
+          for i in {1..12}; do
+            echo "Verifying fallback deployment ($i/12)"
+            if curl -sf "${BACKEND_URL}/health" >/dev/null; then
+              echo "✅ Nixpacks fallback successful"
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "❌ Fallback deployment failed"
+          exit 1
+
+      - name: Notify fallback status
+        if: always()
+        run: |
+          STATUS="${{ job.status }}"
+          if [ "$STATUS" == "success" ]; then
+            MSG="✅ Nixpacks fallback deployment successful"
+          else
+            MSG="❌ Nixpacks fallback failed - manual intervention required"
+          fi
+
+          echo "$MSG"
+
+          if [ -n "${{ secrets.SLACK_WEBHOOK }}" ]; then
+            curl -X POST "${{ secrets.SLACK_WEBHOOK }}" -H 'Content-type: application/json' \
+              --data "{\"text\":\"$MSG\"}"
+          fi

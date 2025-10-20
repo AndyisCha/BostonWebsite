@@ -1,17 +1,26 @@
-[providers]
-node = "18"
-
-[variables]
-NPM_CONFIG_PRODUCTION = "false"
+[phases.setup]
+nixPkgs = ['nodejs-18_x', 'npm-9_x', 'openssl']
 
 [phases.install]
-cmd = "npm ci"
+cmds = [
+  'npm ci --only=production'
+]
 
 [phases.build]
-cmd = "npm run build"
+cmds = [
+  'npx prisma generate',
+  'npm run build'
+]
 
 [start]
-cmd = "npm run start:dev"
+cmd = 'npm start'
 
-[build]
-nixpacksConfigVersion = "1"
+[env]
+NODE_ENV = 'production'
+PORT = '3001'
+
+[healthcheck]
+path = '/health'
+interval = 30
+timeout = 5
+start_period = 15

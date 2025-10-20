@@ -219,6 +219,30 @@ app.get('/', (req, res) => {
   });
 });
 
+// API versioned health check (for Vercel proxy)
+app.get('/api/v1/health', (req, res) => {
+  try {
+    console.log('🩺 API v1 health check requested');
+    res.status(200).json({
+      status: 'OK',
+      service: 'boston-english-api',
+      version: 'v1',
+      timestamp: new Date().toISOString(),
+      uptime: Math.floor(process.uptime()),
+      memory: {
+        used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
+        total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024)
+      }
+    });
+  } catch (error) {
+    console.error('❌ API health check error:', error);
+    res.status(503).json({
+      status: 'ERROR',
+      error: 'Health check failed'
+    });
+  }
+});
+
 // API Routes with versioning
 const apiRouter = express.Router();
 
