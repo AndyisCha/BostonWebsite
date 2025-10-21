@@ -85,6 +85,7 @@ jobs:
       - name: Trigger Railway deployment (from registry)
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
         run: |
           echo "🚀 Deploying from GHCR registry..."
           railway up --service "${SERVICE_NAME}" --detach
@@ -176,6 +177,7 @@ jobs:
       - name: Deploy with Nixpacks
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
         run: |
           npm i -g @railway/cli
           railway up --service "${SERVICE_NAME}" --detach
