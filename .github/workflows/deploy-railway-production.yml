@@ -79,17 +79,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Railway CLI
-        run: npm i -g @railway/cli
-
-      - name: Trigger Railway deployment (from registry)
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      - name: Notify Railway to redeploy
         run: |
-          echo "🚀 Deploying from GHCR registry..."
-          echo "🔗 Linking to Railway project..."
-          railway link ${{ secrets.RAILWAY_PROJECT_ID }}
-          railway up --service "${SERVICE_NAME}" --detach
+          echo "🚀 Docker image pushed to GHCR successfully"
+          echo "📦 Image: ghcr.io/${{ github.repository }}/boston-server:latest"
+          echo "✅ Railway will auto-deploy via GitHub integration"
+          echo "⏳ Waiting for Railway deployment to start..."
+          sleep 10
 
       - name: Wait and poll health (max 120s)
         run: |
@@ -108,12 +104,10 @@ jobs:
 
       - name: Rollback on failure
         if: failure()
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         run: |
-          echo "🔄 Attempting rollback..."
-          railway link ${{ secrets.RAILWAY_PROJECT_ID }} || echo "⚠️  Link failed"
-          railway rollback --yes || echo "⚠️  Rollback failed"
+          echo "❌ Deployment health check failed"
+          echo "⚠️  Manual rollback required in Railway Dashboard"
+          echo "🔗 https://railway.app/dashboard"
 
       - name: Notify success
         if: success()
@@ -177,13 +171,10 @@ jobs:
           git push || true
 
       - name: Deploy with Nixpacks
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         run: |
-          npm i -g @railway/cli
-          echo "🔗 Linking to Railway project..."
-          railway link ${{ secrets.RAILWAY_PROJECT_ID }}
-          railway up --service "${SERVICE_NAME}" --detach
+          echo "✅ Nixpacks config committed and pushed"
+          echo "🚀 Railway will auto-deploy via GitHub integration"
+          sleep 10
 
       - name: Verify fallback deployment
         run: |
