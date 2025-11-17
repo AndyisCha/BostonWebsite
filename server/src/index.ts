@@ -265,6 +265,15 @@ app.use('/uploads', express.static(process.env.UPLOAD_PATH || 'uploads'));
 
 // Global error handler
 app.use((error: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  // ⭐ CRITICAL: Add CORS headers to error responses!
+  const origin = req.headers.origin;
+  if (origin && isAllowedOrigin(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+  }
+
   logger.error('Global error handler:', {
     error: error.message,
     stack: error.stack,
@@ -321,6 +330,13 @@ app.use((error: any, req: express.Request, res: express.Response, next: express.
 
 // 404 handler
 app.use('*', (req, res) => {
+  // Add CORS headers to 404 responses
+  const origin = req.headers.origin;
+  if (origin && isAllowedOrigin(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+    res.header('Access-Control-Allow-Credentials', 'true');
+  }
+
   res.status(404).json({
     error: 'Route not found',
     path: req.originalUrl,
