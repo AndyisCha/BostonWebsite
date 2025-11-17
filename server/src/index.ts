@@ -60,6 +60,65 @@ console.log(`- Railway environment: ${process.env.RAILWAY_ENVIRONMENT || 'not de
 console.log(`- Current working directory: ${process.cwd()}`);
 console.log(`- Available environment vars: ${Object.keys(process.env).length}`);
 
+// ⭐⭐⭐ FORCED CORS MIDDLEWARE - MUST BE FIRST! ⭐⭐⭐
+// This runs BEFORE everything else to override Railway's CORS headers
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+
+  // Explicit allowlist
+  const allowedOrigins = [
+    'https://boston-website-omega.vercel.app',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://localhost:3002',
+    'http://localhost:5173',
+  ];
+
+  let isAllowed = false;
+
+  // Check explicit allowlist
+  if (origin && allowedOrigins.includes(origin)) {
+    isAllowed = true;
+  }
+
+  // Check *.vercel.app wildcard
+  if (origin && !isAllowed) {
+    try {
+      const url = new URL(origin);
+      if (url.hostname.endsWith('.vercel.app')) {
+        isAllowed = true;
+        console.log(`🌟 FORCED CORS: Allowed Vercel preview ${origin}`);
+      }
+    } catch (e) {
+      // Invalid URL
+    }
+  }
+
+  // Set CORS headers if allowed
+  if (isAllowed) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+    res.setHeader('Access-Control-Expose-Headers', 'Content-Length, Content-Type');
+    res.setHeader('Vary', 'Origin');
+    console.log(`✅ FORCED CORS: Set headers for ${origin}`);
+  } else if (origin) {
+    console.warn(`⚠️ FORCED CORS: Blocked ${origin}`);
+  }
+
+  // Handle preflight
+  if (req.method === 'OPTIONS') {
+    console.log(`🔧 FORCED CORS: Handling OPTIONS preflight for ${req.path}`);
+    res.setHeader('Access-Control-Max-Age', '86400'); // 24 hours
+    return res.sendStatus(204);
+  }
+
+  next();
+});
+
+console.log('🛡️ FORCED CORS middleware installed');
+
 // CORS configuration - Allowlist-based
 const allowlist = (process.env.CORS_ORIGINS || "")
   .split(",")
