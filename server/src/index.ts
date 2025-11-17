@@ -95,7 +95,7 @@ app.use((req, res, next) => {
   }
 
   // Set CORS headers if allowed
-  if (isAllowed) {
+  if (isAllowed && origin) {
     res.setHeader('Access-Control-Allow-Origin', origin);
     res.setHeader('Access-Control-Allow-Credentials', 'true');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
