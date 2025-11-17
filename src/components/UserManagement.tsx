@@ -21,6 +21,15 @@ interface UserStats {
   admins: number;
 }
 
+interface NewUserForm {
+  name: string;
+  email: string;
+  role: 'student' | 'teacher' | 'admin';
+  level: string;
+  academy: string;
+  status: 'active' | 'inactive';
+}
+
 const UserManagement: React.FC = () => {
   const { user: currentUser } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
@@ -32,6 +41,15 @@ const UserManagement: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showAddUserModal, setShowAddUserModal] = useState(false);
+  const [newUserData, setNewUserData] = useState<NewUserForm>({
+    name: '',
+    email: '',
+    role: 'student',
+    level: 'A1',
+    academy: '강남캠퍼스',
+    status: 'active'
+  });
 
   const usersPerPage = 10;
 
@@ -233,6 +251,65 @@ const UserManagement: React.FC = () => {
     }
   };
 
+  const handleAddUser = () => {
+    // 유효성 검사
+    if (!newUserData.name.trim()) {
+      alert('이름을 입력해주세요.');
+      return;
+    }
+    if (!newUserData.email.trim() || !newUserData.email.includes('@')) {
+      alert('올바른 이메일을 입력해주세요.');
+      return;
+    }
+
+    // 새 사용자 생성
+    const newUser: User = {
+      id: String(users.length + 1),
+      name: newUserData.name,
+      email: newUserData.email,
+      role: newUserData.role,
+      status: newUserData.status,
+      level: newUserData.level,
+      lastLogin: '방금 전',
+      academy: newUserData.academy,
+      createdAt: new Date().toISOString().split('T')[0]
+    };
+
+    // 사용자 목록에 추가
+    setUsers(prevUsers => [...prevUsers, newUser]);
+
+    // 통계 업데이트
+    setUserStats(prevStats => ({
+      total: prevStats.total + 1,
+      students: prevStats.students + (newUserData.role === 'student' ? 1 : 0),
+      teachers: prevStats.teachers + (newUserData.role === 'teacher' ? 1 : 0),
+      admins: prevStats.admins + (newUserData.role === 'admin' ? 1 : 0)
+    }));
+
+    // 폼 초기화 및 모달 닫기
+    setNewUserData({
+      name: '',
+      email: '',
+      role: 'student',
+      level: 'A1',
+      academy: '강남캠퍼스',
+      status: 'active'
+    });
+    setShowAddUserModal(false);
+  };
+
+  const handleCloseModal = () => {
+    setShowAddUserModal(false);
+    setNewUserData({
+      name: '',
+      email: '',
+      role: 'student',
+      level: 'A1',
+      academy: '강남캠퍼스',
+      status: 'active'
+    });
+  };
+
   if (loading) {
     return (
       <div className="user-management-container">
@@ -279,7 +356,7 @@ const UserManagement: React.FC = () => {
             <option value="active">활성</option>
             <option value="inactive">비활성</option>
           </select>
-          <button className="add-user-btn" onClick={() => console.log('새 사용자 추가')}>
+          <button className="add-user-btn" onClick={() => setShowAddUserModal(true)}>
             <span>+</span>
             새 사용자 추가
           </button>
@@ -518,6 +595,107 @@ const UserManagement: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* 사용자 추가 모달 */}
+      {showAddUserModal && (
+        <div className="modal-overlay" onClick={handleCloseModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>새 사용자 추가</h3>
+              <button className="modal-close-btn" onClick={handleCloseModal}>×</button>
+            </div>
+            <div className="modal-body">
+              <div className="form-group">
+                <label htmlFor="user-name">이름 *</label>
+                <input
+                  type="text"
+                  id="user-name"
+                  value={newUserData.name}
+                  onChange={(e) => setNewUserData({ ...newUserData, name: e.target.value })}
+                  placeholder="사용자 이름을 입력하세요"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="user-email">이메일 *</label>
+                <input
+                  type="email"
+                  id="user-email"
+                  value={newUserData.email}
+                  onChange={(e) => setNewUserData({ ...newUserData, email: e.target.value })}
+                  placeholder="example@email.com"
+                />
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="user-role">역할</label>
+                  <select
+                    id="user-role"
+                    value={newUserData.role}
+                    onChange={(e) => setNewUserData({ ...newUserData, role: e.target.value as 'student' | 'teacher' | 'admin' })}
+                  >
+                    <option value="student">학생</option>
+                    <option value="teacher">교사</option>
+                    <option value="admin">관리자</option>
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="user-level">레벨</label>
+                  <select
+                    id="user-level"
+                    value={newUserData.level}
+                    onChange={(e) => setNewUserData({ ...newUserData, level: e.target.value })}
+                  >
+                    <option value="A1">A1</option>
+                    <option value="A2">A2</option>
+                    <option value="B1">B1</option>
+                    <option value="B2">B2</option>
+                    <option value="C1">C1</option>
+                    <option value="C2">C2</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="user-academy">캠퍼스</label>
+                  <select
+                    id="user-academy"
+                    value={newUserData.academy}
+                    onChange={(e) => setNewUserData({ ...newUserData, academy: e.target.value })}
+                  >
+                    <option value="강남캠퍼스">강남캠퍼스</option>
+                    <option value="종로캠퍼스">종로캠퍼스</option>
+                    <option value="본사">본사</option>
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="user-status">상태</label>
+                  <select
+                    id="user-status"
+                    value={newUserData.status}
+                    onChange={(e) => setNewUserData({ ...newUserData, status: e.target.value as 'active' | 'inactive' })}
+                  >
+                    <option value="active">활성</option>
+                    <option value="inactive">비활성</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button className="btn-cancel" onClick={handleCloseModal}>
+                취소
+              </button>
+              <button className="btn-submit" onClick={handleAddUser}>
+                추가
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
