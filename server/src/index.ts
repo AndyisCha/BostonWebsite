@@ -60,58 +60,77 @@ console.log(`- Railway environment: ${process.env.RAILWAY_ENVIRONMENT || 'not de
 console.log(`- Current working directory: ${process.cwd()}`);
 console.log(`- Available environment vars: ${Object.keys(process.env).length}`);
 
+// ⭐⭐⭐ SAFE CORS ORIGINS SETUP ⭐⭐⭐
+// Read from CORS_ORIGINS env var and create safe array
+const corsOriginsFromEnv = process.env.CORS_ORIGINS || '';
+const allowedOriginsFromEnv = corsOriginsFromEnv
+  .split(',')
+  .map(origin => origin.trim())
+  .filter(origin => origin.length > 0);
+
+// Default allowed origins (fallback)
+const defaultAllowedOrigins: string[] = [
+  'https://boston-website-omega.vercel.app',
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'http://localhost:3002',
+  'http://localhost:5173',
+];
+
+// Merge env origins with defaults
+const allowedOrigins: string[] = allowedOriginsFromEnv.length > 0
+  ? [...new Set([...allowedOriginsFromEnv, ...defaultAllowedOrigins])]
+  : defaultAllowedOrigins;
+
+console.log(`🔒 Allowed CORS Origins: ${allowedOrigins.join(', ')}`);
+
+// Helper function to check if origin is allowed
+const isOriginAllowed = (origin: string | undefined): boolean => {
+  if (!origin) return false;
+
+  // Check explicit allowlist
+  if (allowedOrigins.includes(origin)) return true;
+
+  // Check *.vercel.app wildcard
+  try {
+    const url = new URL(origin);
+    if (url.hostname.endsWith('.vercel.app')) {
+      return true;
+    }
+  } catch (e) {
+    // Invalid URL
+  }
+
+  return false;
+};
+
 // ⭐⭐⭐ FORCED CORS MIDDLEWARE - MUST BE FIRST! ⭐⭐⭐
 // This runs BEFORE everything else to override Railway's CORS headers
 app.use((req, res, next) => {
   const origin = req.headers.origin;
 
-  // Explicit allowlist
-  const allowedOrigins = [
-    'https://boston-website-omega.vercel.app',
-    'http://localhost:3000',
-    'http://localhost:3001',
-    'http://localhost:3002',
-    'http://localhost:5173',
-  ];
-
-  let isAllowed = false;
-
-  // Check explicit allowlist
-  if (origin && allowedOrigins.includes(origin)) {
-    isAllowed = true;
-  }
-
-  // Check *.vercel.app wildcard
-  if (origin && !isAllowed) {
-    try {
-      const url = new URL(origin);
-      if (url.hostname.endsWith('.vercel.app')) {
-        isAllowed = true;
-        console.log(`🌟 FORCED CORS: Allowed Vercel preview ${origin}`);
-      }
-    } catch (e) {
-      // Invalid URL
-    }
-  }
-
-  // Set CORS headers if allowed
-  if (isAllowed && origin) {
+  // Only process if origin exists and is allowed
+  if (origin && isOriginAllowed(origin)) {
+    // Type-safe: origin is guaranteed to be string here
     res.setHeader('Access-Control-Allow-Origin', origin);
     res.setHeader('Access-Control-Allow-Credentials', 'true');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
     res.setHeader('Access-Control-Expose-Headers', 'Content-Length, Content-Type');
     res.setHeader('Vary', 'Origin');
-    console.log(`✅ FORCED CORS: Set headers for ${origin}`);
+    console.log(`✅ FORCED CORS: Allowed ${origin}`);
   } else if (origin) {
     console.warn(`⚠️ FORCED CORS: Blocked ${origin}`);
   }
 
-  // Handle preflight
+  // Handle OPTIONS preflight
   if (req.method === 'OPTIONS') {
-    console.log(`🔧 FORCED CORS: Handling OPTIONS preflight for ${req.path}`);
-    res.setHeader('Access-Control-Max-Age', '86400'); // 24 hours
-    return res.sendStatus(204);
+    console.log(`🔧 FORCED CORS: OPTIONS preflight for ${req.path}`);
+    if (origin && isOriginAllowed(origin)) {
+      res.setHeader('Access-Control-Max-Age', '86400');
+      return res.sendStatus(204);
+    }
+    return res.sendStatus(403);
   }
 
   next();
